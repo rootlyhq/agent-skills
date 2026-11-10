@@ -3,10 +3,10 @@
 
 import argparse
 import json
-from pathlib import Path
 import selectors
 import subprocess
 import time
+from pathlib import Path
 
 
 def check(package, workspace):

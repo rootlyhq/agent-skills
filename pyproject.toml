@@ -1,0 +1,15 @@
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+force-exclude = true
+extend-exclude = [".serena", "dist", "tools/tests/results"]
+
+[tool.ruff.lint]
+select = ["F", "I", "UP"]
+
+[tool.ruff.lint.per-file-ignores]
+# These files are covered by the calibrated judge hashes. Import-only edits
+# would still require recalibration; retain their existing import ordering.
+"tools/scripts/fidelity_judge.py" = ["I001"]
+"tools/scripts/fidelity_contract.py" = ["I001"]
+"tools/scripts/fidelity_gate.py" = ["I001"]

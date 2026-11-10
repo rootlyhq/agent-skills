@@ -9,9 +9,9 @@ lines are exempt from private-marker detection; credentials are never exempt.
 
 import argparse
 import hashlib
-from pathlib import Path
 import subprocess
 import sys
+from pathlib import Path
 
 import export_release
 

@@ -8,18 +8,18 @@ result.json and final.md, ready for tools/scripts/fidelity_gate.py. Failures are
 """
 
 import argparse
-from concurrent.futures import ThreadPoolExecutor, as_completed
 import hashlib
 import json
-from pathlib import Path
 import subprocess
 import tempfile
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from pathlib import Path
 
-from build_evals import prompt_for
 import fidelity_matrix
 import run_codex_evals
 import run_workflow_probes
+from build_evals import prompt_for
 from run_workflow_probes import common_loaded
 
 ROOT = Path(__file__).resolve().parents[2]

@@ -2,12 +2,11 @@
 """Check portable skill structure and scenario integrity, not model behavior."""
 
 import json
-from pathlib import Path
 import re
 import sys
+from pathlib import Path
 
 import yaml
-
 from build_skills import generated_files
 
 ROOT = Path(__file__).resolve().parents[2]

@@ -10,8 +10,8 @@ release artifact. A completed review is one reviewer's opinion, not clearance.
 import argparse
 import hashlib
 import json
-from pathlib import Path
 import subprocess
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 

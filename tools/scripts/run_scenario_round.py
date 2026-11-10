@@ -10,11 +10,11 @@ review. A completed run is not a pass.
 """
 
 import argparse
-from concurrent.futures import ThreadPoolExecutor
 import hashlib
 import json
-from pathlib import Path
 import subprocess
+from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
 
 import fidelity_contract
 from run_fidelity_matrix import deploy_case, run_deploy

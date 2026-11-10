@@ -3,9 +3,9 @@
 
 import argparse
 import datetime
-from pathlib import Path
 import re
 import sys
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 VERSION_PATTERN = re.compile(r"(\d+)\.(\d+)")

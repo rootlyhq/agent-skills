@@ -1,15 +1,15 @@
 """Repeated tests retain separate evidence, actual model identity and old failures."""
 
 import json
-from pathlib import Path
 import sys
 import tempfile
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
-from collect_workflow_results import collect as collect_wire
 from collect_claude_results import collect as collect_claude
+from collect_workflow_results import collect as collect_wire
 from run_workflow_probes import probe_folder
 
 

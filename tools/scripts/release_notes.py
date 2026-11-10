@@ -3,9 +3,9 @@
 
 import argparse
 import hashlib
-from pathlib import Path
 import subprocess
 import sys
+from pathlib import Path
 
 import check_release_metadata as metadata
 

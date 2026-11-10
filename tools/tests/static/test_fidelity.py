@@ -6,9 +6,9 @@ current rubric and labels; rerun tools/scripts/fidelity_judge.py after editing e
 
 import json
 import re
-from pathlib import Path
 import sys
 import unittest
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / "tools/scripts"))
@@ -431,6 +431,7 @@ if __name__ == "__main__":
 class GateTests(unittest.TestCase):
     def setUp(self):
         import tempfile
+
         import fidelity_gate
         self.gate = fidelity_gate
         self.temp = tempfile.TemporaryDirectory(prefix="fidelity-gate-test-")

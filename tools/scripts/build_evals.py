@@ -8,8 +8,8 @@ MCP mock. Run with --mocks record (the default), never --allow-real-servers.
 import argparse
 import fnmatch
 import json
-from pathlib import Path
 import shutil
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 

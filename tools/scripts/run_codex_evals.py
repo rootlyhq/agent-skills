@@ -7,14 +7,14 @@ Results still require criterion-by-criterion review; completion is not a pass.
 """
 
 import argparse
-from concurrent.futures import ThreadPoolExecutor, as_completed
 import fnmatch
 import hashlib
 import json
-from pathlib import Path
+import subprocess
 import tempfile
 import time
-import subprocess
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from pathlib import Path
 
 from build_evals import prompt_for
 from codex_client import Client, answer_text

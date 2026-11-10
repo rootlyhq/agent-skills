@@ -3,9 +3,9 @@
 
 import argparse
 import json
-from pathlib import Path
 import re
 import sys
+from pathlib import Path
 
 from build_skills import generated_files as skill_files
 

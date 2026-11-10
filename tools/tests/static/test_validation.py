@@ -1,11 +1,11 @@
 """Regression tests for the static checker; these do not exercise an LLM."""
 
 import json
-from pathlib import Path
 import shutil
 import sys
 import tempfile
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[3]
