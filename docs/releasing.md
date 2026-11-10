@@ -111,18 +111,20 @@ after the tag with three assets: `rootly-v<VERSION>.zip`, its `.sha256`, and
 `release-inventory.json`. `tools/scripts/release_notes.py` writes the notes: the
 changelog section, which skills changed since the previous tag with a compare
 link, the install commands and the archive checksum. The workflow never creates tags,
-runs models or publishes to a marketplace; the submissions below are made by
-hand and point at the released ZIP.
+runs models or publishes to a marketplace. Submissions below are made by hand:
+Git-backed listings pin the released source commit, while the OpenAI submission
+attaches the exported skills to the remote MCP draft.
 
 ## Where each listing is submitted
 
 The GitHub repository must be public first; every listing below points at it
-or at the exported ZIP. Verified against each platform's docs on 2026-10-16.
+or at the exported ZIP. Claude, Cursor, and OpenAI submission guidance rechecked
+on 2026-11-10; Devin and skills.sh notes last checked on 2026-10-16.
 
 | Target | Submission | Notes |
 |---|---|---|
 | Claude Code, claude.ai, Cowork | Developer portal at https://claude.ai/directory/manage | Requires a paid claude.ai plan (Team/Enterprise: an Owner). Run `claude plugin validate <export> --strict` first. The `claude-plugins-official` marketplace is partner-only. |
-| Codex and ChatGPT | Plugins dashboard at https://platform.openai.com/plugins → Upload new or existing plugin | Upload the `dist/` ZIP. One shared directory serves both clients; Metadata & Skills scans must pass before Submit for review. |
+| Codex and ChatGPT | Plugins dashboard at https://platform.openai.com/plugins → Create plugin → With MCP | Configure the hosted endpoint and attach the exported skills to the same draft. Domain verification, OAuth, required listing URLs, reviewer access, demo, five positive and three negative review cases, and scans are required; a ZIP alone does not register the MCP server. See [Submit plugins](https://developers.openai.com/plugins/deploy/submission). |
 | Cursor | https://cursor.com/marketplace/publish | Manual review; public repo and README required. |
-| Devin | No self-serve form | The public marketplace is curated by Cognition; ask via https://app.devin.ai/settings/support or support@cognition.ai. Users can install from the repo directly with `devin plugins install Rootly-AI-Labs/agent-skills`. |
-| skills.sh | None | Listing appears automatically after the first `npx skills add Rootly-AI-Labs/agent-skills` against the public repo. Only then does the `https://skills.sh/b/Rootly-AI-Labs/agent-skills` badge resolve; add it to the README after that, not before. |
+| Devin | No self-serve form | The public marketplace is curated by Cognition; ask via https://app.devin.ai/settings/support or support@cognition.ai. Users can install from the repo directly with `devin plugins install rootlyhq/agent-skills`. |
+| skills.sh | None | Listing appears automatically after the first `npx skills add rootlyhq/agent-skills` against the public repo. Only then does the `https://skills.sh/b/rootlyhq/agent-skills` badge resolve; add it to the README after that, not before. |

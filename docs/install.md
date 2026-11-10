@@ -49,9 +49,16 @@ To inspect what Codex derives from the package without installing it:
 python3 tools/scripts/check_codex_discovery.py /absolute/path/to/rootly /tmp/empty-workspace
 ```
 
-ChatGPT has no separate skill submission path: the same package is submitted
-once to the shared ChatGPT and Codex plugin directory as a ZIP of the exported
-`dist/` folder. The directory requires `logo` and `composerIcon` (square, at
+The public ChatGPT and Codex directory uses one plugin submission. Because this
+plugin includes a hosted MCP server, select **Create plugin → With MCP** in the
+[OpenAI plugins dashboard](https://platform.openai.com/plugins), configure
+`https://mcp.rootly.com/mcp?toolsets=all&readonly=true`, and attach the exported
+skills to the same draft. Preserve these query parameters in the portal.
+A ZIP upload alone does not register or verify the remote MCP server. Domain
+verification, OAuth configuration, reviewer access, a demo, and review cases
+must be completed before submission. See the
+[official submission guide](https://developers.openai.com/plugins/deploy/submission).
+The directory requires `logo` and `composerIcon` (square, at
 least 48 by 48) and caps `displayName` and `shortDescription` at 30 characters;
 `tools/scripts/build_package.py` generates values within those limits.
 
@@ -82,7 +89,7 @@ devin plugins install --local /absolute/path/to/agent-skills
 ```
 
 Once the repository is pushed to GitHub, `devin plugins install
-Rootly-AI-Labs/agent-skills` installs it to the signed-in scope. In the web app,
+rootlyhq/agent-skills` installs it to the signed-in scope. In the web app,
 Customize → Plugins → Add plugin also accepts a repository or an uploaded
 `.zip` of a `dist/` export; the export excludes contributor files. After
 indexing, open the plugin's entry under Customize → MCPs and Connect the
@@ -97,8 +104,16 @@ excludes it, so `.zip` installs are unaffected.
 
 ## Read-only restrictions
 
-The package's instructions are read-only, but its hosted MCP endpoint can expose
-write tools. Installation alone does not enforce a read-only account or session.
+The bundled connection requests
+`https://mcp.rootly.com/mcp?toolsets=all&readonly=true`. The server's
+[toolset documentation](https://github.com/rootlyhq/rootly-mcp-server#toolsets)
+describes `readonly=true` as a per-connection guard that hides/refuses write
+tools and rejects non-GET requests to the Rootly API. `toolsets=all` preserves
+the read tools needed across all seven workflows; `core` alone is insufficient.
+This configuration is not live deployment validation or an account-wide
+permission change. Reconnect after updating the URL and verify the actual tool
+inventory. Other connectors or standalone entries may use a different URL.
+
 Use the generated allowlists in `adapters/read-tools.json` and client restriction
 examples in `adapters/` with an isolated session. Claude's `dontAsk` policy denies
 unapproved tools; its allow list is not a standalone deny boundary in other modes.
@@ -127,13 +142,15 @@ Codex specifics, verified with Codex CLI 0.162.0:
   plugin in `config.toml` alone loads skills but no server.
 - Plugin server settings must use the full plugin id,
   `[plugins."rootly@rootly-agent-skills".mcp_servers.rootly]`. A key with the bare
-  plugin name is silently ignored and the server then exposes every hosted tool,
-  including writes. On the command line pass the id unquoted:
+  plugin name is silently ignored, so it does not apply the client filter.
+  The bundled URL's server read-only request is a separate layer; an unrestricted
+  alternate connection may expose writes. On the command line pass the id unquoted:
   `-c plugins.rootly@rootly-agent-skills.mcp_servers.rootly.enabled_tools=[...]`.
 - A standalone `[mcp_servers.rootly]` entry takes precedence over the plugin's
   server of the same name, even when disabled. If you already connect to Rootly
   that way, the standalone entry is what the model uses; restrict it with the
-  `[mcp_servers.rootly]` section of `adapters/codex/readonly.toml`.
+  `[mcp_servers.rootly]` section of `adapters/codex/readonly.toml`, including
+  its read-only URL.
 - OAuth tokens are stored per server name. A plugin server named `rootly` reuses
   an existing standalone `rootly` login; a differently named server needs its own
   `codex mcp login <name>`.

@@ -88,6 +88,31 @@ class CodexClientTests(unittest.TestCase):
                 Client(ROOT, ROOT, False, None, bundled_read_tools=["get_current_user"])
             launch.assert_not_called()
 
+    def test_bundled_mode_rejects_unrestricted_server_url(self):
+        """Live probes must reject a package that drops the server read-only request."""
+        import json
+        from pathlib import Path
+        from tempfile import TemporaryDirectory
+
+        with TemporaryDirectory() as folder:
+            package = Path(folder)
+            (package / "adapters").mkdir()
+            (package / "adapters/read-tools.json").write_text(
+                json.dumps({"tools": ["get_current_user"]}))
+            for manifest in (".mcp.json", "mcp.json"):
+                with self.subTest(manifest=manifest):
+                    for name in (".mcp.json", "mcp.json"):
+                        content = json.loads((ROOT / name).read_text())
+                        if name == manifest:
+                            content["mcpServers"]["rootly"]["url"] = "https://mcp.rootly.com/mcp"
+                        (package / name).write_text(json.dumps(content))
+                    with patch("codex_client.subprocess.Popen") as launch:
+                        with self.assertRaisesRegex(ValueError, "Unexpected .* server declaration"):
+                            Client(package, package, True,
+                                   SimpleNamespace(name="unused-trace.jsonl"),
+                                   bundled_read_tools=["get_current_user"])
+                    launch.assert_not_called()
+
     def test_default_prompt_is_text_not_an_explicit_skill_attachment(self):
         case = json.loads((ROOT / "tools/tests/behavior/cases.json").read_text())[0]
         skill = {"name": "rootly:" + case["skill"], "path": "/skill/SKILL.md",

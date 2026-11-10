@@ -1,13 +1,13 @@
 {
   "name": "rootly",
-  "version": "1.0",
+  "version": "1.1",
   "description": "Read-only incident response, alert triage, deploy checks, service health, on-call, communications, and retrospectives.",
   "author": {
     "name": "Rootly",
     "url": "https://rootly.com"
   },
-  "homepage": "https://github.com/Rootly-AI-Labs/agent-skills",
-  "repository": "https://github.com/Rootly-AI-Labs/agent-skills",
+  "homepage": "https://github.com/rootlyhq/agent-skills",
+  "repository": "https://github.com/rootlyhq/agent-skills",
   "license": "Apache-2.0",
   "keywords": [
     "rootly",

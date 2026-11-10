@@ -31,14 +31,14 @@ class ReleaseNotesTests(unittest.TestCase):
         self.assertIn("## What's new\n\n- First entry.", notes)
         self.assertIn("## Changed\n\nSkills: all seven (first release).", notes)
         self.assertNotIn("compare/", notes)
-        self.assertIn("claude plugin marketplace add Rootly-AI-Labs/agent-skills", notes)
+        self.assertIn("claude plugin marketplace add rootlyhq/agent-skills", notes)
         self.assertIn("`rootly-v1.0.zip` · SHA-256 `", notes)
 
     def test_later_release_lists_changed_skills_and_diff(self):
         paths = ["skills/on-call/SKILL.md", "skills/alert-triage/references/tools.md", "docs/install.md", "README.md"]
         notes = release_notes.compose("v1.0", self.archive, "v0.9", paths, self.root)
         self.assertIn("## Changed since v0.9\n\nSkills: alert-triage, on-call\nAlso: README.md, docs", notes)
-        self.assertIn("https://github.com/Rootly-AI-Labs/agent-skills/compare/v0.9...v1.0", notes)
+        self.assertIn("https://github.com/rootlyhq/agent-skills/compare/v0.9...v1.0", notes)
 
     def test_unchanged_skills_say_so(self):
         self.assertEqual(release_notes.changed_summary(["docs/install.md"]), "Skills: unchanged\nAlso: docs")
