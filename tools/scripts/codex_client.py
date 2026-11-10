@@ -27,13 +27,13 @@ class Client:
                     or not bundled_read_tools or not set(bundled_read_tools) <= set(allowed)):
                 raise ValueError("Bundled live checks require only allowlisted reads and no standalone/fixture server")
             declared = json.loads((package / ".mcp.json").read_text())
-            if declared != {"mcpServers": {"rootly": {"type": "http", "url": "https://mcp.rootly.com/mcp"}}}:
+            if declared != {"mcpServers": {"rootly": {"type": "http", "url": "https://mcp.rootly.com/mcp?toolsets=all&readonly=true"}}}:
                 raise ValueError("Unexpected bundled server declaration")
             # With a portable root manifest, Codex discovers mcp.json rather
             # than the compatibility overlay. Check both, never just the alias.
             portable = json.loads((package / "mcp.json").read_text())
             if portable != {"$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
-                            "mcpServers": {"rootly": {"type": "streamable-http", "url": "https://mcp.rootly.com/mcp"}}}:
+                            "mcpServers": {"rootly": {"type": "streamable-http", "url": "https://mcp.rootly.com/mcp?toolsets=all&readonly=true"}}}:
                 raise ValueError("Unexpected portable server declaration")
         self.trace = trace
         self.events = queue.Queue()
@@ -81,7 +81,7 @@ class Client:
                 raise ValueError("Live checks require a nonempty tool allowlist")
             settings.extend([
                 'mcp_servers.rootly.enabled=true',
-                'mcp_servers.rootly.url="https://mcp.rootly.com/mcp"',
+                'mcp_servers.rootly.url="https://mcp.rootly.com/mcp?toolsets=all&readonly=true"',
                 'mcp_servers.rootly.enabled_tools=' + json.dumps(rootly_read_tools),
                 'mcp_servers.rootly.default_tools_approval_mode="approve"',
             ])

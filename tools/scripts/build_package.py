@@ -12,6 +12,7 @@ from build_skills import generated_files as skill_files
 ROOT = Path(__file__).resolve().parents[2]
 DESCRIPTION = "Read-only incident response, alert triage, deploy checks, service health, on-call, communications, and retrospectives."
 MARKETPLACE = "rootly-agent-skills"
+MCP_URL = "https://mcp.rootly.com/mcp?toolsets=all&readonly=true"
 ALIASES = {
     "respond": "incident-response", "incident": "incident-response",
     "alert": "alert-triage", "status": "service-health", "lookup": "service-health",
@@ -39,8 +40,8 @@ def generated_files():
     identity = {
         "name": "rootly", "version": version, "description": DESCRIPTION,
         "author": {"name": "Rootly", "url": "https://rootly.com"},
-        "homepage": "https://github.com/Rootly-AI-Labs/agent-skills",
-        "repository": "https://github.com/Rootly-AI-Labs/agent-skills",
+        "homepage": "https://github.com/rootlyhq/agent-skills",
+        "repository": "https://github.com/rootlyhq/agent-skills",
         "license": "Apache-2.0",
         "keywords": ["rootly", "incident-response", "on-call", "read-only"],
     }
@@ -58,7 +59,7 @@ def generated_files():
             "The skills recommend and draft only: they never page responders, modify "
             "incidents, change schedules, publish messages, or act on production."
         ),
-        "developerName": "Rootly AI Labs",
+        "developerName": "Rootly",
         "category": "Productivity",
         "capabilities": [
             "Investigate incidents", "Triage alerts", "Assess deploy risk",
@@ -66,6 +67,8 @@ def generated_files():
             "Draft incident updates", "Prepare retrospectives",
         ],
         "websiteURL": "https://rootly.com",
+        "privacyPolicyURL": "https://rootly.com/legal/privacy",
+        "termsOfServiceURL": "https://rootly.com/legal/terms",
         "defaultPrompt": [
             "Investigate this incident with Rootly context and recommend mitigation.",
             "Assess the risk of deploying this change using Rootly incident history.",
@@ -93,13 +96,13 @@ def generated_files():
     })
     yield ROOT / "mcp.json", encoded({
         "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
-        "mcpServers": {"rootly": {"type": "streamable-http", "url": "https://mcp.rootly.com/mcp"}},
+        "mcpServers": {"rootly": {"type": "streamable-http", "url": MCP_URL}},
     })
     yield ROOT / ".mcp.json", encoded({
-        "mcpServers": {"rootly": {"type": "http", "url": "https://mcp.rootly.com/mcp"}},
+        "mcpServers": {"rootly": {"type": "http", "url": MCP_URL}},
     })
     yield ROOT / ".claude-plugin/marketplace.json", encoded({
-        "name": MARKETPLACE, "owner": {"name": "Rootly AI Labs"},
+        "name": MARKETPLACE, "owner": {"name": "Rootly"},
         "metadata": {"description": DESCRIPTION, "version": version},
         "plugins": [{"name": "rootly", "source": "./", "description": DESCRIPTION, "version": version}],
     })
@@ -120,7 +123,7 @@ def generated_files():
     codex = [
         "# Generated read-tool restriction; merge with a dedicated test/session config.",
         "# It restricts this MCP server, not unrelated tools or other connections.",
-        "[mcp_servers.rootly]", 'url = "https://mcp.rootly.com/mcp"',
+        "[mcp_servers.rootly]", f'url = "{MCP_URL}"',
         "enabled_tools = " + json.dumps(all_reads), 'default_tools_approval_mode = "approve"',
         "", '[plugins."rootly@' + MARKETPLACE + '".mcp_servers.rootly]',
         "enabled_tools = " + json.dumps(all_reads), 'default_tools_approval_mode = "approve"',

@@ -10,7 +10,7 @@ import sys
 import check_release_metadata as metadata
 
 ROOT = Path(__file__).resolve().parents[2]
-REPO = "Rootly-AI-Labs/agent-skills"
+REPO = "rootlyhq/agent-skills"
 
 
 def previous_tag(tag, root=ROOT):

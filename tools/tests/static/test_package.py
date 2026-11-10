@@ -47,6 +47,26 @@ class PackageTests(unittest.TestCase):
         self.assertNotIn('[plugins."rootly".mcp_servers.rootly]', toml)
         self.assertIn("[mcp_servers.rootly]", toml)
 
+    def test_bundled_connections_request_server_readonly(self):
+        """All client formats request read-only mode without narrowing skill coverage."""
+        import tomllib
+        from urllib.parse import parse_qs, urlsplit
+
+        files = dict(build_package.generated_files())
+        urls = [
+            json.loads(files[self.root / name])["mcpServers"]["rootly"]["url"]
+            for name in ("mcp.json", ".mcp.json")
+        ]
+        profile = tomllib.loads(files[self.root / "adapters/codex/readonly.toml"])
+        urls.append(profile["mcp_servers"]["rootly"]["url"])
+        for url in urls:
+            with self.subTest(url=url):
+                parsed = urlsplit(url)
+                self.assertEqual((parsed.scheme, parsed.netloc, parsed.path),
+                                 ("https", "mcp.rootly.com", "/mcp"))
+                self.assertEqual(parse_qs(parsed.query),
+                                 {"toolsets": ["all"], "readonly": ["true"]})
+
     def test_codex_listing_metadata_meets_directory_limits(self):
         """Codex reads presentation from extensions.com.openai; the public directory caps each field."""
         files = dict(build_package.generated_files())

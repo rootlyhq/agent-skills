@@ -1,18 +1,18 @@
 {
   "name": "rootly-agent-skills",
   "owner": {
-    "name": "Rootly AI Labs"
+    "name": "Rootly"
   },
   "metadata": {
     "description": "Read-only incident response, alert triage, deploy checks, service health, on-call, communications, and retrospectives.",
-    "version": "1.0"
+    "version": "1.1"
   },
   "plugins": [
     {
       "name": "rootly",
       "source": "./",
       "description": "Read-only incident response, alert triage, deploy checks, service health, on-call, communications, and retrospectives.",
-      "version": "1.0"
+      "version": "1.1"
     }
   ]
 }

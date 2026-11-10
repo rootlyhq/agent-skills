@@ -1,4 +1,14 @@
-# Migration to 1.0
+# Migration to 1.1
+
+Version 1.1 updates distribution metadata after the transfer to
+`rootlyhq/agent-skills`. Use that repository for new installations. Existing
+GitHub URLs redirect to it; the previous repository name must remain unused to
+preserve those redirects. Marketplace updates are pending.
+
+Bundled MCP connections now request all toolsets with `readonly=true`. Reconnect
+after upgrading and check any standalone Rootly connection that may take
+precedence; it needs the same URL parameters and client restrictions. See
+`docs/install.md` and `docs/safety.md` for the documented server guard and its scope.
 
 This release is read-only; it does not restore full write parity with earlier Rootly plugins.
 Keep your existing installation available until your workflows have been tested.

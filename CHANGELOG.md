@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.1 — unreleased
+
+- Update repository metadata, install commands, and release links to
+  `rootlyhq/agent-skills` following the repository transfer.
+- Use Rootly publisher metadata across generated platform manifests and include
+  public privacy and terms URLs for OpenAI review.
+- Clarify pending marketplace availability and the remote MCP submission path.
+- Request all toolsets in server read-only mode on bundled MCP connections,
+  retaining the client read-tool allowlists.
+- Preserve the seven canonical skills and read-only workflows; no legacy write
+  actions are restored.
+
 ## 1.0 — 2026-10-16
 
 - Seven read-only skills for incident work: incident response, alert triage,

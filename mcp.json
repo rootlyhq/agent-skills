@@ -3,7 +3,7 @@
   "mcpServers": {
     "rootly": {
       "type": "streamable-http",
-      "url": "https://mcp.rootly.com/mcp"
+      "url": "https://mcp.rootly.com/mcp?toolsets=all&readonly=true"
     }
   }
 }
