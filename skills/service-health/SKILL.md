@@ -3,7 +3,7 @@ name: service-health
 description: Assess whether a service is down, healthy, or deteriorating from errors, latency, traffic, and their baselines. Use for zero-traffic questions, recurring spikes, health checks and trends, service or owner lookup, and recent deploy context, including when evidence is already supplied. Include available Rootly incident, ownership, and on-call records; incident counts alone cannot establish health.
 license: Apache-2.0
 metadata:
-  author: Rootly AI Labs
+  author: Rootly
   version: "1.1.0"
   category: incident-management
   access: read

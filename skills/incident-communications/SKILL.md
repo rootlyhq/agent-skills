@@ -3,7 +3,7 @@ name: incident-communications
 description: Draft responder, executive, customer, or incident commander handoff updates from Rootly incident evidence. Use for stakeholder briefs and status-update drafts; distinguish confirmed impact from internal hypotheses and never publish messages.
 license: Apache-2.0
 metadata:
-  author: Rootly AI Labs
+  author: Rootly
   version: "1.1.0"
   category: incident-management
   access: read

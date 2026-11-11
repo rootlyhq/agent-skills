@@ -3,7 +3,7 @@ name: incident-response
 description: Investigate outages and active incidents with Rootly context. Use when asked to investigate a failure, assess impact, compare simultaneous incidents, choose mitigation or responders, or decide whether to wait for a vendor, including when the user supplies the evidence. Use alert-triage for unassigned alerts and incident-communications for audience-specific updates.
 license: Apache-2.0
 metadata:
-  author: Rootly AI Labs
+  author: Rootly
   version: "1.1.0"
   category: incident-management
   access: read

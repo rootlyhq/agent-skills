@@ -3,7 +3,7 @@ name: deploy-check
 description: Assess a proposed deploy using its diff, review and test evidence, rollout safeguards, and Rootly incident context. Recommend GO, CAUTION, or NO-GO with reasons; use before deploying a branch, PR, release, or configuration change, without executing it.
 license: Apache-2.0
 metadata:
-  author: Rootly AI Labs
+  author: Rootly
   version: "1.1.0"
   category: incident-management
   access: read
