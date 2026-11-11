@@ -30,7 +30,7 @@ and generation logic in `tools/scripts/`. After changing a canonical source,
 run `make generate`, inspect the generated diff, and run `make check`.
 
 Platform adapters route to canonical skills rather than carrying their own copy
-of the instructions. Keep the 1.x workflows read-only. Do not edit output
+of the instructions. Keep the current workflows read-only. Do not edit output
 contracts or introduce new workflows as incidental tooling cleanup.
 
 ## Evidence and model tests

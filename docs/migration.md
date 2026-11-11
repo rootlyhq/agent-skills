@@ -1,9 +1,10 @@
-# Migration to 1.1.0
+# Migration to 3.0.0
 
-Version 1.1.0 updates distribution metadata after the transfer to
-`rootlyhq/agent-skills`. Use that repository for new installations. Existing
-GitHub URLs redirect to it; the previous repository name must remain unused to
-preserve those redirects. Marketplace updates are pending.
+Version 3.0.0 starts one version line above the earlier platform-specific plugins
+and uses `rootlyhq/agent-skills` as the canonical source. Use that repository for
+new installations. Existing GitHub URLs redirect to it; the previous repository
+name must remain unused to preserve those redirects. Marketplace updates are
+pending.
 
 Bundled MCP connections now request all toolsets with `readonly=true`. Reconnect
 after upgrading and check any standalone Rootly connection that may take

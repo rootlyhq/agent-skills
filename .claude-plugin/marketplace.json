@@ -5,14 +5,14 @@
   },
   "metadata": {
     "description": "Read-only incident response, alert triage, deploy checks, service health, on-call, communications, and retrospectives.",
-    "version": "1.1.0"
+    "version": "3.0.0"
   },
   "plugins": [
     {
       "name": "rootly",
       "source": "./",
       "description": "Read-only incident response, alert triage, deploy checks, service health, on-call, communications, and retrospectives.",
-      "version": "1.1.0"
+      "version": "3.0.0"
     }
   ]
 }

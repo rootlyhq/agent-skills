@@ -66,14 +66,16 @@ An export is only a candidate; old matrix results do not clear changed skills.
 
 ## Versioning and release PRs
 
-Versions are stable SemVer: `MAJOR.MINOR.PATCH`, for example `1.1.0`,
-`1.1.1`, `1.2.0`, then `2.0.0`. The historical `v1.0` tag and changelog
-section remain unchanged. The first canonical SemVer release is `v1.1.0`.
+Versions are stable SemVer: `MAJOR.MINOR.PATCH`, for example `3.0.0`,
+`3.0.1`, `3.1.0`, then `4.0.0`. The historical `v1.0` tag and changelog
+section remain unchanged. The first unified SemVer release is `v3.0.0`, above
+the earlier platform-specific versions. It retains the canonical plugin's
+read-only scope.
 
 - **Patch:** compatible fixes, including evidence wording and tooling fixes.
 - **Minor:** new skills, references, routes or adapters that preserve compatibility.
 - **Major:** removed/renamed skills, changed output-contract shape, or operational writes.
-  The 1.x releases remain read-only.
+  The current unified release remains read-only.
 
 Every commit follows Conventional Commits: `type(scope): summary`, lowercase,
 imperative, no trailing period, at most 72 characters. Use `feat` for additions,
@@ -164,7 +166,7 @@ To prepare locally from an existing `export.json` and catalog snapshot:
 
 ```sh
 python3 tools/scripts/prepare_marketplace_bundle.py --export export.json \
-  --tag v1.1.0 --candidate <40-character-candidate-sha> \
+  --tag v3.0.0 --candidate <40-character-candidate-sha> \
   --catalog /path/to/marketplace.json --catalog-commit <40-character-catalog-sha> \
   --output dist/marketplace-preview --preview
 ```
