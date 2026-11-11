@@ -63,12 +63,11 @@ operator log may give `reported started`, never completion or recovery.
 Corroboration is `not supplied` when no second source is given. Action
 risks stay `unassessed in supplied evidence` unless described; do not claim nobody
 assessed them. These table states are literal values: copy them exactly rather
-than paraphrasing them. When asked whether
-the evidence rule requires a delay, the **Rule** says corroboration is required
-for confirmed claims, not a waiting period for authorized humans, and does not
-establish that the action is safe, sufficient, or preferable to waiting. Add no
+than paraphrasing them. When asked whether the evidence rule requires a delay,
+copy the **Rule** paragraph in the output contract unchanged. Keep incident
+states and source contents in the table; the Rule explains general principles. Add no
 cost, risk or justification reasoning, sample record wording, or first-person
-narration of the action. Anything beyond the table goes under **Inferences, not
+narration of the action. Put requested hypothetical reasoning under **Inferences, not
 evidence**, using "If ... could/would ..." for each bullet.
 Use `None.` for **Inferences, not evidence** unless the user explicitly asks
 for hypothetical scenarios. Do not add sample updates or illustrative action

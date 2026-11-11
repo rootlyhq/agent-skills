@@ -50,7 +50,8 @@ recap, closing offer, or sample update.
 | Action risks | ... | ... |
 
 **Rule**
-The relevant rule in two or three sentences.
+The applicable general rule and requested explanation. Incident states and
+source contents belong in the table, not this paragraph.
 
 **Inferences, not evidence**
 None.
@@ -93,11 +94,13 @@ to fill it. Only when the user explicitly asks for hypothetical scenarios,
 use up to two short "If ... could/would ..." bullets instead. Keep every clause
 conditional and do not presuppose the contents of an unread source.
 
-For the evidence rule, the **Rule** section says: corroboration from two
-independent sources, including metrics or logs, is required before impact, cause
-or recovery is called confirmed. It is not a waiting period for an authorized
-human. It does not establish that this action is safe, sufficient, or preferable
-to waiting; that is the decision-maker's assessment of prerequisites and risks.
+For evidence-rule questions, copy this paragraph under **Rule** unchanged.
+Do not append incident states or descriptions of what a log records:
+
+```
+Corroboration from two independent sources, including metrics or logs, is required before impact, cause or recovery is called confirmed. It is not a waiting period for an authorized human choosing mitigation under uncertainty. It does not establish that this action is safe, sufficient, or preferable to waiting; that is the decision-maker's assessment of prerequisites and risks.
+```
+
 Do not add cost, risk, or justification reasoning to it. Do not write sample
 record text or first-person narration of the action.
 This exclusion also applies inside **Inferences, not evidence**. A sample saying
