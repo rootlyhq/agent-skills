@@ -25,10 +25,13 @@ closing offer. Keep any explanation inside the named sections.
 | Staffing | ... | ... |
 
 **Inferences, not evidence**
-- Conditional risks and reasoning beyond the table, each labeled. Or "None."
+- Useful conditional operational reasoning that changes the recommendation. Or "None."
+  Do not repeat evidence, inventory missing details, or speculate to fill this section.
 
 **Unresolved checks**
-- Missing evidence and identities needed for a real release. Or "None."
+- Recommended checks to resolve missing evidence or identities. Or "None."
+  Write each as an action or question, such as "Confirm the target environment."
+  Do not add a narrative about what an unseen record contains or omits.
 
 **What would change the verdict**
 - Specific evidence and the verdict it would produce.
@@ -80,8 +83,10 @@ an otherwise factual assertion. Explanations of why a factor
 matters, possible interactions between changes, and guesses about scope belong
 here and nowhere else. Never describe the customer's safeguards, monitors or
 teams as able or unable to do something the evidence does not state.
-For gaps, refer to the supplied material, not to an unseen record: a summary
-omitting a rollout detail does not establish that the rollout record omits it.
+Move missing details to **Unresolved checks** as recommendations to confirm
+information. Do not narrate that a source "only says", "does not show", or
+"gives no" detail when only its summary was supplied. Use source IDs to cite
+supplied contents, not to imply that a whole record was inspected.
 Recommendations do not establish that an option is safest or lowest-risk.
 A passing CI result does not establish what the checks detect. A scoped calendar
 finding does not establish that the calendar covers only that kind of change.

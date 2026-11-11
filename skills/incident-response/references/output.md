@@ -65,6 +65,8 @@ Table rules:
   the question involves no signal or no action.
 - Copy the state values below literally. In particular, use
   `unassessed in supplied evidence`, not a paraphrase such as "not assessed".
+  The Execution state cell contains only its state; put any unknown completion
+  or recovery in Outcome or Next check, not in an Execution qualifier.
 - **Execution** is `unknown`, `not started`, `reported started`, or
   `reported complete`. Every state except `unknown` needs a record that states it.
   An approval alone gives `unknown`. A start record never gives completion.

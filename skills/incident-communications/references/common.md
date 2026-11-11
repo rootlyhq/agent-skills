@@ -42,7 +42,8 @@ humans from choosing mitigation under uncertainty.
 
 Missing, stale, failed, or partial evidence stays explicit. Not supplied is not
 known absent, zero, or healthy.
-A source identifier may name a summary or excerpt, not a complete record.
+Treat a supplied source description as an excerpt unless its completeness is
+explicit. A source identifier alone does not establish a complete record.
 When a detail is missing, describe the gap in the supplied material; do not
 assert that the full record omits it or that the event never happened.
 For an unstated detail, write "not supplied" or "the supplied material does not

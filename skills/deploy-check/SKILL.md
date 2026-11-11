@@ -112,8 +112,9 @@ evidence, including why a factor matters, goes only under **Inferences, not
 evidence**, worded as an inference. Before handing it over, check each row
 against its source and remove any window, environment, number or capability the
 source does not state. See [the worked example](references/example.md).
-For a gap, name what the supplied material does not establish; do not turn a
-missing detail in a summary into a claim about the full record's contents.
+For a gap, recommend what to confirm. Do not write that a source "only says",
+"does not show", or "gives no" detail unless the supplied evidence establishes
+that absence in the full record. A source ID does not make a summary complete.
 
 ## Writes
 
