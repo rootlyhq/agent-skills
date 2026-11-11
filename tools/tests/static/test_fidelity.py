@@ -278,6 +278,109 @@ class JudgeVerdictTests(unittest.TestCase):
         self.assertEqual(result["verdict"], "error")
         self.assertIsNone(result["observed_model"])
 
+    def test_quote_error_is_retried_once_with_original_attempt_retained(self):
+        from unittest.mock import Mock
+        bad = {"claims": [self.claim("If the canery fails", "observed")]}
+        good = {"claims": []}
+        caller = Mock(side_effect=[(bad, ["test"]), *[(good, ["test"])] * 3])
+        result = judge.judge(self.answer, "deploy-shared-upgrade", caller=caller)
+        self.assertEqual(result["verdict"], "pass")
+        self.assertEqual(result["retry_attempts"], 1)
+        self.assertEqual(len(result["votes"]), 3)
+        self.assertEqual(caller.call_count, 4)
+        self.assertTrue(all(call == caller.call_args_list[0] for call in caller.call_args_list))
+        vote = result["votes"][0]
+        self.assertEqual([a["verdict"] for a in vote["attempts"]], ["error", "pass"])
+        self.assertEqual(vote["attempts"][0]["ungrounded"], bad["claims"])
+        self.assertEqual(judge.replay_vote(vote, self.answer, "test"), "pass")
+
+    def test_repeated_quote_errors_exhaust_the_retry_and_still_block(self):
+        from unittest.mock import Mock
+        caller = Mock(return_value=({"claims": [self.claim("absent quote")]}, ["test"]))
+        result = judge.judge(self.answer, "deploy-shared-upgrade", caller=caller)
+        self.assertEqual(result["verdict"], "error")
+        self.assertEqual(result["retry_attempts"], 3)
+        self.assertEqual(caller.call_count, 6)
+        for vote in result["votes"]:
+            self.assertEqual([a["verdict"] for a in vote["attempts"]], ["error", "error"])
+            self.assertEqual(judge.replay_vote(vote, self.answer, "test"), "error")
+
+    def test_valid_rejection_is_never_retried(self):
+        from unittest.mock import Mock
+        caller = Mock(return_value=({"claims": [self.claim("last 60 minutes")]}, ["test"]))
+        result = judge.judge(self.answer, "deploy-shared-upgrade", caller=caller)
+        self.assertEqual(result["verdict"], "fail")
+        self.assertEqual(result["retry_attempts"], 0)
+        self.assertEqual(caller.call_count, 3)
+
+    def test_quote_error_cannot_retry_a_grounded_rejection(self):
+        from unittest.mock import Mock
+        claims = [self.claim("absent quote"), self.claim("last 60 minutes")]
+        caller = Mock(return_value=({"claims": claims}, ["test"]))
+        result = judge.judge(self.answer, "deploy-shared-upgrade", caller=caller)
+        self.assertEqual(result["verdict"], "error")
+        self.assertEqual(result["retry_attempts"], 0)
+        self.assertEqual(caller.call_count, 3)
+        self.assertEqual(result["votes"][0]["failing"], [claims[1]])
+
+    def test_retry_preserves_a_valid_rejection_from_its_second_attempt(self):
+        from unittest.mock import Mock
+        bad = {"claims": [self.claim("absent quote")]}
+        fail = {"claims": [self.claim("last 60 minutes")]}
+        caller = Mock(side_effect=[(bad, ["test"]), *[(fail, ["test"])] * 3])
+        result = judge.judge(self.answer, "deploy-shared-upgrade", caller=caller)
+        self.assertEqual(result["verdict"], "fail")
+        self.assertEqual(caller.call_count, 4)
+        self.assertEqual(result["votes"][0]["verdict"], "fail")
+        self.assertEqual(judge.replay_vote(result["votes"][0], self.answer, "test"), "fail")
+
+    def test_other_errors_do_not_retry(self):
+        from unittest.mock import Mock
+        for caller in (Mock(side_effect=RuntimeError("unavailable")),
+                       Mock(return_value=({}, ["test"])),
+                       Mock(return_value=({"claims": None}, ["test"])),
+                       Mock(return_value=({"claims": []}, ["other"]))):
+            with self.subTest(caller=caller):
+                result = judge.judge(self.answer, "deploy-shared-upgrade",
+                                     caller=caller, expected_model="test")
+                self.assertEqual(result["verdict"], "error")
+                self.assertEqual(result["retry_attempts"], 0)
+                self.assertEqual(caller.call_count, 3)
+
+    def test_retry_cannot_switch_native_model_identity(self):
+        from unittest.mock import Mock
+        bad = {"claims": [self.claim("absent quote")]}
+        good = {"claims": []}
+        caller = Mock(side_effect=[(bad, ["first"]), (good, ["second"]),
+                                   (good, ["first"]), (good, ["first"])])
+        result = judge.judge(self.answer, "deploy-shared-upgrade", caller=caller)
+        self.assertEqual(result["verdict"], "error")
+        self.assertIsNone(result["observed_model"])
+        self.assertEqual(caller.call_count, 4)
+
+    def test_replaying_a_retry_rejects_ineligible_or_changed_history(self):
+        from unittest.mock import Mock
+        bad = {"claims": [self.claim("absent quote")]}
+        good = {"claims": []}
+        caller = Mock(side_effect=[(bad, ["test"]), *[(good, ["test"])] * 3])
+        vote = judge.judge(self.answer, "deploy-shared-upgrade", caller=caller)["votes"][0]
+        for claims, verdict in (([], "pass"), ([self.claim("last 60 minutes")], "fail"),
+                                (bad["claims"] + [self.claim("last 60 minutes")], "error")):
+            changed = json.loads(json.dumps(vote))
+            changed["attempts"][0].update(claims=claims, verdict=verdict)
+            self.assertEqual(judge.replay_vote(changed, self.answer, "test"), "error")
+        for mutate in ("extra_attempt", "mixed_identity", "changed_final", "nested_attempt"):
+            changed = json.loads(json.dumps(vote))
+            if mutate == "extra_attempt":
+                changed["attempts"].append(changed["attempts"][0])
+            elif mutate == "mixed_identity":
+                changed["attempts"][0]["models"] = ["other"]
+            elif mutate == "nested_attempt":
+                changed["attempts"][0]["attempts"] = []
+            else:
+                changed["claims"] = [self.claim("last 60 minutes")]
+            self.assertEqual(judge.replay_vote(changed, self.answer, "test"), "error")
+
 
 class RecordedJudgeRunTests(unittest.TestCase):
     def test_current_complete_calibration_is_accepted(self):
@@ -334,6 +437,38 @@ class RecordedJudgeRunTests(unittest.TestCase):
                     write()
                     with self.assertRaises(SystemExit):
                         judge.agreement(root)
+
+    def test_agreement_recomputes_retry_eligibility_and_reports_recovered_errors(self):
+        import tempfile
+        from unittest.mock import Mock, patch
+        bad = {"claims": [{"quote": "absent quote", "class": "observed",
+                           "kind": "other", "reason": "Test quote"}]}
+        caller = Mock(side_effect=[(bad, ["test"]), *[({"claims": []}, ["test"])] * 3])
+        result = judge.judge("An example.", "deploy-shared-upgrade", caller=caller)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "fixtures").mkdir()
+            (root / "fixtures/example.md").write_text("An example.")
+            labels = root / "labels.data"
+            labels.write_text(json.dumps([{"id": "example", "label": "pass"}]))
+            (root / "summary.json").write_text(json.dumps(
+                {"model": "fable", "observed_model": "test", "votes": 3, "test_sha": "current"}))
+            data = dict(result, id="example")
+            def write():
+                (root / "example.json").write_text(json.dumps(data))
+            write()
+            with patch.object(judge, "FIDELITY", root), patch.object(judge, "ROOT", root.parent), \
+                    patch.object(judge, "LABELS", labels), \
+                    patch.object(judge, "calibration_fingerprints", return_value={"test_sha": "current"}):
+                record = judge.agreement(root)
+                self.assertEqual(record["agree"], 1)
+                self.assertEqual(record["vote_errors"], 0)
+                self.assertEqual(record["retry_attempts"], 1)
+                self.assertEqual(record["attempt_errors"], 1)
+                data["votes"][0]["attempts"][0].update(claims=[], verdict="pass")
+                write()
+                with self.assertRaises(SystemExit):
+                    judge.agreement(root)
 
 
 class ContractTests(unittest.TestCase):
@@ -527,10 +662,12 @@ class GateTests(unittest.TestCase):
         votes = [{"verdict": "pass", "failing": []},
                  {"verdict": "fail", "failing": [{"quote": "reported started"}]},
                  {"verdict": "pass", "failing": []}]
-        with patch.object(judge, "judge", return_value={"verdict": "pass", "votes": votes}):
+        with patch.object(judge, "judge", return_value={
+                "verdict": "pass", "votes": votes, "retry_attempts": 1}):
             row = self.gate.grade_run(self.run_folder(STARTED_GOOD), 3, "fable")
         self.assertEqual(row["judge_votes"], {"pass": 2, "fail": 1})
         self.assertEqual(row["judge_quotes_flagged_by_any_vote"], ["reported started"])
+        self.assertEqual(row["judge_retry_attempts"], 1)
 
     def test_skipped_shared_rules_fail(self):
         self.assertIn("common_rules_not_loaded", self.grade(self.run_folder(STARTED_GOOD, common=False), "pass")["reasons"])

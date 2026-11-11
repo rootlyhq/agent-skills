@@ -58,6 +58,7 @@ def grade_run(folder, votes, judge_model):
     with (folder / "fidelity-judge.json").open("x") as output:
         output.write(json.dumps(verdict, indent=2) + "\n")
     row["judge"] = verdict["verdict"]
+    row["judge_retry_attempts"] = verdict.get("retry_attempts", 0)
     # A 2-1 majority is weaker evidence than a unanimous one; keep the split.
     row["judge_votes"] = fidelity_judge.vote_split([v["verdict"] for v in verdict["votes"]])
     # Quotes flagged by at least one vote, not claims every vote rejected.
