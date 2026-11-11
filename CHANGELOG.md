@@ -16,6 +16,8 @@
 - Clarify gaps in supplied excerpts versus complete records, preserve action
   states in illustrative wording, and reinforce the existing answer boundaries.
 - Require deploy assessments to load the shared evidence guidance before drafting.
+- Explain mitigation decisions without inventing their rationale, comparative
+  harm, prerequisites or execution state in handoff guidance.
 - Preserve the seven canonical skills and read-only workflows; no legacy write
   actions are restored.
 

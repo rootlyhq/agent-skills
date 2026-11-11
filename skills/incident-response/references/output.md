@@ -57,12 +57,27 @@ source contents belong in the table, not this paragraph.
 None.
 
 **Next check**
-- The next recommended check. Ask for any missing prerequisite first; for an
-  unread runbook, ask whether verification criteria exist before referring to
-  them as given. Request completion evidence without claiming a full log lacks it.
+- Only the neutral evidence questions needed to resolve the remaining gaps,
+  using the forms below. Do not add a story about an operator or prior work.
 
 I did not call Rootly, change any record, or execute anything.
 ```
+
+For **Next check**, select only unresolved checks relevant to the question.
+Use these question forms, substituting only actions or record IDs supplied in
+the evidence. They request information without assuming a person, event, record
+or prerequisite exists. Add no factual rationale to a question.
+
+- Unknown execution: "Has the action started, and is an execution record available?"
+- Reported start: "Is completion evidence available? What independent evidence could establish the outcome?"
+- Missing approval or assessment: "Is an approval record or decision assessment available, and what does it cover?"
+- Unread policy or runbook: "Is the applicable policy or runbook available? Does it define prerequisites and verification criteria?"
+- Unconfirmed operational claim: "What second independent operational source could corroborate the reported signal or proposed cause?"
+
+Keep supplied approval and assessments in the table; do not ask as though they
+were missing. Do not infer an operator's identity or an ongoing state from
+"started" alone. Avoid phrases such as "the responder running the runbook"
+unless the source actually establishes that actor and ongoing state.
 
 Table rules:
 
@@ -80,10 +95,15 @@ Table rules:
 - **Corroboration** is `not supplied` unless the evidence contains a second
   independent source. Do not state that no other source exists or can be found.
 - **Outcome** is `unknown` unless independent evidence shows recovery.
-- **Action risks** is `unassessed in supplied evidence` unless the evidence describes them;
-  this does not mean the responders never assessed the risks. Do not
-  call the action safe, bounded, low-risk, cheaper than waiting, justified, or
-  sufficient. Reversibility and a practiced runbook do not establish any of these.
+- **Action risks** is `unassessed in supplied evidence` only when no assessment
+  is supplied; this does not mean responders never assessed the risks. When one
+  is supplied, replace that default with the attributed judgment, its author,
+  source and scope.
+  An attributed assessment need not be independently verified to be reported;
+  do not call it missing just because safety or effectiveness remains unverified.
+  Do not independently call the action safe, bounded, low-risk, cheaper than
+  waiting, justified, or sufficient. Approval, reversibility and a practiced
+  runbook alone do not establish any of these.
 - **Source** names the actual supplied source. Use "user-supplied approval" when
   the user states an approval; name an approval record only when one was supplied.
   Use `—` for an unknown state or risks unassessed in supplied evidence.
@@ -101,8 +121,20 @@ Do not append incident states or descriptions of what a log records:
 Corroboration from two independent sources, including metrics or logs, is required before impact, cause or recovery is called confirmed. It is not a waiting period for an authorized human choosing mitigation under uncertainty. It does not establish that this action is safe, sufficient, or preferable to waiting; that is the decision-maker's assessment of prerequisites and risks.
 ```
 
-Do not add cost, risk, or justification reasoning to it. Do not write sample
-record text or first-person narration of the action.
-This exclusion also applies inside **Inferences, not evidence**. A sample saying
-an action was taken would introduce an execution claim; use the sourced table
-state instead of adding illustrative update wording.
+When asked to distinguish acting under uncertainty from claiming a confirmed
+cause, append only this explanation, unchanged, under **Rule**:
+
+```
+Choosing a mitigation is a decision about what to try while evidence is incomplete. Calling a cause confirmed is an evidence claim about what produced the incident. Authority or approval to choose an action does not establish its safety, comparative harm, or fulfillment of applicable customer prerequisites. Approval, execution, completion and verified recovery are separate claims; report each only at the strength its source supports.
+```
+
+This explains the distinction without supplying a rationale for this incident's
+decision. Do not extend it with a story about why the commander chose to act,
+a claim that acting is reasonable or less harmful than waiting, or an invented
+list of the only prerequisites. A supplied decision assessment may be attributed
+in the table; it is not independently verified safety or causal confirmation.
+
+Do not add sample record text or first-person action narration, including under
+**Inferences, not evidence**. Use the sourced table state for handoff guidance:
+approval alone cannot become a recommendation to record execution; a reported
+start cannot become a recommendation to record completion or recovery.
