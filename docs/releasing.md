@@ -24,8 +24,29 @@ A maintainer must provision that secret without committing or printing its value
 Fork pull requests do not receive repository secrets: their private-marker check
 will remain blocked until a trusted maintainer performs the equivalent review.
 Do not use `pull_request_target` to expose the secret to untrusted code.
-Run the local scan before staging or pushing. CI detects uploaded content; it
-cannot undo disclosure after a push to a public repository.
+Run the local scan before staging or pushing. Scan the exact index after staging,
+and every outgoing commit before pushing:
+
+```sh
+python3 tools/scripts/check_public_tree.py --staged --require-private-markers
+python3 tools/scripts/check_public_tree.py --range 'origin/main..HEAD' --require-private-markers
+```
+
+The index scan reads Git blobs even when working files differ. The range scan
+inspects each committed tree, including content removed before the final commit.
+An invalid range, unresolved index entry, symlink, submodule or unreadable blob
+fails closed. CI also scans the pushed/PR range; it cannot undo disclosure after
+a push to a public repository.
+
+Optional local hooks provide these checks before commits and pushes. After
+configuring private markers and running `make setup`, enable them with
+`git config core.hooksPath .githooks` if this checkout has no existing hook
+configuration to preserve. They use `.venv/bin/python`; set
+`ROOTLY_SKILLS_PYTHON` to another configured Python environment if needed.
+New remote branches scan all reachable history, so an old finding can require
+review even if it was already published. Fetch a remote tip that is missing
+locally before a push. Hooks supplement review and can be bypassed; they are
+not a guarantee against publication mistakes.
 
 The exporter writes a content-addressed directory and deterministic ZIP under
 `dist/`. It includes only enumerated runtime and docs files, `skills/`, and

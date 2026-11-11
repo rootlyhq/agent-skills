@@ -78,7 +78,8 @@ def run_deploy(client, case_id, package, output, repeat, model):
               "package_inventory_sha256": hashlib.sha256((package / "release-inventory.json").read_bytes()).hexdigest(),
               # The case body, and separately the text actually sent.
               "prompt_sha256": hashlib.sha256(prompt_for(case).encode()).hexdigest(),
-              "sent_prompt_sha256": hashlib.sha256(sent.encode()).hexdigest()}
+              "sent_prompt_sha256": hashlib.sha256(sent.encode()).hexdigest(),
+              "fixture_sha256": hashlib.sha256((ROOT / "tools/tests/behavior/cases.json").read_bytes()).hexdigest()}
     started = time.monotonic()
     try:
         if client == "claude":
@@ -127,7 +128,8 @@ def main():
     arms = [("claude", m) for m in args.claude_model] + ([("codex", "default")] if args.codex else [])
     if not arms:
         raise SystemExit("Choose at least one --claude-model or --codex")
-    manifest = fidelity_matrix.manifest(package, [f"{c}-{m}" for c, m in arms], cases, args.runs)
+    manifest = fidelity_matrix.manifest(package, [f"{c}-{m}" for c, m in arms], cases, args.runs,
+                                        os.environ.get("ROOTLY_EVAL_CODEX_MODEL") if args.codex else None)
     output.mkdir(parents=True, exist_ok=False)
     (output / "matrix-manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
     selection = {"codex_model_override": os.environ.get("ROOTLY_EVAL_CODEX_MODEL") if args.codex else None}

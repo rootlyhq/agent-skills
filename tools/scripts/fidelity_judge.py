@@ -164,7 +164,7 @@ def majority(verdicts):
     return "pass" if counts["pass"] > counts["fail"] else "split"
 
 
-def judge(answer, scenario, model="fable", votes=3, caller=call_model):
+def judge(answer, scenario, model="fable", votes=3, caller=call_model, expected_model=None):
     if type(votes) is not int or votes < 3 or votes % 2 == 0:
         raise ValueError("Use an odd number of at least three judge votes")
     prompt = judge_prompt(scenario_evidence(scenario), answer)
@@ -176,12 +176,16 @@ def judge(answer, scenario, model="fable", votes=3, caller=call_model):
                     or not isinstance(models, list) or len(models) != 1
                     or not isinstance(models[0], str) or not models[0]):
                 raise ValueError("Missing claims or judge model identity")
+            if expected_model is not None and models != [expected_model]:
+                raise ValueError("Judge model differs from calibrated identity")
             verdict, failing, ungrounded = derive(output["claims"], answer)
             records.append({"verdict": verdict, "models": models, "claims": output.get("claims", []),
                             "failing": failing, "ungrounded": ungrounded})
         except Exception as error:  # Retain the failure; never count it as a pass.
             records.append({"verdict": "error", "error": f"{type(error).__name__}: {error}"})
-    return {"verdict": majority([r["verdict"] for r in records]), "votes": records}
+    actual = observed_model(records)
+    return {"verdict": majority([r["verdict"] for r in records]) if actual else "error",
+            "observed_model": actual, "votes": records}
 
 
 def vote_split(verdicts):
@@ -201,6 +205,30 @@ def fixture_sha():
               for label in json.loads(LABELS.read_text())]
     return hashlib.sha256(json.dumps(inputs, sort_keys=True).encode()).hexdigest()
 
+def calibration_fingerprints():
+    """Bind approval to all grading code and deterministic expectation inputs."""
+    paths = {"rubric_sha256": RUBRIC, "judge_sha256": Path(__file__),
+             "contract_sha256": ROOT / "scripts/fidelity_contract.py",
+             "gate_sha256": ROOT / "scripts/fidelity_gate.py",
+             "matrix_sha256": ROOT / "scripts/fidelity_matrix.py",
+             "inputs_sha256": ROOT / "scripts/fidelity_inputs.py",
+             "expectations_sha256": FIDELITY / "expectations.json",
+             "resolved_sha256": FIDELITY / "resolved-evidence.json",
+             "labels_sha256": LABELS}
+    return {**{key: file_sha(path) for key, path in paths.items()}, "fixtures_sha256": fixture_sha()}
+
+
+def observed_model(votes):
+    """Require one nonempty native model identity across every retained vote."""
+    models = []
+    for vote in votes:
+        identities = vote.get("models")
+        if (not isinstance(identities, list) or len(identities) != 1
+                or not isinstance(identities[0], str) or not identities[0].strip()):
+            return None
+        models.extend(identities)
+    return models[0] if models and len(set(models)) == 1 else None
+
 
 def calibration_errors(record=None, model=None):
     if record is None:
@@ -213,8 +241,9 @@ def calibration_errors(record=None, model=None):
     errors = []
     if model is not None and record.get("model") != model:
         errors.append("calibration_model_mismatch")
-    for key, expected in {"rubric_sha256": file_sha(RUBRIC), "judge_sha256": file_sha(__file__),
-                          "labels_sha256": file_sha(LABELS), "fixtures_sha256": fixture_sha()}.items():
+    if not isinstance(record.get("observed_model"), str) or not record["observed_model"].strip():
+        errors.append("calibration_missing_observed_model")
+    for key, expected in calibration_fingerprints().items():
         if record.get(key) != expected:
             errors.append("calibration_stale:" + key)
     labels = json.loads(LABELS.read_text())
@@ -231,6 +260,9 @@ def calibration_errors(record=None, model=None):
         errors.append("calibration_incomplete_or_disagrees")
     return errors
 
+def calibrated_model():
+    return json.loads((FIDELITY / "judge-agreement.json").read_text())["observed_model"]
+
 
 def run_fixtures(output, model, votes, jobs, only=None):
     labels = json.loads(LABELS.read_text())
@@ -240,7 +272,7 @@ def run_fixtures(output, model, votes, jobs, only=None):
         labels = [l for l in labels if l["id"] in only]
     if not labels or jobs < 1 or type(votes) is not int or votes < 3 or votes % 2 == 0:
         raise ValueError("Require fixtures, positive jobs and at least three odd votes")
-    input_sha = fixture_sha()
+    fingerprints = calibration_fingerprints()
     def one(label):
         answer = (FIDELITY / "fixtures" / (label["id"] + ".md")).read_text()
         result = judge(answer, label["scenario"], model, votes)
@@ -250,14 +282,12 @@ def run_fixtures(output, model, votes, jobs, only=None):
         return result
     with ThreadPoolExecutor(max_workers=jobs) as pool:
         results = list(pool.map(one, labels))
-    if fixture_sha() != input_sha:
+    if calibration_fingerprints() != fingerprints:
         raise ValueError("Calibration inputs changed during the run; retain results and rerun")
     clear = [r for r in results if r["label"] in ("pass", "fail")]
     summary = {
-        "model": model, "votes": votes,
-        "rubric_sha256": file_sha(RUBRIC), "labels_sha256": file_sha(LABELS),
-        "judge_sha256": file_sha(__file__),
-        "fixtures_sha256": input_sha,
+        "model": model, "votes": votes, **fingerprints,
+        "observed_model": observed_model([v for r in results for v in r["votes"]]),
         "clear_fixtures": len(clear),
         "agree": sum(r["verdict"] == r["label"] for r in clear),
         "disagreements": [{"id": r["id"], "label": r["label"], "judge": r["verdict"]}
@@ -279,11 +309,10 @@ def agreement(run_dir):
     quotes. This never silently re-labels historical results to achieve agreement.
     """
     run = json.loads((run_dir / "summary.json").read_text())
-    if (run["rubric_sha256"] != file_sha(RUBRIC) or run["judge_sha256"] != file_sha(__file__)
-            or run.get("fixtures_sha256") != fixture_sha() or run["labels_sha256"] != file_sha(LABELS)):
+    if any(run.get(key) != value for key, value in calibration_fingerprints().items()):
         raise SystemExit("Calibration inputs changed since this run; rerun the judge.")
     labels = {l["id"]: l for l in json.loads(LABELS.read_text())}
-    verdicts, splits = {}, {}
+    verdicts, splits, all_votes = {}, {}, []
     for path in sorted(run_dir.glob("*.json")):
         if path.name != "summary.json":
             data = json.loads(path.read_text())
@@ -291,19 +320,23 @@ def agreement(run_dir):
                 raise SystemExit("Duplicate fixture or missing votes in calibration run.")
             label = labels[data["id"]]
             answer = (FIDELITY / "fixtures" / (label["id"] + ".md")).read_text()
-            actual = [derive(v["claims"], answer)[0] if "claims" in v else "error" for v in data["votes"]]
+            all_votes.extend(data["votes"])
+            actual = [derive(v["claims"], answer)[0]
+                      if "claims" in v and v.get("models") == [run.get("observed_model")]
+                      else "error" for v in data["votes"]]
             verdicts[data["id"]] = majority(actual)
             splits[data["id"]] = vote_split(actual)
             if verdicts[data["id"]] != data["verdict"]:
                 raise SystemExit("Stored verdict does not match its votes.")
+    if not observed_model(all_votes) or observed_model(all_votes) != run.get("observed_model"):
+        raise SystemExit("Missing or mixed judge model identities; rerun calibration.")
     if set(verdicts) != set(labels):
         raise SystemExit("Stored run does not cover exactly the current fixtures.")
     clear = [i for i, l in labels.items() if l["label"] != "borderline"]
     return {
         "model": run["model"], "votes": run["votes"], "run": str(run_dir.relative_to(ROOT)),
-        "rubric_sha256": run["rubric_sha256"], "judge_sha256": run["judge_sha256"],
-        "labels_sha256": file_sha(LABELS),
-        "fixtures_sha256": run["fixtures_sha256"], "vote_errors": run["vote_errors"],
+        **calibration_fingerprints(), "observed_model": observed_model(all_votes),
+        "vote_errors": sum(v.get("verdict") == "error" for v in all_votes),
         "clear_fixtures": len(clear),
         "agree": sum(verdicts[i] == labels[i]["label"] for i in clear),
         "disagreements": [{"id": i, "label": labels[i]["label"], "judge": verdicts[i]}
@@ -350,7 +383,8 @@ if __name__ == "__main__":
         args.output.mkdir(parents=True, exist_ok=False)
         summary = run_fixtures(args.output, args.model, args.votes, args.jobs, args.only)
         print(json.dumps(summary, indent=2))
-        raise SystemExit(0 if not summary["disagreements"] and not summary["vote_errors"] else 1)
+        raise SystemExit(0 if not summary["disagreements"] and not summary["vote_errors"]
+                         and summary["observed_model"] else 1)
     result = judge(args.file.read_text(), args.scenario, args.model, args.votes)
     print(json.dumps(result, indent=2))
     raise SystemExit(0 if result["verdict"] == "pass" else 1)

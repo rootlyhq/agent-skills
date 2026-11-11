@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 
 import yaml
+from package_config import MCP_URL
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -26,7 +27,7 @@ def generated_files():
             "dependencies": {"tools": [{
                 "type": "mcp", "value": "rootly",
                 "description": "Rootly incident and on-call data",
-                "transport": "streamable_http", "url": "https://mcp.rootly.com/mcp",
+                "transport": "streamable_http", "url": MCP_URL,
             }]},
             "policy": {"allow_implicit_invocation": True},
         }

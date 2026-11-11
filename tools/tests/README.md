@@ -210,7 +210,20 @@ model arms, the five release cases in `fidelity_matrix.RELEASE_CASES` and at
 least three runs per cell; a partial smoke test does not qualify. Other cases
 may have format expectations and be graded, without joining that release
 contract. Missing, extra, mixed-package or mislabeled results fail before
-judge calls. Evidence hashes and package contents must match the manifest.
+judge calls. The version-2 manifest binds execution-source files, evidence and
+the exact package inventory. Unexpected package files and symlinked directories
+fail validation. Each retained `prompt.txt`, its body/sent hashes and its fixture
+hash must match the current case and client invocation; an explicit Codex model
+override must also match the recorded thread model. Older manifests remain
+historical evidence and cannot clear this stricter gate.
+
+Calibration binds the judge's observed native model identity as well as its
+requested alias, all five grading/validation scripts and the deterministic
+expectation files. Missing or mixed observed identities cannot clear calibration;
+a different judge identity cannot grade against that agreement. The gate
+rechecks its grading inputs, agreement, prompts and package after grading to
+reject a candidate changed during the run. These local consistency checks do
+not independently authenticate a model provider or prove an API request occurred.
 
 A run passes only if it completed, read the shared rules, passed fixture mechanics,
 satisfies the final-answer contract, and the judge majority finds no unlabeled

@@ -7,8 +7,12 @@
 - Use Rootly publisher metadata across generated platform manifests and include
   public privacy and terms URLs for OpenAI review.
 - Clarify pending marketplace availability and the remote MCP submission path.
-- Request all toolsets in server read-only mode on bundled MCP connections,
-  retaining the client read-tool allowlists.
+- Request all toolsets in server read-only mode on bundled MCP connections and
+  individual skill dependencies, retaining the client read-tool allowlists.
+- Scan staged Git blobs and outgoing commit history before publication, with
+  optional local hooks and matching CI checks.
+- Bind fidelity clearance to the grading implementation, observed judge identity,
+  retained prompts, fixture inputs and exact package contents.
 - Clarify gaps in supplied excerpts versus complete records, preserve action
   states in illustrative wording, and reinforce the existing answer boundaries.
 - Require deploy assessments to load the shared evidence guidance before drafting.
