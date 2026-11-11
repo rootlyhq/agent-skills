@@ -4,14 +4,14 @@
     "name": "Rootly"
   },
   "metadata": {
-    "description": "Read-only incident response, alert triage, deploy checks, service health, on-call, communications, and retrospectives.",
+    "description": "Read-only incident workflows and optional, explicitly authorized AI skill creation inside Rootly.",
     "version": "3.0.0"
   },
   "plugins": [
     {
       "name": "rootly",
       "source": "./",
-      "description": "Read-only incident response, alert triage, deploy checks, service health, on-call, communications, and retrospectives.",
+      "description": "Read-only incident workflows and optional, explicitly authorized AI skill creation inside Rootly.",
       "version": "3.0.0"
     }
   ]

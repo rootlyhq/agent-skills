@@ -66,11 +66,19 @@
       "get_team",
       "list_incidents",
       "list_services"
+    ],
+    "skill-authoring": [
+      "get_ai_skill",
+      "get_ai_skill_version",
+      "list_ai_skill_versions",
+      "list_ai_skills"
     ]
   },
   "tools": [
     "check_responder_availability",
     "find_related_incidents",
+    "get_ai_skill",
+    "get_ai_skill_version",
     "get_alert",
     "get_alert_by_short_id",
     "get_current_user",
@@ -84,6 +92,8 @@
     "get_schedule_shifts",
     "get_shift_incidents",
     "get_team",
+    "list_ai_skill_versions",
+    "list_ai_skills",
     "list_alert_events",
     "list_alert_groups",
     "list_alerts",

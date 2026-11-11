@@ -12,7 +12,7 @@ from build_skills import generated_files
 ROOT = Path(__file__).resolve().parents[2]
 SKILLS = {
     "incident-response", "alert-triage", "deploy-check", "service-health",
-    "on-call", "incident-communications", "retrospective",
+    "on-call", "incident-communications", "retrospective", "skill-authoring",
 }
 SECTIONS = [
     "Purpose", "Use when / not when", "Inputs", "Jobs", "Repo leg",
@@ -29,7 +29,7 @@ def validate():
 
     version = (ROOT / "VERSION").read_text().strip()
     entries = sorted((ROOT / "skills").glob("*/SKILL.md"))
-    check({p.parent.name for p in entries} == SKILLS, "Expected all seven canonical skills")
+    check({p.parent.name for p in entries} == SKILLS, "Expected all canonical skills")
     for entry in entries:
         skill = entry.parent
         content = entry.read_text()
@@ -53,7 +53,9 @@ def validate():
               f"{skill.name}: invalid description")
         detail = metadata.get("metadata", {})
         check(detail.get("version") == version, f"{skill.name}: version drift")
-        check(detail.get("access") == "read", f"{skill.name}: access must be read")
+        expected_access = "write" if skill.name == "skill-authoring" else "read"
+        check(detail.get("access") == expected_access,
+              f"{skill.name}: access must be {expected_access}")
         check(len(content.splitlines()) < 150, f"{skill.name}: exceeds line budget")
         check(re.findall(r"^## (.+)$", content, re.M) == SECTIONS,
               f"{skill.name}: incorrect sections/order")
@@ -78,7 +80,13 @@ def validate():
             for name, access in rows:
                 check(re.fullmatch(r"[a-z]+(?:_[a-z0-9]+)+", name) is not None,
                       f"{skill.name}: non-snake-case tool {name}")
-                check(access.strip() == "read", f"{skill.name}: non-read tool {name}")
+                permitted = (
+                    access.strip() == "read"
+                    and not name.startswith(("create_", "update_", "delete_"))
+                ) or (
+                    skill.name == "skill-authoring" and name == "create_ai_skill"
+                    and access.strip() == "write")
+                check(permitted, f"{skill.name}: non-read tool or unauthorized access {name}")
         ui_path = skill / "agents/openai.yaml"
         check(ui_path.is_file(), f"{skill.name}: missing generated UI metadata")
         if ui_path.exists():

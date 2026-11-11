@@ -29,7 +29,7 @@ def changed_paths(tag, previous, root=ROOT):
 
 def changed_summary(paths):
     if paths is None:
-        return "Skills: all seven (first release)."
+        return "Skills: all canonical skills (first release)."
     skills = sorted({p.split("/")[1] for p in paths if p.startswith("skills/") and p.count("/") >= 2})
     areas = sorted({p.split("/")[0] for p in paths if not p.startswith("skills/")})
     lines = ["Skills: " + (", ".join(skills) if skills else "unchanged")]

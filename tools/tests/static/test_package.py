@@ -106,6 +106,28 @@ class PackageTests(unittest.TestCase):
         self.assertEqual(reads["tools"], sorted({t for ts in reads["skills"].values() for t in ts}))
         self.assertTrue(all(not t.startswith(("create_", "update_", "delete_")) for t in reads["tools"]))
 
+    def test_authoring_connection_does_not_expand_default_write_permissions(self):
+        import tomllib
+        files = dict(build_package.generated_files())
+        policy = json.loads(files[self.root / "adapters/authoring-tools.json"])
+        self.assertEqual(policy["writes"], ["create_ai_skill"])
+        self.assertEqual(set(policy["tools"]), set(policy["reads"]) | {"create_ai_skill"})
+        profile = tomllib.loads(files[self.root / "adapters/codex/skill-authoring.toml"])
+        self.assertEqual(profile["mcp_servers"]["rootly_authoring"]["enabled_tools"], policy["tools"])
+        default = tomllib.loads(files[self.root / "adapters/codex/readonly.toml"])
+        self.assertNotIn("create_ai_skill", default["mcp_servers"]["rootly"]["enabled_tools"])
+        settings = json.loads(files[self.root / "adapters/claude/skill-authoring.settings.json"])
+        self.assertEqual(settings["permissions"]["ask"], ["mcp__rootly_authoring__create_ai_skill"])
+        self.assertNotIn("mcp__rootly_authoring__create_ai_skill", settings["permissions"]["allow"])
+        for name in ("mcp.json", ".mcp.json"):
+            self.assertEqual(set(json.loads(files[self.root / name])["mcpServers"]), {"rootly"})
+
+    def test_authoring_profile_rejects_broader_or_incomplete_tool_mappings(self):
+        reads = sorted(build_package.AUTHORING_READ_TOOLS)
+        for altered in (reads + ["run_ai_automation"], reads[:-1], []):
+            with self.subTest(reads=altered), self.assertRaisesRegex(ValueError, "four verified"):
+                list(build_package.authoring_files(altered))
+
     def test_private_source_is_not_exported(self):
         (self.root / "CLAUDE.md").write_text("local agent configuration\n")
         (self.root / "docs/ben-practitioner-workbook.md").write_text("private source")

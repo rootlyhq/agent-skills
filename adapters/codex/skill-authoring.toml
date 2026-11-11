@@ -1,0 +1,5 @@
+# Optional authoring connection; merge deliberately for skill creation.
+# The default plugin connection remains read-only.
+[mcp_servers.rootly_authoring]
+url = "https://mcp.rootly.com/mcp?toolsets=ai"
+enabled_tools = ["create_ai_skill", "get_ai_skill", "get_ai_skill_version", "list_ai_skill_versions", "list_ai_skills"]

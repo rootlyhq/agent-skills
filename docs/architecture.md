@@ -1,6 +1,6 @@
 # Architecture
 
-The seven `skills/` directories are the canonical implementation. Every client
+The `skills/` directories are the canonical implementation. Every client
 (Claude Code, Codex, Cursor, Devin, and skills.sh installs) reads the same skill
 bodies, references and worked examples. Claude and Cursor aliases are thin
 routing files, not parallel implementations. Rootly MCP supplies live data;

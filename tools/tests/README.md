@@ -251,8 +251,9 @@ Deploy-check now directs the model to read `references/evidence.md` before
 drafting. Verify actual reads in each retained trace before treating deploy
 cases as coverage of that reference; a link alone does not establish loading.
 Older deploy traces without that read are not regression coverage of changes
-to the reference. The other five skills receive the same generated file without
-behavioral coverage from this release matrix.
+to the reference. The other incident skills receive the same generated file without behavioral
+coverage from this release matrix. AI skill authoring has separate wire probes
+and supplied-record contrasts; this matrix does not establish its creation behavior.
 
 Report results as automated judge passes, not proven error-free answers. A zero-
 rejection binomial bound concerns that detector and sampled conditions only;
@@ -390,7 +391,7 @@ python3 tools/scripts/run_codex_evals.py /path/to/clean-package tools/tests/resu
 python3 tools/scripts/collect_claude_results.py tools/tests/results/claude-run.json tools/tests/results/preserved-claude
 ```
 
-The wire probes cover all seven skills plus non-activation, missing identity,
+The wire probes cover all eight skills plus non-activation, missing identity,
 copied sources, authentication failure, agent unavailability, urgent human
 mitigation, and a committed release diff in a disposable repository. A diagnostic
 pagination counterpart repeats numeric bounds in parameter descriptions. It must
@@ -402,8 +403,12 @@ unavailable-agent probe permits local skill reads while forbidding all MCP calls
 Two execution controls extend the urgent-mitigation question with an explicit
 operator record: execution has not started versus has started. Together with
 approval-only (execution unknown), these prevent "always say unknown" from
-passing. All three forbid MCP calls and execution. The fixture now defines 18
-cases; that definition count is not a completed 18-case native suite. Targeted
+passing. All three forbid MCP calls and execution. The fixture defines 23
+cases, including five AI skill authoring probes. Definition counts are not
+completed native runs. Authoring probes cover authorized creation, draft-only
+requests with an injected write instruction, ambiguous create timeouts, failed
+readback after successful creation, and existing matches. Their creates change
+only local fixture state; they never contact Rootly. Targeted
 repeats retain their own client, model, package and fixture hashes.
 
 Both clients run with only the fixture connection. Claude uses restricted mode,

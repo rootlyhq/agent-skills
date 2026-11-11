@@ -1,7 +1,10 @@
 # Safety boundary
 
-This release analyzes, recommends and drafts. It does not modify Rootly,
-publish messages, page responders, change coverage, or execute production actions.
+The seven incident workflows analyze, recommend and draft. They do not modify
+Rootly, publish messages, page responders, change coverage, or execute production
+actions. The separate `skill-authoring` workflow may create explicitly authorized
+AI skills through an opt-in authoring connection; see [setup](skill-authoring.md).
+It does not modify existing skills or run automations.
 
 Rootly OAuth determines what an account may access. The skill's `access: read`
 metadata does not revoke permissions. Tool annotations alone are descriptive,

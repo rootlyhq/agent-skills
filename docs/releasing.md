@@ -69,13 +69,14 @@ An export is only a candidate; old matrix results do not clear changed skills.
 Versions are stable SemVer: `MAJOR.MINOR.PATCH`, for example `3.0.0`,
 `3.0.1`, `3.1.0`, then `4.0.0`. The historical `v1.0` tag and changelog
 section remain unchanged. The first unified SemVer release is `v3.0.0`, above
-the earlier platform-specific versions. It retains the canonical plugin's
-read-only scope.
+the earlier platform-specific versions. Incident workflows retain their
+read-only scope; optional AI skill creation has a separate permission boundary.
 
 - **Patch:** compatible fixes, including evidence wording and tooling fixes.
 - **Minor:** new skills, references, routes or adapters that preserve compatibility.
 - **Major:** removed/renamed skills, changed output-contract shape, or operational writes.
-  The current unified release remains read-only.
+  Incident workflows remain read-only; AI skill creation is explicitly scoped
+  to the separate authoring workflow.
 
 Every commit follows Conventional Commits: `type(scope): summary`, lowercase,
 imperative, no trailing period, at most 72 characters. Use `feat` for additions,

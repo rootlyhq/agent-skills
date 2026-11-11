@@ -17,6 +17,8 @@ def generated_files():
         metadata = yaml.safe_load(entry.read_text().split("---", 2)[1])
         name = metadata["name"]
         for filename, content in shared.items():
+            if name == "skill-authoring" and filename == "common.md":
+                content = (ROOT / "tools/templates/authoring/common.md").read_text()
             yield entry.parent / "references" / filename, content
         ui = {
             "interface": {

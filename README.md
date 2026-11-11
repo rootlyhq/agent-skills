@@ -15,20 +15,24 @@ Connection and server capabilities are documented in the
 
 ## What's inside
 
-- **Seven skills.** Each is a `SKILL.md` workflow with its own reference
+- **Eight skills.** Each is a `SKILL.md` workflow with its own reference
   material: which Rootly records to pull, how to weigh evidence, what the
   answer should look like, and a worked example. They cover incident response,
   alert triage, deploy checks, service health, on-call, incident
-  communications, and retrospectives.
+  communications, retrospectives, and AI skill authoring.
 - **Rootly MCP connection.** The plugin bundles Rootly's hosted MCP server, so
   after a one-time OAuth sign-in your agent reads live incidents, alerts,
   services, schedules, and retrospectives. No API keys to manage.
 - **Slash commands.** Short aliases such as `/rootly:respond`,
   `/rootly:oncall`, and `/rootly:retro` route to the right skill in Claude Code
   and Cursor.
-- **Read-only guardrails.** The bundled connection requests server read-only
+- **Read-only incident workflows.** The bundled connection requests server read-only
   mode, with additional read-tool allowlists for Claude Code and Codex.
   See [safety](docs/safety.md) for the boundaries and verification steps.
+- **Direct AI skill creation.** A separate, explicitly authorized authoring
+  connection can save reviewed skills inside Rootly. New skills default to
+  disabled; incident and production writes stay prohibited. See
+  [skill authoring](docs/skill-authoring.md).
 
 ## How it helps
 
@@ -51,10 +55,11 @@ Connection and server capabilities are documented in the
 | [On-call](skills/on-call/SKILL.md) | Coverage lookups, complete shift handoffs, provisional swaps |
 | [Incident comms](skills/incident-communications/SKILL.md) | Audience-specific drafts — no invented impact or recovery estimates |
 | [Retrospective](skills/retrospective/SKILL.md) | Evidence and facilitation questions; humans own the conclusions |
+| [Skill authoring](skills/skill-authoring/SKILL.md) | Draft and create reviewed AI skills directly inside Rootly |
 
 ## Install
 
-Each client installs one plugin named `rootly` that bundles the seven skills,
+Each client installs one plugin named `rootly` that bundles the eight skills,
 slash-command aliases, and the Rootly MCP server. Pick your client:
 
 ### Claude Code
@@ -115,8 +120,9 @@ handles personal data when you use its services.
 
 `3.0.0` — current source version. See [GitHub Releases](https://github.com/rootlyhq/agent-skills/releases)
 for published versions. Marketplace updates are pending.
-Read-only by design: the earlier plugins' write actions are not
-included; see [migration](docs/migration.md).
+The incident workflows remain read-only; earlier incident write actions are not
+restored. AI skill creation requires a separate authorized authoring connection;
+see [migration](docs/migration.md) and [skill authoring](docs/skill-authoring.md).
 
 ## License
 

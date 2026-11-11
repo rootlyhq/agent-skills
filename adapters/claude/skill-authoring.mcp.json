@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "rootly_authoring": {
+      "type": "http",
+      "url": "https://mcp.rootly.com/mcp?toolsets=ai"
+    }
+  }
+}

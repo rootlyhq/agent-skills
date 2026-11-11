@@ -2,7 +2,7 @@
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "rootly",
   "version": "3.0.0",
-  "description": "Read-only incident response, alert triage, deploy checks, service health, on-call, communications, and retrospectives.",
+  "description": "Read-only incident workflows and optional, explicitly authorized AI skill creation inside Rootly.",
   "author": {
     "name": "Rootly",
     "url": "https://rootly.com"
@@ -21,7 +21,7 @@
       "interface": {
         "displayName": "Rootly",
         "shortDescription": "Read-only incident workflows",
-        "longDescription": "Seven read-only workflows for incident work: investigate incidents, triage alerts, assess deploy risk, check service health, look up on-call coverage, draft stakeholder updates, and prepare retrospectives. Each skill combines Rootly records with authorized telemetry and repository context, separates evidence from hypotheses, and leaves operational decisions with humans. The skills recommend and draft only: they never page responders, modify incidents, change schedules, publish messages, or act on production.",
+        "longDescription": "Seven read-only workflows for incident work: investigate incidents, triage alerts, assess deploy risk, check service health, look up on-call coverage, draft stakeholder updates, and prepare retrospectives. Each skill combines Rootly records with authorized telemetry and repository context, separates evidence from hypotheses, and leaves operational decisions with humans. These incident workflows recommend and draft only: they never page responders, modify incidents, change schedules, publish messages, or act on production. An eighth workflow drafts and creates reviewed AI skills directly inside Rootly through a separately authorized authoring connection; new skills default to disabled. It does not run skills, enable automations, or modify existing skills.",
         "developerName": "Rootly",
         "category": "Productivity",
         "capabilities": [
@@ -31,7 +31,8 @@
           "Check service health",
           "Look up on-call coverage",
           "Draft incident updates",
-          "Prepare retrospectives"
+          "Prepare retrospectives",
+          "Create Rootly AI skills"
         ],
         "websiteURL": "https://rootly.com",
         "supportURL": "https://docs.rootly.com/contacting-support",
