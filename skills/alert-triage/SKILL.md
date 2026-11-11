@@ -3,7 +3,7 @@ name: alert-triage
 description: Assess a Rootly alert or alert group and recommend opening an incident, attaching it to one, waiting with a clear recheck condition, or dismissing verified noise. Use for pages and alerts before the incident investigation begins.
 license: Apache-2.0
 metadata:
-  author: Rootly AI Labs
+  author: Rootly
   version: "1.1.0"
   category: incident-management
   access: read

@@ -3,7 +3,7 @@ name: on-call
 description: Look up Rootly on-call coverage and personal shifts, prepare shift handoffs, and recommend coverage changes using schedule, workload, expertise, and explicit availability. Use for shifts, handoffs, swaps, or coverage planning without modifying schedules.
 license: Apache-2.0
 metadata:
-  author: Rootly AI Labs
+  author: Rootly
   version: "1.1.0"
   category: incident-management
   access: read

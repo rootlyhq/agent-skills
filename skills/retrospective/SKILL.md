@@ -3,7 +3,7 @@ name: retrospective
 description: Prepare a Rootly post-incident review with sourced metadata, timeline, impact evidence, facilitation questions, and action proposals. Use for retrospectives and incident action-item reviews; preserve human ownership of conclusions, disputed causes, and roadmap commitments.
 license: Apache-2.0
 metadata:
-  author: Rootly AI Labs
+  author: Rootly
   version: "1.1.0"
   category: incident-management
   access: read
