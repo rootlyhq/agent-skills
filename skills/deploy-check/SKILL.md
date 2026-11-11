@@ -89,7 +89,9 @@ Diff size is context, not a universal line-count rule or evidence of poor qualit
 
 Read [the deploy assessment](references/output.md) and return exactly this shape:
 Start the final answer with the verdict and end with the exact non-action
-sentence below. Do not add a preamble, recap, closing offer, or text after it.
+sentence below. The lead names only the deciding evidence and applicable rule;
+do not add a safety assessment of the patch. Do not add a preamble, recap,
+closing offer, or text after it.
 
 ```
 **Verdict: GO | CAUTION | NO-GO | INCOMPLETE.** One sentence with the deciding evidence ID.

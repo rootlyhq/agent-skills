@@ -65,6 +65,12 @@ I did not deploy, approve, roll back, or notify anyone.
 
 ## Verdict rules
 
+The lead names only the deciding observed factor, its source and the applicable
+policy or stated default. Do not add a summary calling the patch low-risk, safe,
+isolated or harmless. Small size, label-only scope, approvals and passing checks
+are observations, not risk assessments. Attribute a risk judgment only when the
+supplied evidence explicitly records it.
+
 - A failing required check, missing human review, active incident on the
   service, or freeze supports NO-GO. A green canary does not cancel failing tests.
 - A relevant major upgrade (in the change or concurrent shared infrastructure),
