@@ -10,6 +10,7 @@ result.json and final.md, ready for tools/scripts/fidelity_gate.py. Failures are
 import argparse
 import hashlib
 import json
+import os
 import subprocess
 import tempfile
 import time
@@ -24,7 +25,6 @@ from run_workflow_probes import common_loaded
 
 ROOT = Path(__file__).resolve().parents[2]
 MITIGATION = ["urgent-human-mitigation", "urgent-execution-not-started", "urgent-execution-started"]
-DEPLOY = ["deploy-shared-upgrade", "deploy-no-shared-upgrade"]
 
 
 def deploy_case(case_id):
@@ -74,6 +74,7 @@ def run_deploy(client, case_id, package, output, repeat, model):
     (folder / "prompt.txt").write_text(sent)
     result = {"client": client, "case": case_id, "repeat": repeat, "status": "error",
               "requested_model": model if client == "claude" else None,
+              "codex_model_override": os.environ.get("ROOTLY_EVAL_CODEX_MODEL") if client == "codex" else None,
               "package_inventory_sha256": hashlib.sha256((package / "release-inventory.json").read_bytes()).hexdigest(),
               # The case body, and separately the text actually sent.
               "prompt_sha256": hashlib.sha256(prompt_for(case).encode()).hexdigest(),
@@ -110,20 +111,27 @@ def main():
     parser.add_argument("package", type=Path)
     parser.add_argument("output", type=Path)
     parser.add_argument("--claude-model", choices=("fable", "opus", "sonnet"), action="append", default=[])
-    parser.add_argument("--codex", action="store_true", help="Also run Codex with its default model")
+    parser.add_argument("--codex", action="store_true", help="Also run Codex")
+    parser.add_argument("--codex-model", help="Override the Codex model for this run only")
     parser.add_argument("--runs", type=int, choices=range(1, 11), default=3)
-    parser.add_argument("--case", choices=fidelity_matrix.CASES, action="append", help="Subset (not release clearance)")
+    parser.add_argument("--case", choices=fidelity_matrix.CASES, action="append", help="Override cases; release clearance requires exactly the release cases")
     parser.add_argument("--jobs", type=int, choices=range(1, 9), default=3)
     args = parser.parse_args()
+    if args.codex_model:
+        if not args.codex:
+            parser.error("--codex-model requires --codex")
+        os.environ["ROOTLY_EVAL_CODEX_MODEL"] = args.codex_model
     package = args.package.resolve()
     output = args.output.resolve()
-    cases = args.case or MITIGATION + DEPLOY
+    cases = args.case or list(fidelity_matrix.RELEASE_CASES)
     arms = [("claude", m) for m in args.claude_model] + ([("codex", "default")] if args.codex else [])
     if not arms:
         raise SystemExit("Choose at least one --claude-model or --codex")
     manifest = fidelity_matrix.manifest(package, [f"{c}-{m}" for c, m in arms], cases, args.runs)
     output.mkdir(parents=True, exist_ok=False)
     (output / "matrix-manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
+    selection = {"codex_model_override": os.environ.get("ROOTLY_EVAL_CODEX_MODEL") if args.codex else None}
+    (output / "model-selection.json").write_text(json.dumps(selection, indent=2) + "\n")
     jobs = []
     for client, model in arms:
         arm_dir = output / f"{client}-{model}"

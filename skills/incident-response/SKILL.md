@@ -17,6 +17,10 @@ metadata:
 Give the incident commander an evidence-backed path toward mitigation.
 Do not delay useful mitigation options to finish a root-cause narrative.
 
+Before either answer path, open [common rules](references/common.md) for this
+invocation. Invoking the skill does not load its linked references; do not rely
+on an earlier read. Then read the relevant output guidance below.
+
 ## Use when / not when
 
 - Use for incident investigation, impact assessment, and a responder brief.
@@ -25,8 +29,6 @@ Do not delay useful mitigation options to finish a root-cause narrative.
 
 ## Inputs
 
-Read [common rules](references/common.md) before answering, including questions
-that supply their own evidence.
 Route on the question's subject, not on whether it supplied its own facts.
 Use **Focused decisions** below for an evidence-rule or action-state question:
 what a rule requires, or what a record establishes about approval, execution or
@@ -39,13 +41,13 @@ Get the affected services, incident window, and relevant customer policy.
 
 ## Jobs
 
-Choose one path by subject. An evidence-rule or action-state question does not
-run the investigation jobs.
+An evidence-rule or action-state question does not run the investigation jobs.
 
 ### Focused decisions
 
-For an evidence-rule or action-state question, read the **Focused decision**
-section of [the output contract](references/output.md) and return exactly:
+For an evidence-rule or action-state question, read **Focused decision** in
+[the output contract](references/output.md). Put requested explanations under
+**Rule** and return only:
 
 ```
 **Answer: Yes | No | Conditional.** One sentence.
@@ -60,13 +62,16 @@ record states it: approval alone gives "approved; execution unknown", and an
 operator log may give `reported started`, never completion or recovery.
 Corroboration is `not supplied` when no second source is given. Action
 risks stay `unassessed in supplied evidence` unless described; do not claim nobody
-assessed them. When asked whether
-the evidence rule requires a delay, the **Rule** says corroboration is required
-for confirmed claims, not a waiting period for authorized humans, and does not
-establish that the action is safe, sufficient, or preferable to waiting. Add no
+assessed them. These table states are literal values: copy them exactly rather
+than paraphrasing them. When asked whether the evidence rule requires a delay,
+copy the **Rule** paragraph in the output contract unchanged. Keep incident
+states and source contents in the table; the Rule explains general principles. Add no
 cost, risk or justification reasoning, sample record wording, or first-person
-narration of the action. Anything beyond the table goes under **Inferences, not
-evidence**, worded as an inference.
+narration of the action. Put requested hypothetical reasoning under **Inferences, not
+evidence**, using "If ... could/would ..." for each bullet.
+Use `None.` for **Inferences, not evidence** unless the user explicitly asks
+for hypothetical scenarios. Do not add sample updates or illustrative action
+narration; keep the action status at the strength supplied by its source.
 
 ### Incident investigations
 

@@ -2,13 +2,14 @@
 """Run synthetic wire-format MCP probes in both native clients; never live MCP.
 
 Mechanical checks are separate from semantic review. A completed run is not a
-workflow pass. Defaults are unchanged unless --claude-model is explicitly given.
+workflow pass. Model overrides are explicit and recorded with each run.
 No copied credentials or real mutation paths.
 """
 
 import argparse
 import hashlib
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -226,6 +227,7 @@ def run(client_name, case, package, output, repeat=None, claude_model=None):
     result = {"client": client_name, "case": case["id"], "status": "error", "semantic_review": "pending",
               "repeat": repeat or 1,
               "requested_model": claude_model if client_name == "claude" else None,
+              "codex_model_override": os.environ.get("ROOTLY_EVAL_CODEX_MODEL") if client_name == "codex" else None,
               "client_version": subprocess.check_output([client_name, "--version"], text=True).strip(),
               # The case body, and separately the text actually sent.
               "prompt_sha256": hashlib.sha256(case["prompt"].encode()).hexdigest(),

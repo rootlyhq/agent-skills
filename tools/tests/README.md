@@ -199,6 +199,12 @@ python3 tools/scripts/run_fidelity_matrix.py /path/to/package tools/tests/result
 python3 tools/scripts/fidelity_gate.py tools/tests/results/fidelity-matrix --package /path/to/package
 ```
 
+The runner defaults to the five release cases. If the configured Codex model is
+unavailable to the authenticated account, pass `--codex-model MODEL` (with
+`--codex`) or set `ROOTLY_EVAL_CODEX_MODEL`. The override applies to evaluation
+threads only, is recorded with the results, and does not edit global settings.
+The gate still checks the model identity reported by each native thread.
+
 The runner writes a manifest before execution. Release grading requires all four
 model arms, the five release cases in `fidelity_matrix.RELEASE_CASES` and at
 least three runs per cell; a partial smoke test does not qualify. Other cases
@@ -213,11 +219,12 @@ separately; commentary is never silently discarded from semantic grading. Missin
 or ambiguous final phases fail collection. Empty batches cannot pass. The gate
 refuses to overwrite existing grades; use a new output directory/copy.
 
-The deploy cases do not exercise the shared evidence reference: deploy-check's
-output contract does not link `references/evidence.md`, and the retained deploy
-traces contain no read of it. Treat them as coverage of the regenerated package,
-never as regression coverage of a change to that reference. The other five
-skills receive the same generated file with no behavioral coverage of it.
+Deploy-check now directs the model to read `references/evidence.md` before
+drafting. Verify actual reads in each retained trace before treating deploy
+cases as coverage of that reference; a link alone does not establish loading.
+Older deploy traces without that read are not regression coverage of changes
+to the reference. The other five skills receive the same generated file without
+behavioral coverage from this release matrix.
 
 Report results as automated judge passes, not proven error-free answers. A zero-
 rejection binomial bound concerns that detector and sampled conditions only;

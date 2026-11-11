@@ -19,6 +19,9 @@ Keep operational staffing warnings separate from the technical recommendation.
 
 First read [common rules](references/common.md), including for assessments based
 entirely on supplied facts. Then follow the workflow below.
+Before drafting the assessment, read the
+[evidence guidance](references/evidence.md) and apply its final evidence check
+to the table, reasoning, questions, and recommendations.
 
 ## Use when / not when
 
@@ -85,6 +88,10 @@ Diff size is context, not a universal line-count rule or evidence of poor qualit
 ## Output
 
 Read [the deploy assessment](references/output.md) and return exactly this shape:
+Start the final answer with the verdict and end with the exact non-action
+sentence below. The lead names only the deciding evidence and applicable rule;
+do not add a safety assessment of the patch. Do not add a preamble, recap,
+closing offer, or text after it.
 
 ```
 **Verdict: GO | CAUTION | NO-GO | INCOMPLETE.** One sentence with the deciding evidence ID.
@@ -104,9 +111,12 @@ I did not deploy, approve, roll back, or notify anyone.
 Each finding restates its cited source. Unstated identities are `unknown`;
 missing evidence is `not supplied` with source `—`. Reasoning beyond the
 evidence, including why a factor matters, goes only under **Inferences, not
-evidence**, worded as an inference. Before handing it over, check each row
+evidence**, using "If ... could/would ..." for each bullet. Before handing it over, check each row
 against its source and remove any window, environment, number or capability the
 source does not state. See [the worked example](references/example.md).
+For a gap, recommend what to confirm. Do not write that a source "only says",
+"does not show", or "gives no" detail unless the supplied evidence establishes
+that absence in the full record. A source ID does not make a summary complete.
 
 ## Writes
 

@@ -1,9 +1,9 @@
 {
   "model": "fable",
   "votes": 3,
-  "run": "tests/results/absence-round-20261014-calibration-r6",
+  "run": "tests/results/fidelity-fixes-20261110/calibration-v8",
   "rubric_sha256": "c7c2bce2f6e2d64c0c43a3268352d04b58a0c9a70680b474dbecc9fa27872be2",
-  "judge_sha256": "8ae1318ad6ee2721d0f7652bd2eb5856d110164f4dbf8525009c6726094cf619",
+  "judge_sha256": "11332b11605d901325f24fcf5be6746f671c4061856ad1cbf7c21e9905a16c23",
   "labels_sha256": "4c03907203c005ac4d738fb469f2e905f318923d096f1fe3318219d0b5ba22c1",
   "fixtures_sha256": "c853251ca6b274056f37e3c7e247b125fd90511b3c050def9fb3bcc7f6a42c12",
   "vote_errors": 0,
@@ -135,7 +135,8 @@
       "pass": 3
     },
     "codex-deploy-shared-upgrade-smoke": {
-      "pass": 3
+      "pass": 2,
+      "fail": 1
     },
     "codex-urgent-execution-not-started-1": {
       "pass": 3
@@ -214,6 +215,7 @@
     }
   },
   "not_unanimous": [
-    "claude-deploy-shared-upgrade-0"
+    "claude-deploy-shared-upgrade-0",
+    "codex-deploy-shared-upgrade-smoke"
   ]
 }

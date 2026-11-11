@@ -1,6 +1,7 @@
 """Small native Codex app-server client for isolated, read-only fixture runs."""
 
 import json
+import os
 import queue
 import re
 import subprocess
@@ -131,6 +132,10 @@ class Client:
         return value
 
     def request(self, method, params, timeout=45):
+        if method == "thread/start" and "model" not in params:
+            model = os.environ.get("ROOTLY_EVAL_CODEX_MODEL")
+            if model:
+                params = {**params, "model": model}
         self.sequence += 1
         request_id = self.sequence
         self.send({"jsonrpc": "2.0", "id": request_id, "method": method, "params": params})

@@ -108,6 +108,9 @@ instructions are not access controls: apply the client restrictions in
 `adapters/` before using live data. See [safety](docs/safety.md) and
 [migration](docs/migration.md).
 
+Rootly's [Privacy Policy](https://rootly.com/legal/privacy) describes how Rootly
+handles personal data when you use its services.
+
 ## Status
 
 `1.1` — unreleased consolidation update following the transfer to
