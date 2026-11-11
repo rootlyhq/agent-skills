@@ -1,7 +1,8 @@
 # Rootly tool mapping
 
 These are read operations verified against the public Rootly MCP source at
-`427bd6128704eb663eb394fc614858dba15d0d5e` (2026-10-07), reviewed 2026-10-09.
+[commit `7140ccb10ce5f231d7f6d62ecc4716e976db72d1`](https://github.com/rootlyhq/rootly-mcp-server/tree/7140ccb10ce5f231d7f6d62ecc4716e976db72d1),
+reviewed 2026-11-11.
 This is source verification, not a capture of your connected server's tool list.
 Discover the current schema and read-only annotations before calling a tool.
 If a capability is absent, say so; do not guess aliases or bypass its permissions.

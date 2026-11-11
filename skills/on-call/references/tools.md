@@ -1,7 +1,8 @@
 # Rootly tool mapping
 
 These are read operations verified against the public Rootly MCP source at
-`427bd6128704eb663eb394fc614858dba15d0d5e` (2026-10-07), reviewed 2026-10-09.
+[commit `7140ccb10ce5f231d7f6d62ecc4716e976db72d1`](https://github.com/rootlyhq/rootly-mcp-server/tree/7140ccb10ce5f231d7f6d62ecc4716e976db72d1),
+reviewed 2026-11-11.
 This is source verification, not a capture of your connected server's tool list.
 Discover the current schema and read-only annotations before calling a tool.
 If a capability is absent, say so; do not guess aliases or bypass its permissions.
@@ -19,7 +20,7 @@ broader credentials. Scope and page list operations before expanding them.
 | Handoff context | `get_oncall_handoff_summary` | read | schedule_ids/team_ids, timezone, include_incidents when needed |
 | Individual shift records | `get_schedule_shifts` | read | Use exact schedule ID and time argument names from the connected schema; no unfilled path placeholders |
 | Cross-schedule shifts | `list_shifts` | read | Use supported user/schedule IDs and time bounds from the connected schema |
-| Shift incidents | `get_shift_incidents` | read | start_time, end_time; schedule_ids, severity/status/tags only if relevant; does not by itself prove person-level involvement |
+| Shift incidents | `get_shift_incidents` | read | start_time, end_time; optional severity/status. schedule_ids and tags are ignored and do not scope results; returned incidents do not by themselves establish schedule or person-level involvement |
 | Shift alert records | `list_alerts` | read | Bound to the shift and relevant services/sources using supported filters and pagination; verify person-level involvement rather than assume all routed alerts were touched |
 | Alert handling history | `list_alert_events` | read | Use actual alert ID and connected schema; verify outcomes and handling actors when exposed, otherwise disclose attribution gaps |
 | Workload | `get_oncall_shift_metrics` | read | start_date, end_date; user_ids/schedule_ids, group_by |

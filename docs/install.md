@@ -106,9 +106,10 @@ excludes it, so `.zip` installs are unaffected.
 
 The bundled connection requests
 `https://mcp.rootly.com/mcp?toolsets=all&readonly=true`. The server's
-[toolset documentation](https://github.com/rootlyhq/rootly-mcp-server#toolsets)
+[toolset documentation](https://github.com/rootlyhq/rootly-mcp-server/blob/7140ccb10ce5f231d7f6d62ecc4716e976db72d1/README.md#toolsets)
 describes `readonly=true` as a per-connection guard that hides/refuses write
-tools and rejects non-GET requests to the Rootly API. `toolsets=all` preserves
+tools. Its [HTTP guard](https://github.com/rootlyhq/rootly-mcp-server/blob/7140ccb10ce5f231d7f6d62ecc4716e976db72d1/src/rootly_mcp_server/transport.py#L1182-L1197)
+rejects methods other than GET or HEAD. `toolsets=all` preserves
 the read tools needed across all seven workflows; `core` alone is insufficient.
 This configuration is not live deployment validation or an account-wide
 permission change. Reconnect after updating the URL and verify the actual tool
