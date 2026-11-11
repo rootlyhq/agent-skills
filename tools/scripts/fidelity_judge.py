@@ -170,22 +170,61 @@ def judge(answer, scenario, model="fable", votes=3, caller=call_model, expected_
     prompt = judge_prompt(scenario_evidence(scenario), answer)
     records = []
     for _ in range(votes):
-        try:
-            output, models = caller(prompt, model)
-            if (not isinstance(output, dict) or set(output) != {"claims"}
-                    or not isinstance(models, list) or len(models) != 1
-                    or not isinstance(models[0], str) or not models[0]):
-                raise ValueError("Missing claims or judge model identity")
-            if expected_model is not None and models != [expected_model]:
-                raise ValueError("Judge model differs from calibrated identity")
-            verdict, failing, ungrounded = derive(output["claims"], answer)
-            records.append({"verdict": verdict, "models": models, "claims": output.get("claims", []),
-                            "failing": failing, "ungrounded": ungrounded})
-        except Exception as error:  # Retain the failure; never count it as a pass.
-            records.append({"verdict": "error", "error": f"{type(error).__name__}: {error}"})
+        attempts = []
+        vote_model = expected_model
+        for _attempt in range(2):
+            try:
+                output, models = caller(prompt, model)
+                if (not isinstance(output, dict) or set(output) != {"claims"}
+                        or not isinstance(models, list) or len(models) != 1
+                        or not isinstance(models[0], str) or not models[0].strip()):
+                    raise ValueError("Missing claims or judge model identity")
+                if vote_model is not None and models != [vote_model]:
+                    raise ValueError("Judge model differs from calibrated or initial identity")
+                vote_model = models[0]
+                verdict, failing, ungrounded = derive(output["claims"], answer)
+                record = {"verdict": verdict, "models": models, "claims": output["claims"],
+                          "failing": failing, "ungrounded": ungrounded}
+            except Exception as error:
+                record = {"verdict": "error", "error": f"{type(error).__name__}: {error}"}
+            attempts.append(record)
+            # Retry only a quotation error with no grounded rejection. Malformed
+            # payloads, caller/identity errors and valid findings still block.
+            if not (record.get("ungrounded") and not record.get("failing")):
+                break
+        if len(attempts) > 1:
+            record = dict(record, attempts=attempts)
+        records.append(record)
     actual = observed_model(records)
     return {"verdict": majority([r["verdict"] for r in records]) if actual else "error",
-            "observed_model": actual, "votes": records}
+            "observed_model": actual, "votes": records,
+            "retry_attempts": sum(len(r.get("attempts", [r])) - 1 for r in records)}
+
+
+def replay_vote(vote, answer, expected_model):
+    """Revalidate the verdict and bounded retry history of a retained ballot."""
+    if not isinstance(vote, dict):
+        return "error"
+    attempts = vote.get("attempts", [vote])
+    if (not isinstance(attempts, list) or len(attempts) not in (1, 2)
+            or ("attempts" in vote and (len(attempts) != 2
+                or not isinstance(attempts[-1], dict)
+                or vote != dict(attempts[-1], attempts=attempts)))):
+        return "error"
+    for index, attempt in enumerate(attempts):
+        if (not isinstance(attempt, dict) or ("attempts" in vote and "attempts" in attempt)
+                or attempt.get("models") != [expected_model]):
+            return "error"
+        try:
+            verdict, failing, ungrounded = derive(attempt["claims"], answer)
+        except (KeyError, TypeError, ValueError):
+            return "error"
+        if attempt.get("verdict") != verdict:
+            return "error"
+        if index < len(attempts) - 1 and not (
+                verdict == "error" and ungrounded and not failing):
+            return "error"
+    return verdict
 
 
 def vote_split(verdicts):
@@ -294,6 +333,9 @@ def run_fixtures(output, model, votes, jobs, only=None):
                           for r in clear if r["verdict"] != r["label"]],
         "borderline": [{"id": r["id"], "judge": r["verdict"]} for r in results if r["label"] == "borderline"],
         "vote_errors": sum(v["verdict"] == "error" for r in results for v in r["votes"]),
+        "retry_attempts": sum(r["retry_attempts"] for r in results),
+        "attempt_errors": sum(a["verdict"] == "error" for r in results for v in r["votes"]
+                              for a in v.get("attempts", [v])),
         "vote_splits": {r["id"]: vote_split([v["verdict"] for v in r["votes"]]) for r in results},
         "not_unanimous": sorted(r["id"] for r in results
                                 if len({v["verdict"] for v in r["votes"]}) > 1),
@@ -321,9 +363,8 @@ def agreement(run_dir):
             label = labels[data["id"]]
             answer = (FIDELITY / "fixtures" / (label["id"] + ".md")).read_text()
             all_votes.extend(data["votes"])
-            actual = [derive(v["claims"], answer)[0]
-                      if "claims" in v and v.get("models") == [run.get("observed_model")]
-                      else "error" for v in data["votes"]]
+            actual = [replay_vote(v, answer, run.get("observed_model"))
+                      for v in data["votes"]]
             verdicts[data["id"]] = majority(actual)
             splits[data["id"]] = vote_split(actual)
             if verdicts[data["id"]] != data["verdict"]:
@@ -337,6 +378,9 @@ def agreement(run_dir):
         "model": run["model"], "votes": run["votes"], "run": str(run_dir.relative_to(ROOT)),
         **calibration_fingerprints(), "observed_model": observed_model(all_votes),
         "vote_errors": sum(v.get("verdict") == "error" for v in all_votes),
+        "retry_attempts": sum(len(v.get("attempts", [v])) - 1 for v in all_votes),
+        "attempt_errors": sum(a.get("verdict") == "error" for v in all_votes
+                              for a in v.get("attempts", [v])),
         "clear_fixtures": len(clear),
         "agree": sum(verdicts[i] == labels[i]["label"] for i in clear),
         "disagreements": [{"id": i, "label": labels[i]["label"], "judge": verdicts[i]}

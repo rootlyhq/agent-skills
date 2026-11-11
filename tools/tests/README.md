@@ -122,9 +122,16 @@ remains required; a known false negative blocks clearance even if the judge pass
 - **Judge:** `tools/scripts/fidelity_judge.py` asks a tool-free model to quote every
   unlabeled inference. The verdict is derived locally: a quote must appear in
   the answer to count, and an ungrounded quote is a judge error, not a failure.
-  At least three votes, an odd count and a strict majority are required. Any
-  malformed response, ungrounded quote or failed vote blocks the run; errors are
-  never discarded to shrink the quorum. Progress commentary is judged too.
+  At least three votes, an odd count and a strict majority are required. A vote
+  with ungrounded quotes and no grounded fidelity rejection gets one fresh attempt
+  with the identical prompt and native model. Both attempts are retained in
+  `attempts`; the replacement occupies the same vote slot, so the quorum never
+  shrinks. Valid rejections are never retried. A second quotation error, malformed
+  response, caller failure or model-identity error still blocks the run.
+  Gate rows expose `judge_retry_attempts`; calibration reports `retry_attempts`
+  and `attempt_errors` separately from unresolved `vote_errors`. Agreement
+  recomputes verdicts and retry eligibility from every retained attempt.
+  Progress commentary is judged too.
   Calibration records each fixture's vote split: a label agreed 2-1 is weaker
   evidence than a unanimous one. Read `not_unanimous` in the current
   calibration before relying on a judge result in the classes it names; which

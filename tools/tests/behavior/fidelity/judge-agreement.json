@@ -1,11 +1,11 @@
 {
   "model": "fable",
   "votes": 3,
-  "run": "tests/results/validation-hardening-20261110/calibration-v1",
+  "run": "tests/results/judge-retry-20261110/calibration",
   "rubric_sha256": "c7c2bce2f6e2d64c0c43a3268352d04b58a0c9a70680b474dbecc9fa27872be2",
-  "judge_sha256": "acb555bbbd66483efd6012994a039a4c2d2ba949f3304eb5a5f446049d228d84",
+  "judge_sha256": "c244368c907a9c0d815680cec65c1181cefec039ab5ee9cb4bb277bbc38b30e8",
   "contract_sha256": "fab1c893b146c5cba05c95bf6eb5ccd62a3b8c95115ce14274f35fabbe85174a",
-  "gate_sha256": "615db660ad2ebbf7efd78c5afe5e892a21ccddd500c3296240299241acda7ad4",
+  "gate_sha256": "959c8d4e548e595b6fc060b28c9d5baca68469124f562bc50ca50d3050e72d90",
   "matrix_sha256": "722b713545255142c76d98113bec6fe49f7cac865d4be22ce993c24bd1487492",
   "inputs_sha256": "d47110bef434e68e89cf251065721f546bfee2470d144cf5dcdd4f2fd12016db",
   "expectations_sha256": "a51226e842bdf439e6b96b1e9acc6a6340f52cb0e7bb49fa3872f2f26b077bca",
@@ -14,6 +14,8 @@
   "fixtures_sha256": "c853251ca6b274056f37e3c7e247b125fd90511b3c050def9fb3bcc7f6a42c12",
   "observed_model": "claude-fable-5-1",
   "vote_errors": 0,
+  "retry_attempts": 0,
+  "attempt_errors": 0,
   "clear_fixtures": 44,
   "agree": 44,
   "disagreements": [],
@@ -84,8 +86,8 @@
       "fail": 3
     },
     "claude-deploy-shared-upgrade-0": {
-      "fail": 2,
-      "pass": 1
+      "pass": 1,
+      "fail": 2
     },
     "claude-deploy-shared-upgrade-1": {
       "fail": 3
@@ -115,8 +117,8 @@
       "fail": 3
     },
     "claude-urgent-human-mitigation-2": {
-      "pass": 1,
-      "fail": 2
+      "fail": 2,
+      "pass": 1
     },
     "claude-urgent-human-mitigation-3": {
       "fail": 3
@@ -143,8 +145,7 @@
       "pass": 3
     },
     "codex-deploy-shared-upgrade-smoke": {
-      "pass": 2,
-      "fail": 1
+      "pass": 3
     },
     "codex-urgent-execution-not-started-1": {
       "pass": 3
@@ -224,7 +225,6 @@
   },
   "not_unanimous": [
     "claude-deploy-shared-upgrade-0",
-    "claude-urgent-human-mitigation-2",
-    "codex-deploy-shared-upgrade-smoke"
+    "claude-urgent-human-mitigation-2"
   ]
 }
