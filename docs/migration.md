@@ -1,6 +1,6 @@
-# Migration to 1.1
+# Migration to 1.1.0
 
-Version 1.1 updates distribution metadata after the transfer to
+Version 1.1.0 updates distribution metadata after the transfer to
 `rootlyhq/agent-skills`. Use that repository for new installations. Existing
 GitHub URLs redirect to it; the previous repository name must remain unused to
 preserve those redirects. Marketplace updates are pending.

@@ -64,77 +64,81 @@ plus the exported ZIP, after the static suite, current judge calibration, comple
 evidence-fidelity matrix and manual semantic review in `tools/tests/README.md` pass.
 An export is only a candidate; old matrix results do not clear changed skills.
 
-## Versioning
+## Versioning and release PRs
 
-`VERSION` is the only place a version is typed, and only through
-`tools/scripts/bump_version.py`. Everything else derives from it: the generated
-manifests through `build_package.py`, the exported artifact
-name, the top `CHANGELOG.md` section, the README status line and the migration
-title. `check_release_metadata.py` fails when any of these disagree; CI runs it
-on every push and again before a release.
+Versions are stable SemVer: `MAJOR.MINOR.PATCH`, for example `1.1.0`,
+`1.1.1`, `1.2.0`, then `2.0.0`. The historical `v1.0` tag and changelog
+section remain unchanged. The first canonical SemVer release is `v1.1.0`.
 
-Versions are `MAJOR.MINOR`: `1.0`, `1.1`, `1.2`, then `2.0`. No patch digit,
-no pre-release suffix.
+- **Patch:** compatible fixes, including evidence wording and tooling fixes.
+- **Minor:** new skills, references, routes or adapters that preserve compatibility.
+- **Major:** removed/renamed skills, changed output-contract shape, or operational writes.
+  The 1.x releases remain read-only.
 
-- **Minor**: the normal release. New skills, references, routes or adapters,
-  and fixes to wording, evidence rules or examples. Existing prompts keep working.
-- **Major**: a skill is removed or renamed, an output contract changes shape, or
-  a workflow gains write actions. Users must re-read the migration notes.
+Every commit follows Conventional Commits: `type(scope): summary`, lowercase,
+imperative, no trailing period, at most 72 characters. Use `feat` for additions,
+`fix` for fixes and `!` for breaking changes. CI checks every published commit.
+Release PRs must be **squash-merged** with their exact title,
+`chore(release): v<VERSION>`, so that the tagged commit is the reviewed release
+commit. Never move an existing tag.
 
-The release tag is `v` plus the exact `VERSION`, on the commit whose changelog
-section carries the release date. One tag per version; a tag is never moved.
+### Automated preparation
 
-### Commit messages
+`.github/workflows/release-please.yml` maintains one release PR from commits on
+main. Release-please owns `VERSION`, its tracking manifest and the generated
+changelog entries. `tools/scripts/prepare_release_pr.py` preserves matching
+curated migration notes, synchronizes README/migration titles and skill versions,
+then runs the existing manifest generators. CI rejects generated-file drift.
+The legacy `bump_version.py` command is for reviewed maintenance/migration only;
+do not run it in competition with an open automated release PR.
 
-Every commit follows [Conventional Commits](https://www.conventionalcommits.org/):
-`type(scope): summary`, lowercase, imperative, no trailing period, 72 characters
-at most. Types are `feat`, `fix`, `docs`, `refactor`, `perf`, `test`, `build`,
-`ci`, `chore` and `revert`; the scope is optional and usually a skill name, such
-as `fix(on-call): keep coverage gaps visible`. A `!` after the type or scope
-marks a breaking change, which means a major version. CI checks every pushed
-commit with `tools/scripts/check_commit_messages.py`.
+The workflow uses a pinned release-please action, Blacksmith runners and
+`GITHUB_TOKEN`. Since that token does not trigger push/pull-request workflows,
+the workflow explicitly dispatches `validate.yml` on the final release-PR head.
+It never merges the PR, creates a tag, or publishes a release. Merging an
+ordinary implementation PR may create/update the release PR, but cannot publish.
 
-The changelog stays the curated release notes; commit subjects are for the
-history and the compare link in each release.
+Before merging the release PR, review the changelog, migration guidance and
+generated manifests. Preserve useful curated notes; generated commit summaries
+are a starting point, not a substitute for release review.
 
-### Bump
+### Explicit publication
 
-```sh
-python3 tools/scripts/bump_version.py 1.1
-```
+After squash-merging the release PR:
 
-This rewrites `VERSION`, retitles the unreleased changelog section (or opens a
-new one when the top section is already dated), updates the README status line
-and the migration title, regenerates the manifests and runs the metadata check.
-It refuses a malformed version or one that does not follow the current one;
-`--allow-downgrade` overrides the ordering check and is only legitimate before
-the first release tag exists.
-Fill in the changelog entries; the bump is committed together with the release below.
+1. Check out its exact commit, build the final export and inspect the ZIP.
+2. Complete current judge calibration, the full evidence-fidelity matrix and
+   manual semantic review for that exact candidate as described in
+   `tools/tests/README.md`. Keep raw receipts in ignored results directories.
+   This remains a human signoff; CI does not run credentialed model turns.
+3. Obtain explicit approval for the commit, ZIP checksum and release tag.
+4. Run the **Release** workflow manually on `main`, supplying the exact
+   40-character release commit SHA, the reviewed ZIP's SHA-256, and the fidelity
+   review confirmation. An unreviewed candidate cannot be published.
+5. The prepare job verifies main ancestry, release commit subject, tracking
+   manifest, dated metadata, static checks, publication scan and deterministic
+   ZIP checksum. It uploads only the reviewed ZIP, checksum, inventory and notes.
+6. Approve the `release` environment deployment. Its required maintainer
+   reviewer and `main`-only deployment policy must be configured before use.
+   Approval happens after preparation, and the publish job downloads that
+   prepare job's exact artifact ID.
+7. The publish job creates an annotated immutable tag and a GitHub Release with
+   `rootly-v<VERSION>.zip`, its `.sha256`, and `release-inventory.json`.
+   It uploads the existing prepared bytes, rather than rebuilding after approval.
 
-### Release
+The publisher is the only owner of tags and GitHub releases. Release-please runs
+in PR-only mode; it does not create a competing release. No tag-push workflow is
+needed, so the token's event-suppression behavior cannot skip asset publication.
+The workflow does not submit to any marketplace.
 
-```sh
-python3 tools/scripts/bump_version.py --release   # dates the top changelog section
-# run the release checks above
-git commit -am "chore(release): v1.1"
-git tag -a v1.1 -m v1.1
-git push origin main v1.1
-```
+A failed publication can resume when its existing tag still points at the same
+approved commit and no GitHub Release exists. It refuses a different tag target
+or an already published release. Repair partial asset uploads only after review;
+do not delete/move tags or overwrite published assets to force a retry.
 
-A release is exactly one commit, `chore(release): v<VERSION>`, holding the
-version bump, the dated changelog and the regenerated manifests, with the tag on
-that commit. The release workflow refuses a tag on any other commit.
-
-Pushing the tag runs `.github/workflows/release.yml`. It repeats the static
-gates, refuses a tag that does not equal `v$VERSION` or a changelog section
-still marked unreleased, exports the package and creates a GitHub Release titled
-after the tag with three assets: `rootly-v<VERSION>.zip`, its `.sha256`, and
-`release-inventory.json`. `tools/scripts/release_notes.py` writes the notes: the
-changelog section, which skills changed since the previous tag with a compare
-link, the install commands and the archive checksum. The workflow never creates tags,
-runs models or publishes to a marketplace. Submissions below are made by hand:
-Git-backed listings pin the released source commit, while the OpenAI submission
-attaches the exported skills to the remote MCP draft.
+The release notes include curated/generated changelog entries, changed skills,
+the previous-tag comparison (including the historical `v1.0`), install commands
+and the archive checksum.
 
 ## Where each listing is submitted
 

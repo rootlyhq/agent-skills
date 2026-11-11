@@ -113,9 +113,9 @@ handles personal data when you use its services.
 
 ## Status
 
-`1.1` — unreleased consolidation update following the transfer to
-`rootlyhq/agent-skills`. The published release is `1.0`. Marketplace updates
-are pending. Read-only by design: the earlier plugins' write actions are not
+`1.1.0` — current source version. See [GitHub Releases](https://github.com/rootlyhq/agent-skills/releases)
+for published versions. Marketplace updates are pending.
+Read-only by design: the earlier plugins' write actions are not
 included; see [migration](docs/migration.md).
 
 ## License

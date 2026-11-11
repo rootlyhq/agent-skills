@@ -18,7 +18,7 @@ class SubjectTests(unittest.TestCase):
     def test_valid_subjects(self):
         for subject in ("feat: add alert grouping evidence", "fix(on-call): keep handoff gaps visible",
                         "docs(install): clarify Codex setup", "feat(skills)!: rename deploy-check outputs",
-                        "chore(release): v1.1", "ci: pin setup-python", "fix: handle MCP timeouts"):
+                        "chore(release): v1.1.0", "ci: pin setup-python", "fix: handle MCP timeouts"):
             self.assertEqual(messages.subject_problems(subject), [], subject)
 
     def test_missing_type_fails(self):
@@ -43,7 +43,7 @@ class SubjectTests(unittest.TestCase):
         self.assertTrue(messages.subject_problems("fix(On-Call): keep gaps"))
 
     def test_release_subject(self):
-        self.assertEqual(messages.release_subject("1.1"), "chore(release): v1.1")
+        self.assertEqual(messages.release_subject("1.1.0"), "chore(release): v1.1.0")
 
 
 class RangeTests(unittest.TestCase):
@@ -69,13 +69,13 @@ class RangeTests(unittest.TestCase):
         self.assertEqual(found[0][2].strip(), "body line")
 
     def test_release_check_reads_tagged_commit(self):
-        self.commit("chore(release): v1.0")
-        self.git("tag", "-a", "v1.0", "-m", "v1.0")
-        with patch.object(messages, "ROOT", self.root), patch.object(sys, "argv", ["x", "--release", "v1.0"]):
+        self.commit("chore(release): v1.0.0")
+        self.git("tag", "-a", "v1.0.0", "-m", "v1.0.0")
+        with patch.object(messages, "ROOT", self.root), patch.object(sys, "argv", ["x", "--release", "v1.0.0"]):
             self.assertEqual(messages.main(), 0)
         self.commit("feat: later")
-        self.git("tag", "-a", "v1.1", "-m", "v1.1")
-        with patch.object(messages, "ROOT", self.root), patch.object(sys, "argv", ["x", "--release", "v1.1"]):
+        self.git("tag", "-a", "v1.1.0", "-m", "v1.1.0")
+        with patch.object(messages, "ROOT", self.root), patch.object(sys, "argv", ["x", "--release", "v1.1.0"]):
             self.assertEqual(messages.main(), 1)
 
 
