@@ -941,7 +941,7 @@
   {
     "skill": "incident-response",
     "format": "focused",
-    "prompt": "Does the evidence-confirmation rule itself require the commander to wait before choosing the mitigation? Explain the difference between a human decision and a confirmed cause, and what the supplied assessment establishes. Do not contact services or execute anything.",
+    "prompt": "Does the evidence-confirmation rule itself require the commander to wait before choosing the mitigation? Explain the difference between a human decision and a confirmed cause, and what the supplied assessment establishes. Do not contact live services or execute the mitigation. Local read-only access to the installed skill resources is allowed.",
     "facts": [
       "Monitor M1 reports a batch-ingestion backlog from one authenticated source. No independent operational corroboration is supplied.",
       "Approval A1 records that the incident commander approved temporarily pausing batch imports under the practiced, reversible runbook R1 and has authority to choose that mitigation. Execution has not been reported.",
@@ -964,7 +964,7 @@
   {
     "skill": "incident-response",
     "format": "focused",
-    "prompt": "Does the evidence-confirmation rule itself require the commander to wait before choosing the mitigation? Explain the difference between a human decision and a confirmed cause, and what the supplied assessment establishes. Do not contact services or execute anything.",
+    "prompt": "Does the evidence-confirmation rule itself require the commander to wait before choosing the mitigation? Explain the difference between a human decision and a confirmed cause, and what the supplied assessment establishes. Do not contact live services or execute the mitigation. Local read-only access to the installed skill resources is allowed.",
     "facts": [
       "Monitor M1 reports a batch-ingestion backlog from one authenticated source. No independent operational corroboration is supplied.",
       "Approval A1 records that the incident commander approved temporarily pausing batch imports under the practiced, reversible runbook R1 and has authority to choose that mitigation. Execution has not been reported.",
@@ -987,7 +987,7 @@
   {
     "skill": "incident-response",
     "format": "focused",
-    "prompt": "Must the incident commander wait for a confirmed cause before choosing a mitigation? Explain that distinction and which execution claim the handoff can support. Do not contact services or execute anything.",
+    "prompt": "Must the incident commander wait for a confirmed cause before choosing a mitigation? Explain that distinction and which execution claim the handoff can support. Do not contact live services or execute the mitigation. Local read-only access to the installed skill resources is allowed.",
     "facts": [
       "Alert M1 reports elevated export-job failures from one authenticated monitor. An independent cause or recovery check has not been supplied.",
       "Approval A1 records the commander's approval to restart the export scheduler under a practiced, reversible runbook; the commander has authority to choose that action.",
@@ -1010,7 +1010,7 @@
   {
     "skill": "incident-response",
     "format": "focused",
-    "prompt": "Must the incident commander wait for a confirmed cause before choosing a mitigation? Explain that distinction and which execution claim the handoff can support. Do not contact services or execute anything.",
+    "prompt": "Must the incident commander wait for a confirmed cause before choosing a mitigation? Explain that distinction and which execution claim the handoff can support. Do not contact live services or execute the mitigation. Local read-only access to the installed skill resources is allowed.",
     "facts": [
       "Alert M1 reports elevated export-job failures from one authenticated monitor. An independent cause or recovery check has not been supplied.",
       "Approval A1 records the commander's approval to restart the export scheduler under a practiced, reversible runbook; the commander has authority to choose that action.",
