@@ -109,7 +109,7 @@ I did not deploy, approve, roll back, or notify anyone.
 Each finding restates its cited source. Unstated identities are `unknown`;
 missing evidence is `not supplied` with source `—`. Reasoning beyond the
 evidence, including why a factor matters, goes only under **Inferences, not
-evidence**, worded as an inference. Before handing it over, check each row
+evidence**, using "If ... could/would ..." for each bullet. Before handing it over, check each row
 against its source and remove any window, environment, number or capability the
 source does not state. See [the worked example](references/example.md).
 For a gap, recommend what to confirm. Do not write that a source "only says",

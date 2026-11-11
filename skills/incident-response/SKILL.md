@@ -68,7 +68,7 @@ for confirmed claims, not a waiting period for authorized humans, and does not
 establish that the action is safe, sufficient, or preferable to waiting. Add no
 cost, risk or justification reasoning, sample record wording, or first-person
 narration of the action. Anything beyond the table goes under **Inferences, not
-evidence**, worded as an inference.
+evidence**, using "If ... could/would ..." for each bullet.
 Do not add a sample status update or illustrative action narration in any
 section of a focused decision. State only the supplied action status; a start
 report leaves completion unknown unless further evidence establishes it.

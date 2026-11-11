@@ -51,10 +51,13 @@ sentence. Do not add an introduction, recap, closing offer, or sample update.
 The relevant rule in two or three sentences.
 
 **Inferences, not evidence**
-- Reasoning beyond the table, each labeled. Or "None."
+- If [unverified condition], [possible consequence or recommendation]. Or "None."
+  Keep every clause conditional; do not repeat facts or invent possibilities.
 
 **Next check**
-- The next recommended check.
+- The next recommended check. Ask for any missing prerequisite first; for an
+  unread runbook, ask whether verification criteria exist before referring to
+  them as given. Request completion evidence without claiming a full log lacks it.
 
 I did not call Rootly, change any record, or execute anything.
 ```

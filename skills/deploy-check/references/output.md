@@ -25,7 +25,8 @@ closing offer. Keep any explanation inside the named sections.
 | Staffing | ... | ... |
 
 **Inferences, not evidence**
-- Useful conditional operational reasoning that changes the recommendation. Or "None."
+- If [unverified condition], [possible operational consequence or recommendation].
+  Use this conditional form for each useful inference, or write "None."
   Do not repeat evidence, inventory missing details, or speculate to fill this section.
 
 **Unresolved checks**
@@ -76,12 +77,12 @@ I did not deploy, approve, roll back, or notify anyone.
 
 ## Inferences, not evidence
 
-Put every statement that goes beyond the table here, each worded as an
-inference: "If ...", "could", "not established by the supplied material".
-The heading alone does not qualify
-an otherwise factual assertion. Explanations of why a factor
-matters, possible interactions between changes, and guesses about scope belong
-here and nowhere else. Never describe the customer's safeguards, monitors or
+Use up to three short bullets for useful operational inferences. Each begins
+"If" with an unverified condition, followed by what "could" or "would" follow,
+or a conditional recommendation. Keep every clause conditional; do not append
+factual assertions, risk rankings, or source summaries. For example: "If the
+shared dependency degrades during rollout, it could affect the mapped service
+even when the patch checks pass." The heading alone does not qualify a claim. Never describe the customer's safeguards, monitors or
 teams as able or unable to do something the evidence does not state.
 Move missing details to **Unresolved checks** as recommendations to confirm
 information. Do not narrate that a source "only says", "does not show", or
