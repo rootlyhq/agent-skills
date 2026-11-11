@@ -32,7 +32,9 @@ Responder, concurrent-failure, vendor and impact questions use the brief above
 even when they supply their own facts. Return exactly these sections and
 nothing else.
 Begin the final answer with the answer line and end at the exact non-action
-sentence. Do not add an introduction, recap, closing offer, or sample update.
+sentence. Use only the prescribed headings. Put every requested explanation
+under **Rule** instead of creating a new section. Do not add an introduction,
+recap, closing offer, or sample update.
 
 ```
 **Answer: Yes | No | Conditional.** One sentence answering the question asked.

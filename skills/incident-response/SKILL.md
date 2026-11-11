@@ -45,8 +45,9 @@ An evidence-rule or action-state question does not run the investigation jobs.
 
 ### Focused decisions
 
-For an evidence-rule or action-state question, read the **Focused decision**
-section of [the output contract](references/output.md) and return exactly:
+For an evidence-rule or action-state question, read **Focused decision** in
+[the output contract](references/output.md). Put requested explanations under
+**Rule** and return only:
 
 ```
 **Answer: Yes | No | Conditional.** One sentence.
