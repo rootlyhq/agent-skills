@@ -67,6 +67,7 @@ def generated_files():
             "Draft incident updates", "Prepare retrospectives",
         ],
         "websiteURL": "https://rootly.com",
+        "supportURL": "https://docs.rootly.com/contacting-support",
         "privacyPolicyURL": "https://rootly.com/legal/privacy",
         "termsOfServiceURL": "https://rootly.com/legal/terms",
         "defaultPrompt": [

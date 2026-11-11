@@ -77,6 +77,15 @@ jobs:
           # Local only: notes compare the candidate against the previous tag.
           git show-ref --verify --quiet "refs/tags/$TAG" || git tag "$TAG"
           python tools/scripts/release_notes.py --tag "$TAG" --archive "release/rootly-$TAG.zip" > release/notes.md
+      - name: Prepare marketplace submission bundle
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CANDIDATE: ${{ steps.candidate.outputs.sha }}
+          TAG: ${{ steps.candidate.outputs.tag }}
+        run: |
+          catalog_commit=$(gh api repos/anthropics/claude-plugins-official/commits/main --jq .sha)
+          gh api "repos/anthropics/claude-plugins-official/contents/.claude-plugin/marketplace.json?ref=$catalog_commit" --jq '.content|@base64d' > catalog.json
+          python tools/scripts/prepare_marketplace_bundle.py --export export.json --tag "$TAG" --candidate "$CANDIDATE" --catalog catalog.json --catalog-commit "$catalog_commit" --output release/marketplaces --summary "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         id: upload
         with:
@@ -113,6 +122,7 @@ jobs:
           EXPECTED_SHA256: ${{ inputs.expected_archive_sha256 }}
         run: |
           printf '%s  %s\n' "$EXPECTED_SHA256" "release/rootly-$TAG.zip" | sha256sum --check
+          (cd release/marketplaces && sha256sum --check "rootly-marketplaces-$TAG.zip.sha256")
           if gh release view "$TAG" >/dev/null 2>&1; then
             echo "Release already exists; refusing to overwrite published assets"
             exit 1
@@ -125,7 +135,7 @@ jobs:
             git tag -a "$TAG" -m "$TAG" "$CANDIDATE"
             git push origin "refs/tags/$TAG"
           fi
-          gh release create "$TAG" "release/rootly-$TAG.zip" "release/rootly-$TAG.zip.sha256" release/release-inventory.json --title "$TAG" --notes-file release/notes.md --verify-tag
+          gh release create "$TAG" "release/rootly-$TAG.zip" "release/rootly-$TAG.zip.sha256" release/release-inventory.json "release/marketplaces/rootly-marketplaces-$TAG.zip" "release/marketplaces/rootly-marketplaces-$TAG.zip.sha256" --title "$TAG" --notes-file release/notes.md --verify-tag
           gh label create autorelease:tagged --color ededed --force
           for pr_number in $(gh api "repos/$GITHUB_REPOSITORY/commits/$CANDIDATE/pulls" --jq '.[] | select(.merged_at != null and (.head.ref | startswith("release-please--"))) | .number'); do
             gh pr edit "$pr_number" --remove-label autorelease:pending --add-label autorelease:tagged
