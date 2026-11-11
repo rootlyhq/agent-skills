@@ -187,8 +187,8 @@ and the archive checksum.
 ## Where each listing is submitted
 
 The GitHub repository must be public first; every listing below points at it
-or at the exported ZIP. Claude, Cursor, and OpenAI submission guidance rechecked
-on 2026-11-11; Devin and skills.sh notes last checked on 2026-10-16.
+or at the exported ZIP. Claude, Cursor, OpenAI and skills.sh guidance rechecked
+on 2026-11-11; Devin notes last checked on 2026-10-16.
 
 | Target | Submission | Notes |
 |---|---|---|
@@ -196,4 +196,4 @@ on 2026-11-11; Devin and skills.sh notes last checked on 2026-10-16.
 | Codex and ChatGPT | Plugins dashboard at https://platform.openai.com/plugins → Upload new or existing plugin | Include both MCP configuration and skills in the initial ZIP, then connect the declared server under MCPs. Domain verification, OAuth, required listing URLs, reviewer access, demo, five positive and three negative review cases, and scans are required; a ZIP alone does not register the MCP server. See [Submit plugins](https://developers.openai.com/plugins/deploy/submission). |
 | Cursor | https://cursor.com/marketplace/publish | Manual review; public repo and README required. |
 | Devin | No self-serve form | The public marketplace is curated by Cognition; ask via https://app.devin.ai/settings/support or support@cognition.ai. Users can install from the repo directly with `devin plugins install rootlyhq/agent-skills`. |
-| skills.sh | None | Listing appears automatically after the first `npx skills add rootlyhq/agent-skills` against the public repo. Only then does the `https://skills.sh/b/rootlyhq/agent-skills` badge resolve; add it to the README after that, not before. |
+| skills.sh | Install-based discovery | The [FAQ](https://www.skills.sh/docs/faq) describes discovery through CLI installation reports. A genuine `npx skills add rootlyhq/agent-skills` install can drive indexing; verify the canonical pages and `https://skills.sh/b/rootlyhq/agent-skills` badge before adding it. Immediate indexing and migration of old namespace entries/counts are not established. Do not generate install counts through CI. |
