@@ -1,6 +1,7 @@
 """Check invocation semantics and fail-closed live opt-in without calling a client."""
 
 import json
+import os
 import sys
 import unittest
 from pathlib import Path
@@ -48,6 +49,27 @@ class CodexClientTests(unittest.TestCase):
             "threadId": "root", "turnId": "t", "item": {"type": "subAgentActivity"}}})
         with self.assertRaisesRegex(RuntimeError, "Unexpected delegation"):
             client.receive_turn("root", "t", 1)
+
+    def test_model_override_is_scoped_to_thread_start(self):
+        for method, supplied, override, expected in (
+            ("thread/start", {"cwd": "/fixture"}, "fixture-model",
+             {"cwd": "/fixture", "model": "fixture-model"}),
+            ("thread/start", {"model": "caller-model"}, "fixture-model",
+             {"model": "caller-model"}),
+            ("model/list", {}, "fixture-model", {}),
+            ("thread/start", {"cwd": "/fixture"}, "", {"cwd": "/fixture"}),
+        ):
+            with self.subTest(method=method, supplied=supplied, override=override):
+                client = object.__new__(Client)
+                client.sequence = 0
+                client.send = Mock()
+                client.receive = Mock(return_value={"id": 1, "result": "ok"})
+                original = supplied.copy()
+                with patch.dict(os.environ, {"ROOTLY_EVAL_CODEX_MODEL": override}):
+                    self.assertEqual(client.request(method, supplied), "ok")
+                self.assertEqual(supplied, original)
+                client.send.assert_called_once_with(
+                    {"jsonrpc": "2.0", "id": 1, "method": method, "params": expected})
 
     def test_probe_launch_disables_delegation_without_global_config_edits(self):
         trace = SimpleNamespace(name="fixture-trace.jsonl")

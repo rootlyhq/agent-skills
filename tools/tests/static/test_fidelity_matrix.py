@@ -2,6 +2,7 @@
 
 import hashlib
 import json
+import os
 import sys
 import tempfile
 import unittest
@@ -13,6 +14,7 @@ sys.path.insert(0, str(ROOT / "tools/scripts"))
 import fidelity_gate as gate
 import fidelity_judge as judge
 import fidelity_matrix as matrix
+import run_fidelity_matrix as runner
 
 
 class MatrixTests(unittest.TestCase):
@@ -26,6 +28,46 @@ class MatrixTests(unittest.TestCase):
         (self.package / "release-inventory.json").write_text(json.dumps({"VERSION": hashlib.sha256(b"test").hexdigest()}))
         self.runs = self.root / "runs"
         self.runs.mkdir()
+
+    def test_runner_defaults_to_release_coverage_and_scoped_model(self):
+        output = self.root / "driver"
+        calls = []
+
+        def completed(client, case, package, folder, repeat, model):
+            calls.append((client, case, repeat, model, os.environ.get("ROOTLY_EVAL_CODEX_MODEL")))
+            return {"client": client, "case": case, "repeat": repeat,
+                    "status": "completed", "model": model}
+
+        argv = ["run_fidelity_matrix.py", str(self.package), str(output),
+                "--claude-model", "fable", "--claude-model", "opus",
+                "--claude-model", "sonnet", "--codex", "--codex-model", "fixture-model"]
+        with patch.object(sys, "argv", argv), patch("builtins.print"), \
+                patch.dict(os.environ), \
+                patch.object(runner, "run_deploy", side_effect=completed), \
+                patch.object(runner, "run_mitigation", side_effect=completed), \
+                self.assertRaises(SystemExit) as exit_status:
+            runner.main()
+        self.assertEqual(exit_status.exception.code, 0)
+        self.assertEqual(len(calls), 60)
+        for client, model in (("claude", "fable"), ("claude", "opus"),
+                              ("claude", "sonnet"), ("codex", "default")):
+            for case in matrix.RELEASE_CASES:
+                self.assertEqual(sorted(row[2] for row in calls
+                                        if row[0] == client and row[1] == case and row[3] == model),
+                                 [1, 2, 3])
+        self.assertTrue(all(row[4] == "fixture-model" for row in calls))
+        selection = json.loads((output / "model-selection.json").read_text())
+        self.assertEqual(selection, {"codex_model_override": "fixture-model"})
+
+    def test_codex_model_requires_codex(self):
+        output = self.root / "driver"
+        argv = ["run_fidelity_matrix.py", str(self.package), str(output),
+                "--claude-model", "fable", "--codex-model", "fixture-model"]
+        with patch.object(sys, "argv", argv), patch("sys.stderr"), \
+                self.assertRaises(SystemExit) as exit_status:
+            runner.main()
+        self.assertEqual(exit_status.exception.code, 2)
+        self.assertFalse(output.exists())
 
     def populate(self, **kwargs):
         manifest = matrix.manifest(self.package, **kwargs)

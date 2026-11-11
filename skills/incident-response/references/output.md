@@ -31,6 +31,8 @@ requires, or what a record establishes about approval, execution or outcome.
 Responder, concurrent-failure, vendor and impact questions use the brief above
 even when they supply their own facts. Return exactly these sections and
 nothing else.
+Begin the final answer with the answer line and end at the exact non-action
+sentence. Do not add an introduction, recap, closing offer, or sample update.
 
 ```
 **Answer: Yes | No | Conditional.** One sentence answering the question asked.
@@ -61,9 +63,13 @@ Table rules:
 
 - Keep the seven rows when the question involves an action. Drop rows only when
   the question involves no signal or no action.
+- Copy the state values below literally. In particular, use
+  `unassessed in supplied evidence`, not a paraphrase such as "not assessed".
 - **Execution** is `unknown`, `not started`, `reported started`, or
   `reported complete`. Every state except `unknown` needs a record that states it.
   An approval alone gives `unknown`. A start record never gives completion.
+  "Completion unknown from the supplied material" is not a finding that the
+  full operator log contains no completion entry.
 - **Corroboration** is `not supplied` unless the evidence contains a second
   independent source. Do not state that no other source exists or can be found.
 - **Outcome** is `unknown` unless independent evidence shows recovery.
@@ -82,3 +88,6 @@ human. It does not establish that this action is safe, sufficient, or preferable
 to waiting; that is the decision-maker's assessment of prerequisites and risks.
 Do not add cost, risk, or justification reasoning to it. Do not write sample
 record text or first-person narration of the action.
+This exclusion also applies inside **Inferences, not evidence**. A sample saying
+an action was taken would introduce an execution claim; use the sourced table
+state instead of adding illustrative update wording.

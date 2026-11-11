@@ -19,6 +19,9 @@ Keep operational staffing warnings separate from the technical recommendation.
 
 First read [common rules](references/common.md), including for assessments based
 entirely on supplied facts. Then follow the workflow below.
+Before drafting the assessment, read the
+[evidence guidance](references/evidence.md) and apply its final evidence check
+to the table, reasoning, questions, and recommendations.
 
 ## Use when / not when
 
@@ -85,6 +88,8 @@ Diff size is context, not a universal line-count rule or evidence of poor qualit
 ## Output
 
 Read [the deploy assessment](references/output.md) and return exactly this shape:
+Start the final answer with the verdict and end with the exact non-action
+sentence below. Do not add a preamble, recap, closing offer, or text after it.
 
 ```
 **Verdict: GO | CAUTION | NO-GO | INCOMPLETE.** One sentence with the deciding evidence ID.
@@ -107,6 +112,8 @@ evidence, including why a factor matters, goes only under **Inferences, not
 evidence**, worded as an inference. Before handing it over, check each row
 against its source and remove any window, environment, number or capability the
 source does not state. See [the worked example](references/example.md).
+For a gap, name what the supplied material does not establish; do not turn a
+missing detail in a summary into a claim about the full record's contents.
 
 ## Writes
 

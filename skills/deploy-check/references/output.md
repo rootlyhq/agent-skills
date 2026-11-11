@@ -3,6 +3,9 @@
 Return exactly the sections below, in this order, and nothing else. The table
 holds what the evidence says. Everything you reason beyond the evidence goes in
 **Inferences, not evidence**. These are recommendations, not permission to deploy.
+The final answer begins with the verdict line and ends at the exact non-action
+sentence. Include the contract once, with no introductory prose, recap, or
+closing offer. Keep any explanation inside the named sections.
 
 ```
 **Verdict: GO | CAUTION | NO-GO | INCOMPLETE.** One sentence naming the deciding factor and its evidence ID.
@@ -50,9 +53,11 @@ I did not deploy, approve, roll back, or notify anyone.
   or no dependency risk. Unknown identities must stay unknown in recommendations
   too; do not presuppose production when asking what remains to be confirmed.
 - **Staffing** is reported separately and never changes the technical verdict.
-  Write the staffing record's own words. When it gives no window, add "window
-  not stated" in that row, so the reader can tell an unscoped record from one
-  that covers this deploy window. Never supply the window yourself.
+  Restate the supplied staffing evidence. If that material includes no window,
+  add the literal phrase "window not stated" in that row without paraphrasing it;
+  this describes the supplied material,
+  not the contents of an unseen full record. Never supply the window yourself
+  or infer that the responder's full record is unscoped.
 
 ## Verdict rules
 
@@ -69,10 +74,18 @@ I did not deploy, approve, roll back, or notify anyone.
 ## Inferences, not evidence
 
 Put every statement that goes beyond the table here, each worded as an
-inference: "If ...", "could", "is not stated". The heading alone does not qualify
+inference: "If ...", "could", "not established by the supplied material".
+The heading alone does not qualify
 an otherwise factual assertion. Explanations of why a factor
 matters, possible interactions between changes, and guesses about scope belong
 here and nowhere else. Never describe the customer's safeguards, monitors or
 teams as able or unable to do something the evidence does not state.
+For gaps, refer to the supplied material, not to an unseen record: a summary
+omitting a rollout detail does not establish that the rollout record omits it.
+Recommendations do not establish that an option is safest or lowest-risk.
+A passing CI result does not establish what the checks detect. A scoped calendar
+finding does not establish that the calendar covers only that kind of change.
+Use "None." when no useful additional inference is needed; do not invent
+possibilities just to fill this section.
 
 The final line covers only your own non-actions. Do not extend it to the release team.

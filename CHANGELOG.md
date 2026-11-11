@@ -9,6 +9,9 @@
 - Clarify pending marketplace availability and the remote MCP submission path.
 - Request all toolsets in server read-only mode on bundled MCP connections,
   retaining the client read-tool allowlists.
+- Clarify gaps in supplied excerpts versus complete records, preserve action
+  states in illustrative wording, and reinforce the existing answer boundaries.
+- Require deploy assessments to load the shared evidence guidance before drafting.
 - Preserve the seven canonical skills and read-only workflows; no legacy write
   actions are restored.
 
