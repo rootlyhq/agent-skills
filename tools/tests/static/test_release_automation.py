@@ -53,6 +53,15 @@ class ReleasePreparationTests(unittest.TestCase):
                 release_pr.prepare(root)
             self.assertEqual((root / "CHANGELOG.md").read_bytes(), before)
 
+    def test_initial_unified_version_advances_past_existing_platform_versions(self):
+        version = release_pr.metadata.current_version(ROOT)
+        for legacy in ("2.0.0", "2.2.0"):
+            self.assertGreater(release_pr.metadata.parse_version(version),
+                               release_pr.metadata.parse_version(legacy))
+        if not json.loads((ROOT / ".release-please-manifest.json").read_text()):
+            config = json.loads((ROOT / "release-please-config.json").read_text())
+            self.assertEqual(config["packages"]["."]["initial-version"], version)
+
     def test_reviewed_archive_hash_is_required_before_any_assets_are_written(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

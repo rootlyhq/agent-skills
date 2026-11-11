@@ -4,8 +4,8 @@
 
 Keep canonical skills in `skills/`. Platform adapters stay thin and never copy
 skill instructions. Treat practitioner recommendations as conditional guidance,
-distinguish customer policy from defaults, and preserve the read-only scope of
-the 1.x releases.
+distinguish customer policy from defaults, and preserve the plugin's read-only
+scope.
 
 ## Evidence
 

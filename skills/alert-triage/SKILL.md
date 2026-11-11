@@ -4,7 +4,7 @@ description: Assess a Rootly alert or alert group and recommend opening an incid
 license: Apache-2.0
 metadata:
   author: Rootly
-  version: "1.1.0"
+  version: "3.0.0"
   category: incident-management
   access: read
   short-description: "Triage alerts with explicit evidence and next steps"

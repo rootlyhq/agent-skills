@@ -4,7 +4,7 @@ description: Prepare a Rootly post-incident review with sourced metadata, timeli
 license: Apache-2.0
 metadata:
   author: Rootly
-  version: "1.1.0"
+  version: "3.0.0"
   category: incident-management
   access: read
   short-description: "Prepare incident reviews while humans own the learning"

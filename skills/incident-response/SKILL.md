@@ -4,7 +4,7 @@ description: Investigate outages and active incidents with Rootly context. Use w
 license: Apache-2.0
 metadata:
   author: Rootly
-  version: "1.1.0"
+  version: "3.0.0"
   category: incident-management
   access: read
   short-description: "Investigate incidents and recommend mitigation"
