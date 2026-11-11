@@ -60,15 +60,15 @@ I did not call Rootly, change any record, or execute anything.
 Stop there; this is not an incident update. Execution is `unknown` unless a
 record states it: approval alone gives "approved; execution unknown", and an
 operator log may give `reported started`, never completion or recovery.
-Corroboration is `not supplied` when no second source is given. Action
-risks stay `unassessed in supplied evidence` unless described; do not claim nobody
-assessed them. These table states are literal values: copy them exactly rather
-than paraphrasing them. When asked whether the evidence rule requires a delay,
-copy the **Rule** paragraph in the output contract unchanged. Keep incident
-states and source contents in the table; the Rule explains general principles. Add no
-cost, risk or justification reasoning, sample record wording, or first-person
-narration of the action. Put requested hypothetical reasoning under **Inferences, not
-evidence**, using "If ... could/would ..." for each bullet.
+Corroboration is `not supplied` when no second source is given. Use Action risks
+`unassessed in supplied evidence` only when no assessment is supplied; otherwise
+attribute the reported assessment and its scope. Copy applicable states literally rather
+than paraphrasing them. Copy the applicable rule and requested decision/claim
+explanation from the output contract unchanged. Do not invent the commander's
+rationale or an exhaustive prerequisite list. Attribute supplied assessments in
+the table; approval or a practiced runbook alone does not establish one.
+Handoff guidance must preserve the table's execution state. Put requested
+hypotheticals under **Inferences, not evidence**, using "If ... could/would ...".
 Use `None.` for **Inferences, not evidence** unless the user explicitly asks
 for hypothetical scenarios. Do not add sample updates or illustrative action
 narration; keep the action status at the strength supplied by its source.

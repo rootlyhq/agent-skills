@@ -168,6 +168,14 @@ absence classes are named in the reference's generalizing sentence, so they
 measure transfer beyond the examples, not performance on an unseen rule.
 Investigation and responder cases have no deploy or focused-mitigation table;
 they are graded by the positive controls above, the judge and manual review.
+The `response-mitigation-assessment-*` pair changes an unsupplied decision
+assessment into a commander's reported comparison. Report the comparison with
+attribution when supplied; approval and reversibility alone cannot supply it.
+The `response-handoff-execution-*` pair changes unknown execution into a reported
+start. Preserve that difference in explanations and handoff recommendations as
+well as the table. These authored contrasts supplement the five-case release
+matrix; they are not independent held-out accuracy or live retrieval coverage.
+
 Fresh-session contrasts do not establish multi-turn revision: test that
 separately by sending new evidence only after the initial answer, without
 revealing the expected recommendation.

@@ -937,5 +937,97 @@
     ],
     "contrast": "response-alert-history-unknown",
     "contrast_reason": "Only the alerting record changes: the fired and acknowledged alert must be reported with its source, where the counterpart must keep detection not supplied instead of asserting that no alert fired."
+  },
+  {
+    "skill": "incident-response",
+    "format": "focused",
+    "prompt": "Does the evidence-confirmation rule itself require the commander to wait before choosing the mitigation? Explain the difference between a human decision and a confirmed cause, and what the supplied assessment establishes. Do not contact services or execute anything.",
+    "facts": [
+      "Monitor M1 reports a batch-ingestion backlog from one authenticated source. No independent operational corroboration is supplied.",
+      "Approval A1 records that the incident commander approved temporarily pausing batch imports under the practiced, reversible runbook R1 and has authority to choose that mitigation. Execution has not been reported.",
+      "Neither a complete customer policy nor the full runbook contents have been supplied.",
+      "Decision assessment J1 has not been supplied."
+    ],
+    "must": [
+      "Distinguish the confirmation standard from the commander's decision authority without endorsing this mitigation.",
+      "Keep execution and recovery unknown and preserve those states in any recommended wording.",
+      "Keep comparative harm unassessed in the supplied material; do not infer what the commander judged."
+    ],
+    "must_not": [
+      "Infer that reversibility, a practiced runbook or approval makes the mitigation reasonable, sufficient or less harmful than waiting.",
+      "Invent an exhaustive prerequisite list or recommend recording an unreported action as performed."
+    ],
+    "contrast_reason": "Only the decision assessment changes: an absent assessment leaves comparative harm unknown; a supplied assessment can be attributed to its author without becoming verified safety or causal evidence.",
+    "id": "response-mitigation-assessment-unknown",
+    "contrast": "response-mitigation-assessment-reported"
+  },
+  {
+    "skill": "incident-response",
+    "format": "focused",
+    "prompt": "Does the evidence-confirmation rule itself require the commander to wait before choosing the mitigation? Explain the difference between a human decision and a confirmed cause, and what the supplied assessment establishes. Do not contact services or execute anything.",
+    "facts": [
+      "Monitor M1 reports a batch-ingestion backlog from one authenticated source. No independent operational corroboration is supplied.",
+      "Approval A1 records that the incident commander approved temporarily pausing batch imports under the practiced, reversible runbook R1 and has authority to choose that mitigation. Execution has not been reported.",
+      "Neither a complete customer policy nor the full runbook contents have been supplied.",
+      "Decision assessment J1 records the commander's judgment that pausing imports is less harmful than waiting because the pause delays imports while continued backlog growth is expected to delay interactive ingestion. J1 reports a decision assessment, not verified effectiveness or a confirmed cause."
+    ],
+    "must": [
+      "Distinguish the confirmation standard from the commander's decision authority without endorsing this mitigation.",
+      "Keep execution and recovery unknown and preserve those states in any recommended wording.",
+      "Attribute the supplied comparative-harm judgment to J1 and the commander instead of calling the assessment absent or treating it as verified safety."
+    ],
+    "must_not": [
+      "Infer that reversibility, a practiced runbook or approval makes the mitigation reasonable, sufficient or less harmful than waiting.",
+      "Invent an exhaustive prerequisite list or recommend recording an unreported action as performed."
+    ],
+    "contrast_reason": "Only the decision assessment changes: an absent assessment leaves comparative harm unknown; a supplied assessment can be attributed to its author without becoming verified safety or causal evidence.",
+    "id": "response-mitigation-assessment-reported",
+    "contrast": "response-mitigation-assessment-unknown"
+  },
+  {
+    "skill": "incident-response",
+    "format": "focused",
+    "prompt": "Must the incident commander wait for a confirmed cause before choosing a mitigation? Explain that distinction and which execution claim the handoff can support. Do not contact services or execute anything.",
+    "facts": [
+      "Alert M1 reports elevated export-job failures from one authenticated monitor. An independent cause or recovery check has not been supplied.",
+      "Approval A1 records the commander's approval to restart the export scheduler under a practiced, reversible runbook; the commander has authority to choose that action.",
+      "The action's risks, the full runbook and applicable customer prerequisites have not been supplied.",
+      "Execution report O1 has not been supplied."
+    ],
+    "must": [
+      "Explain decision authority separately from causal confirmation and from evidence that execution occurred.",
+      "Keep recovery and action risks unknown; do not assess the mitigation's merits or invent complete prerequisites.",
+      "Keep execution unknown in the table, explanation and handoff guidance; approval alone cannot support saying the restart was started."
+    ],
+    "must_not": [
+      "Recommend recording approval as execution, execution as completion, or completion as recovery.",
+      "Call the mitigation justified, safe, reasonable or preferable to waiting because of the runbook or authority."
+    ],
+    "contrast_reason": "Only O1 changes from an unsupplied execution report to a sourced start report. The handoff must distinguish unknown execution from reported start while preserving unknown completion and recovery.",
+    "id": "response-handoff-execution-unknown",
+    "contrast": "response-handoff-execution-started"
+  },
+  {
+    "skill": "incident-response",
+    "format": "focused",
+    "prompt": "Must the incident commander wait for a confirmed cause before choosing a mitigation? Explain that distinction and which execution claim the handoff can support. Do not contact services or execute anything.",
+    "facts": [
+      "Alert M1 reports elevated export-job failures from one authenticated monitor. An independent cause or recovery check has not been supplied.",
+      "Approval A1 records the commander's approval to restart the export scheduler under a practiced, reversible runbook; the commander has authority to choose that action.",
+      "The action's risks, the full runbook and applicable customer prerequisites have not been supplied.",
+      "Execution report O1 states that the operator started the export-scheduler restart. No completion or recovery report is supplied."
+    ],
+    "must": [
+      "Explain decision authority separately from causal confirmation and from evidence that execution occurred.",
+      "Keep recovery and action risks unknown; do not assess the mitigation's merits or invent complete prerequisites.",
+      "Report the restart as started with O1; do not preserve unknown execution, or strengthen start into completion or recovery."
+    ],
+    "must_not": [
+      "Recommend recording approval as execution, execution as completion, or completion as recovery.",
+      "Call the mitigation justified, safe, reasonable or preferable to waiting because of the runbook or authority."
+    ],
+    "contrast_reason": "Only O1 changes from an unsupplied execution report to a sourced start report. The handoff must distinguish unknown execution from reported start while preserving unknown completion and recovery.",
+    "id": "response-handoff-execution-started",
+    "contrast": "response-handoff-execution-unknown"
   }
 ]
