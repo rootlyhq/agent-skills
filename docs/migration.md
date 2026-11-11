@@ -11,7 +11,9 @@ after upgrading and check any standalone Rootly connection that may take
 precedence; it needs the same URL parameters and client restrictions. See
 `docs/install.md` and `docs/safety.md` for the documented server guard and its scope.
 
-This release is read-only; it does not restore full write parity with earlier Rootly plugins.
+Incident workflows remain read-only; legacy incident write actions are not
+restored. The new [skill-authoring workflow](skill-authoring.md) can create a
+reviewed AI skill through a separate, explicitly authorized authoring connection.
 Keep your existing installation available until your workflows have been tested.
 Do not enable both versions in one session: duplicate names or connections can
 make it unclear which version handled a request.
@@ -31,4 +33,5 @@ Cursor, Devin, and ChatGPT marketplace listings are not implied by Claude/Codex
 CLI tests.
 
 Rollback: disable this plugin in the client and re-enable the previous one.
-No Rootly state migration is required because this release does not write state.
+Upgrading does not migrate Rootly records. AI skill creation is a separate,
+explicitly authorized write and does not change incident records.

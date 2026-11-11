@@ -4,8 +4,10 @@
 
 Keep canonical skills in `skills/`. Platform adapters stay thin and never copy
 skill instructions. Treat practitioner recommendations as conditional guidance,
-distinguish customer policy from defaults, and preserve the plugin's read-only
-scope.
+distinguish customer policy from defaults, and preserve the incident workflows'
+read-only scope. The skill-authoring workflow may create explicitly authorized
+AI skills through its separate authoring connection; no other remote writes
+are permitted. Keep write tools out of the default connection and read allowlists.
 
 ## Evidence
 

@@ -11,8 +11,11 @@ from build_skills import generated_files as skill_files
 from package_config import MCP_URL
 
 ROOT = Path(__file__).resolve().parents[2]
-DESCRIPTION = "Read-only incident response, alert triage, deploy checks, service health, on-call, communications, and retrospectives."
+DESCRIPTION = "Read-only incident workflows and optional, explicitly authorized AI skill creation inside Rootly."
 MARKETPLACE = "rootly-agent-skills"
+AUTHORING_READ_TOOLS = {
+    "list_ai_skills", "get_ai_skill", "list_ai_skill_versions", "get_ai_skill_version",
+}
 ALIASES = {
     "respond": "incident-response", "incident": "incident-response",
     "alert": "alert-triage", "status": "service-health", "lookup": "service-health",
@@ -32,6 +35,43 @@ def read_tools():
         result[entry.parents[1].name] = sorted(set(re.findall(
             r"^\| [^|]+ \| `([^`]+)` \| read \|", entry.read_text(), re.M)))
     return result
+
+
+def authoring_files(reads):
+    """Opt-in connection files; never load these through the default manifests."""
+    if set(reads) != AUTHORING_READ_TOOLS:
+        raise ValueError("Authoring requires exactly the four verified AI skill read tools")
+    tools = sorted(set(reads) | {"create_ai_skill"})
+    url = "https://mcp.rootly.com/mcp?toolsets=ai"
+    yield ROOT / "adapters/authoring-tools.json", encoded({
+        "reads": reads, "writes": ["create_ai_skill"], "tools": tools,
+    })
+    yield ROOT / "adapters/codex/skill-authoring.toml", (
+        "# Optional authoring connection; merge deliberately for skill creation.\n"
+        "# The default plugin connection remains read-only.\n"
+        '[mcp_servers.rootly_authoring]\n'
+        f'url = "{url}"\n'
+        "enabled_tools = " + json.dumps(tools) + "\n"
+    )
+    yield ROOT / "adapters/claude/skill-authoring.mcp.json", encoded({
+        "mcpServers": {"rootly_authoring": {"type": "http", "url": url}},
+    })
+    yield ROOT / "adapters/claude/skill-authoring.settings.json", encoded({
+        "permissions": {
+            "defaultMode": "default",
+            "allow": ["Read", "Glob", "Grep", "Skill"] + [
+                f"mcp__rootly_authoring__{name}" for name in reads],
+            "ask": ["mcp__rootly_authoring__create_ai_skill"],
+        },
+    })
+    for client in ("claude", "cursor"):
+        root = "${CLAUDE_PLUGIN_ROOT}/" if client == "claude" else ""
+        yield ROOT / f"adapters/{client}/commands/author.md", (
+            "---\n" + ("name: author\n" if client == "cursor" else "")
+            + "description: Draft or create an authorized AI skill inside Rootly\n---\n\n"
+            + f"Read `{root}skills/skill-authoring/SKILL.md` inside this plugin and follow it.\n\n"
+            + "Request: $ARGUMENTS\n"
+        )
 
 
 def generated_files():
@@ -56,15 +96,19 @@ def generated_files():
             "draft stakeholder updates, and prepare retrospectives. Each skill combines "
             "Rootly records with authorized telemetry and repository context, separates "
             "evidence from hypotheses, and leaves operational decisions with humans. "
-            "The skills recommend and draft only: they never page responders, modify "
-            "incidents, change schedules, publish messages, or act on production."
+            "These incident workflows recommend and draft only: they never page "
+            "responders, modify incidents, change schedules, publish messages, or "
+            "act on production. An eighth workflow drafts and creates reviewed AI "
+            "skills directly inside Rootly through a separately authorized "
+            "authoring connection; new skills default to disabled. It does not "
+            "run skills, enable automations, or modify existing skills."
         ),
         "developerName": "Rootly",
         "category": "Productivity",
         "capabilities": [
             "Investigate incidents", "Triage alerts", "Assess deploy risk",
             "Check service health", "Look up on-call coverage",
-            "Draft incident updates", "Prepare retrospectives",
+            "Draft incident updates", "Prepare retrospectives", "Create Rootly AI skills",
         ],
         "websiteURL": "https://rootly.com",
         "supportURL": "https://docs.rootly.com/contacting-support",
@@ -117,6 +161,8 @@ def generated_files():
         }],
     })
     tools_by_skill = read_tools()
+    if "skill-authoring" in tools_by_skill:
+        yield from authoring_files(tools_by_skill["skill-authoring"])
     all_reads = sorted({name for names in tools_by_skill.values() for name in names})
     yield ROOT / "adapters/read-tools.json", encoded({
         "version": version, "skills": tools_by_skill, "tools": all_reads,
@@ -142,7 +188,7 @@ def generated_files():
         yield ROOT / f"adapters/claude/commands/{alias}.md", (
             f"---\ndescription: Rootly {alias}; read-only alias for {skill}\n---\n\n"
             f"Read `${{CLAUDE_PLUGIN_ROOT}}/skills/{skill}/SKILL.md` and follow that workflow.\n"
-            "This release recommends or drafts only; it does not execute writes.\n\nRequest: $ARGUMENTS\n"
+            "This workflow recommends or drafts only; it does not execute writes.\n\nRequest: $ARGUMENTS\n"
         )
     yield ROOT / "adapters/claude/commands/handoff.md", (
         "---\ndescription: Prepare a Rootly shift or incident commander handoff\n---\n\n"
@@ -161,7 +207,7 @@ def generated_files():
         yield ROOT / f"adapters/cursor/commands/{alias}.md", (
             f"---\nname: {alias}\ndescription: Rootly {alias}; read-only alias for {skill}\n---\n\n"
             f"Read `skills/{skill}/SKILL.md` inside this plugin and follow that workflow.\n"
-            "This release recommends or drafts only; it does not execute writes.\n\nRequest: $ARGUMENTS\n"
+            "This workflow recommends or drafts only; it does not execute writes.\n\nRequest: $ARGUMENTS\n"
         )
     yield ROOT / "adapters/cursor/commands/handoff.md", (
         "---\nname: handoff\ndescription: Prepare a Rootly shift or incident commander handoff\n---\n\n"

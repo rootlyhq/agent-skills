@@ -29,7 +29,7 @@ class ReleaseNotesTests(unittest.TestCase):
     def test_first_release_notes(self):
         notes = release_notes.compose("v1.0.0", self.archive, None, None, self.root)
         self.assertIn("## What's new\n\n- First entry.", notes)
-        self.assertIn("## Changed\n\nSkills: all seven (first release).", notes)
+        self.assertIn("## Changed\n\nSkills: all canonical skills (first release).", notes)
         self.assertNotIn("compare/", notes)
         self.assertIn("claude plugin marketplace add rootlyhq/agent-skills", notes)
         self.assertIn("`rootly-v1.0.0.zip` · SHA-256 `", notes)

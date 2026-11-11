@@ -2,6 +2,10 @@
 
 ## 3.0.0 — unreleased
 
+- Add direct, explicitly authorized AI skill creation inside Rootly with a
+  separate authoring connection. New skills default to disabled; incident
+  workflows remain read-only.
+
 - Start a unified 3.0.0 version line above the earlier platform-specific plugins.
   This migration uses the canonical skill names and read-only workflows described
   in `docs/migration.md`; legacy write actions are not restored.

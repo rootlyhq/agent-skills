@@ -1,7 +1,7 @@
 {
   "name": "rootly",
   "version": "3.0.0",
-  "description": "Read-only incident response, alert triage, deploy checks, service health, on-call, communications, and retrospectives.",
+  "description": "Read-only incident workflows and optional, explicitly authorized AI skill creation inside Rootly.",
   "author": {
     "name": "Rootly"
   },

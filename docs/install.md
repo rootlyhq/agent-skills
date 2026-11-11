@@ -1,6 +1,8 @@
 # Install and test
 
-This release contains seven read-only skills. It does not restore the older plugins'
+This release contains seven read-only incident skills and an optional AI skill
+authoring workflow. See [authoring setup](skill-authoring.md) for its separate
+connection and creation permissions. It does not restore the older plugins'
 write actions. Use a separate test session rather than replacing an existing
 production installation until you have checked the migration notes.
 
@@ -111,7 +113,7 @@ The bundled connection requests
 describes `readonly=true` as a per-connection guard that hides/refuses write
 tools. Its [HTTP guard](https://github.com/rootlyhq/rootly-mcp-server/blob/7140ccb10ce5f231d7f6d62ecc4716e976db72d1/src/rootly_mcp_server/transport.py#L1182-L1197)
 rejects methods other than GET or HEAD. `toolsets=all` preserves
-the read tools needed across all seven workflows; `core` alone is insufficient.
+the read tools needed across the workflows; `core` alone is insufficient.
 This configuration is not live deployment validation or an account-wide
 permission change. Reconnect after updating the URL and verify the actual tool
 inventory. Other connectors or standalone entries may use a different URL.

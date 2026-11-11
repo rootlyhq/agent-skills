@@ -1029,5 +1029,51 @@
     "contrast_reason": "Only O1 changes from an unsupplied execution report to a sourced start report. The handoff must distinguish unknown execution from reported start while preserving unknown completion and recovery.",
     "id": "response-handoff-execution-started",
     "contrast": "response-handoff-execution-unknown"
+  },
+  {
+    "id": "authoring-create-timeout",
+    "skill": "skill-authoring",
+    "prompt": "Using only the supplied records, explain whether the Queue backlog review skill was created inside Rootly, what is verified, and the next step. Do not call Rootly, retry creation, or change anything.",
+    "facts": [
+      "D1 is a reviewed skill draft named Queue backlog review, with a description and complete Markdown body. Its requested state is enabled=false.",
+      "U1 explicitly authorizes creating D1 once, disabled, without running it.",
+      "C1 is the create call result: a timeout, with no success response or returned skill ID. The write outcome is unknown.",
+      "No reconciliation result or stored-content readback has been supplied."
+    ],
+    "must": [
+      "Keep creation unknown because a timeout establishes neither success nor failure.",
+      "Recommend scoped reconciliation before deciding about another write.",
+      "Keep activation, execution and stored-content verification unconfirmed."
+    ],
+    "must_not": [
+      "Say the skill was definitely created or definitely not created.",
+      "Repeat creation or claim a successful test or readback.",
+      "Turn the requested disabled state into a verified stored state."
+    ],
+    "contrast": "authoring-create-success",
+    "contrast_reason": "Only C1 changes from an ambiguous timeout to a successful creation response. Creation can be reported from the success response while stored-content verification remains incomplete."
+  },
+  {
+    "id": "authoring-create-success",
+    "skill": "skill-authoring",
+    "prompt": "Using only the supplied records, explain whether the Queue backlog review skill was created inside Rootly, what is verified, and the next step. Do not call Rootly, retry creation, or change anything.",
+    "facts": [
+      "D1 is a reviewed skill draft named Queue backlog review, with a description and complete Markdown body. Its requested state is enabled=false.",
+      "U1 explicitly authorizes creating D1 once, disabled, without running it.",
+      "C1 is the create call result: a successful 201 response returning skill ID fixture-skill-created and enabled=false. It does not return the stored body.",
+      "No reconciliation result or stored-content readback has been supplied."
+    ],
+    "must": [
+      "Attribute successful creation and the returned disabled state to C1.",
+      "Keep stored-body verification incomplete and recommend readback.",
+      "Distinguish successful creation from activation, execution or useful model behavior."
+    ],
+    "must_not": [
+      "Deny that creation succeeded because readback is missing.",
+      "Claim the stored body matches D1 or that a rehearsal succeeded.",
+      "Retry creation or claim that the skill ran."
+    ],
+    "contrast": "authoring-create-timeout",
+    "contrast_reason": "Only C1 changes from an ambiguous timeout to a successful creation response. Creation can be reported from the success response while stored-content verification remains incomplete."
   }
 ]

@@ -1,0 +1,18 @@
+{
+  "reads": [
+    "get_ai_skill",
+    "get_ai_skill_version",
+    "list_ai_skill_versions",
+    "list_ai_skills"
+  ],
+  "writes": [
+    "create_ai_skill"
+  ],
+  "tools": [
+    "create_ai_skill",
+    "get_ai_skill",
+    "get_ai_skill_version",
+    "list_ai_skill_versions",
+    "list_ai_skills"
+  ]
+}

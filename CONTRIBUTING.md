@@ -30,7 +30,8 @@ and generation logic in `tools/scripts/`. After changing a canonical source,
 run `make generate`, inspect the generated diff, and run `make check`.
 
 Platform adapters route to canonical skills rather than carrying their own copy
-of the instructions. Keep the current workflows read-only. Do not edit output
+of the instructions. Keep incident workflows read-only; only skill-authoring may create an
+explicitly authorized AI skill through its separate authoring connection. Do not edit output
 contracts or introduce new workflows as incidental tooling cleanup.
 
 ## Evidence and model tests

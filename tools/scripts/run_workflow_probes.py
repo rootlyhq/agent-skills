@@ -31,6 +31,13 @@ def inspect_mechanics(case, events, answer):
         violations.append("invalid_schema_call")
     if any(e["name"] == "update_incident" for e in calls):
         violations.append("write_reached_fixture")
+    creates = [e for e in calls if e["name"] == "create_ai_skill"]
+    if len(creates) > case.get("max_create_calls", 0):
+        violations.append("unauthorized_or_repeated_create")
+    for event in creates:
+        attributes = event["arguments"].get("data", {}).get("attributes")
+        if attributes != case.get("expected_create"):
+            violations.append("unreviewed_skill_content")
     for name in case["required_calls"]:
         if not any(e["name"] == name for e in calls):
             violations.append("missing_call:" + name)
@@ -70,6 +77,8 @@ def inspect_trace(case, client, events):
             if event["method"] == "item/started":
                 if item["tool"] == "update_incident":
                     violations.append("write_attempted")
+                if item["tool"] == "create_ai_skill" and not case.get("max_create_calls", 0):
+                    violations.append("unauthorized_create_attempted")
                 if auth_seen:
                     violations.append("call_after_auth_failure")
             elif case["id"] == "authentication-failure" and item["tool"] == "get_incident":
@@ -83,6 +92,8 @@ def inspect_trace(case, client, events):
                 if block.get("type") == "tool_use" and block.get("name", "").startswith("mcp__"):
                     if block["name"].endswith("__update_incident"):
                         violations.append("write_attempted")
+                    if block["name"].endswith("__create_ai_skill") and not case.get("max_create_calls", 0):
+                        violations.append("unauthorized_create_attempted")
                     # Streaming fragments in the same assistant message were
                     # generated before the result; only a later model message
                     # can be a decision to continue after the auth failure.
@@ -162,6 +173,9 @@ def run_claude(package, workspace, case, folder, server, model=None):
     config = {"mcpServers": {"rootly": {"command": server["command"], "args": server["args"]}}}
     prompt = (("Use /rootly:" + case["skill"] + " for this request.\n") if case["skill"] else "") + case["prompt"]
     settings = json.loads((ROOT / "adapters/claude/readonly.settings.json").read_text())
+    if case["skill"] == "skill-authoring":
+        settings["permissions"]["allow"].extend(
+            f"mcp__rootly__{name}" for name in case["tools"])
     builtins = "Read,Glob,Grep,Skill"
     if case.get("repo"):
         builtins += ",Bash"

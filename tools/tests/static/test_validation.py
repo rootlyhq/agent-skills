@@ -82,6 +82,19 @@ class StaticValidationTests(unittest.TestCase):
         self.change("skills/on-call/references/tools.md", "| read |", "| write |")
         self.check_error("non-read tool")
 
+    def test_authoring_rejects_other_write_tools(self):
+        self.change("skills/skill-authoring/references/tools.md",
+                    "`create_ai_skill` | write", "`update_ai_skill` | write")
+        self.check_error("non-read tool")
+
+    def test_authoring_cannot_label_creation_as_a_read(self):
+        self.change("skills/skill-authoring/references/tools.md", "| write |", "| read |")
+        self.check_error("non-read tool")
+
+    def test_authoring_access_metadata_is_explicit(self):
+        self.change("skills/skill-authoring/SKILL.md", "access: write", "access: read")
+        self.check_error("access must be write")
+
     def test_nonportable_frontmatter_fails(self):
         self.change("skills/on-call/SKILL.md", "license: Apache-2.0", "disable-model-invocation: true\nlicense: Apache-2.0")
         self.check_error("frontmatter keys")

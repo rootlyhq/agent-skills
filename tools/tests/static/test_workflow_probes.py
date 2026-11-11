@@ -28,6 +28,59 @@ class WorkflowProbeTests(unittest.TestCase):
         self.assertFalse(failed)
         self.assertFalse(data["real_mutation"])
 
+    def test_authoring_probe_rejects_unapproved_or_duplicate_creates(self):
+        import copy
+
+        from workflow_server import AUTHORING_ATTRIBUTES
+        approved = next(c for c in CASES if c["id"] == "skill-authoring-approved")
+        draft = next(c for c in CASES if c["id"] == "skill-authoring-draft")
+        def call(name, arguments):
+            return {"method": "tools/call", "name": name, "arguments": arguments,
+                    "schema_error": None, "is_error": False}
+        create = call("create_ai_skill", {"data": {
+            "type": "ai_skills", "attributes": dict(AUTHORING_ATTRIBUTES)}})
+        events = [call("list_ai_skills", {}), create,
+                  call("get_ai_skill", {"id": "fixture-skill-created"})]
+        self.assertTrue(inspect_mechanics(approved, events, "")["passed"])
+        self.assertIn("unauthorized_or_repeated_create",
+                      inspect_mechanics(draft, events, "")["violations"])
+        self.assertIn("unauthorized_or_repeated_create",
+                      inspect_mechanics(approved, events + [create], "")["violations"])
+        altered = copy.deepcopy(events)
+        altered[1]["arguments"]["data"]["attributes"]["enabled"] = True
+        self.assertIn("unreviewed_skill_content",
+                      inspect_mechanics(approved, altered, "")["violations"])
+
+    def test_denied_authoring_attempts_still_fail_draft_only_probe(self):
+        case = next(c for c in CASES if c["id"] == "skill-authoring-draft")
+        codex = [{"method": "item/started", "params": {
+            "item": {"type": "mcpToolCall", "tool": "create_ai_skill"}}}]
+        claude = [{"type": "assistant", "message": {"id": "attempt", "content": [
+            {"type": "tool_use", "name": "mcp__rootly__create_ai_skill"}]}}]
+        for client, events in (("codex", codex), ("claude", claude)):
+            self.assertIn("unauthorized_create_attempted", inspect_trace(case, client, events))
+
+    def test_authoring_fixture_checks_content_types_and_ambiguous_outcomes(self):
+        import copy
+
+        from workflow_server import AUTHORING_ATTRIBUTES
+        arguments = {"data": {"type": "ai_skills", "attributes": dict(AUTHORING_ATTRIBUTES)}}
+        self.assertIsNone(validate("create_ai_skill", arguments))
+        arguments["data"]["attributes"]["tool_grants"] = ["all"]
+        self.assertIsNotNone(validate("create_ai_skill", arguments))
+        arguments["data"]["attributes"].pop("tool_grants")
+        timeout = copy.deepcopy(next(c for c in CASES if c["id"] == "skill-authoring-timeout"))
+        result, failed = response(timeout, "create_ai_skill", arguments)
+        self.assertTrue(failed)
+        self.assertIn("unknown", result["error"])
+        success = copy.deepcopy(next(c for c in CASES if c["id"] == "skill-authoring-approved"))
+        created, failed = response(success, "create_ai_skill", arguments)
+        self.assertFalse(failed)
+        stored, failed = response(success, "get_ai_skill", {"id": created["data"]["id"]})
+        self.assertFalse(failed)
+        self.assertEqual(stored, created)
+        self.assertEqual(stored["data"]["attributes"]["enabled"], False)
+
     def test_error_is_not_fabricated_success(self):
         case = next(c for c in CASES if c["id"] == "authentication-failure")
         data, failed = response(case, "get_incident", {"incident_id": INCIDENT})

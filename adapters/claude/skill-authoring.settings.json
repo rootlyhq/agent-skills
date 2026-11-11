@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "defaultMode": "default",
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Skill",
+      "mcp__rootly_authoring__get_ai_skill",
+      "mcp__rootly_authoring__get_ai_skill_version",
+      "mcp__rootly_authoring__list_ai_skill_versions",
+      "mcp__rootly_authoring__list_ai_skills"
+    ],
+    "ask": [
+      "mcp__rootly_authoring__create_ai_skill"
+    ]
+  }
+}
