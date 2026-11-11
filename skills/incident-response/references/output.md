@@ -51,8 +51,7 @@ sentence. Do not add an introduction, recap, closing offer, or sample update.
 The relevant rule in two or three sentences.
 
 **Inferences, not evidence**
-- If [unverified condition], [possible consequence or recommendation]. Or "None."
-  Keep every clause conditional; do not repeat facts or invent possibilities.
+None.
 
 **Next check**
 - The next recommended check. Ask for any missing prerequisite first; for an
@@ -85,6 +84,12 @@ Table rules:
 - **Source** names the actual supplied source. Use "user-supplied approval" when
   the user states an approval; name an approval record only when one was supplied.
   Use `—` for an unknown state or risks unassessed in supplied evidence.
+
+For a focused question, the table, Rule and Next check carry the answer. Default
+**Inferences, not evidence** to `None.`; do not add speculative scenarios just
+to fill it. Only when the user explicitly asks for hypothetical scenarios,
+use up to two short "If ... could/would ..." bullets instead. Keep every clause
+conditional and do not presuppose the contents of an unread source.
 
 For the evidence rule, the **Rule** section says: corroboration from two
 independent sources, including metrics or logs, is required before impact, cause
