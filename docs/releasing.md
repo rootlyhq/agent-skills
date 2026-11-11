@@ -131,6 +131,50 @@ in PR-only mode; it does not create a competing release. No tag-push workflow is
 needed, so the token's event-suppression behavior cannot skip asset publication.
 The workflow does not submit to any marketplace.
 
+### Marketplace preparation
+
+Release-PR validation automatically uploads a `marketplace-preparation` Actions
+artifact. A manual run of `validate.yml` also prepares one. These previews are
+labeled **PREVIEW — NOT A RELEASE**, bind the exact checked-out commit and ZIP,
+and must not be submitted. Ordinary implementation PRs skip the preview job.
+
+The Release workflow prepares a final bundle before the protected environment
+approval. The publish job attaches `rootly-marketplaces-v<VERSION>.zip` and its
+checksum to the GitHub Release, using the prepared bytes. The bundle contains:
+
+- The exact exported plugin ZIP, checksum and inventory, plus the changelog.
+- Claude's proposed entry and a minimal patch against an immutable upstream
+  catalog snapshot, with a draft PR description. Only the existing Rootly entry
+  changes; legacy component overrides are not carried into the new entry.
+- Cursor's repository submission draft.
+- OpenAI listing metadata copied from the export, a five-positive/three-negative
+  review worksheet, and the remaining portal steps. The worksheet is unexecuted;
+  it is not test evidence or a replacement for reviewer-account validation.
+- `release.json` with source/checksum provenance and outstanding checks, and
+  `SHA256SUMS` for the preparation files.
+
+The generator reads a caller-supplied public catalog snapshot and makes no network
+calls. CI fetches its exact commit first. If the Rootly entry is missing or
+ambiguous, preparation fails for maintainer review. It never opens a third-party
+PR, edits a portal, changes a distribution branch, or marks a listing ready.
+The preview job uses read-only repository permissions and has no live MCP or
+model credentials. Reviewer credentials belong only in provider portals.
+
+To prepare locally from an existing `export.json` and catalog snapshot:
+
+```sh
+python3 tools/scripts/prepare_marketplace_bundle.py --export export.json \
+  --tag v1.1.0 --candidate <40-character-candidate-sha> \
+  --catalog /path/to/marketplace.json --catalog-commit <40-character-catalog-sha> \
+  --output dist/marketplace-preview --preview
+```
+
+Use a fresh output directory. Before requesting approval for an external PR,
+verify that the catalog snapshot is still current and rerun preparation if it
+changed. Apply the draft patch from the catalog checkout at the recorded commit
+with `git apply --unidiff-zero catalog.patch`, then validate and test the pinned
+source. Obtain explicit approval before publication or submission.
+
 A failed publication can resume when its existing tag still points at the same
 approved commit and no GitHub Release exists. It refuses a different tag target
 or an already published release. Repair partial asset uploads only after review;
@@ -144,12 +188,12 @@ and the archive checksum.
 
 The GitHub repository must be public first; every listing below points at it
 or at the exported ZIP. Claude, Cursor, and OpenAI submission guidance rechecked
-on 2026-11-10; Devin and skills.sh notes last checked on 2026-10-16.
+on 2026-11-11; Devin and skills.sh notes last checked on 2026-10-16.
 
 | Target | Submission | Notes |
 |---|---|---|
 | Claude Code, claude.ai, Cowork | Developer portal at https://claude.ai/directory/manage | Requires a paid claude.ai plan (Team/Enterprise: an Owner). Run `claude plugin validate <export> --strict` first. The `claude-plugins-official` marketplace is partner-only. |
-| Codex and ChatGPT | Plugins dashboard at https://platform.openai.com/plugins → Create plugin → With MCP | Configure the hosted endpoint and attach the exported skills to the same draft. Domain verification, OAuth, required listing URLs, reviewer access, demo, five positive and three negative review cases, and scans are required; a ZIP alone does not register the MCP server. See [Submit plugins](https://developers.openai.com/plugins/deploy/submission). |
+| Codex and ChatGPT | Plugins dashboard at https://platform.openai.com/plugins → Upload new or existing plugin | Include both MCP configuration and skills in the initial ZIP, then connect the declared server under MCPs. Domain verification, OAuth, required listing URLs, reviewer access, demo, five positive and three negative review cases, and scans are required; a ZIP alone does not register the MCP server. See [Submit plugins](https://developers.openai.com/plugins/deploy/submission). |
 | Cursor | https://cursor.com/marketplace/publish | Manual review; public repo and README required. |
 | Devin | No self-serve form | The public marketplace is curated by Cognition; ask via https://app.devin.ai/settings/support or support@cognition.ai. Users can install from the repo directly with `devin plugins install rootlyhq/agent-skills`. |
 | skills.sh | None | Listing appears automatically after the first `npx skills add rootlyhq/agent-skills` against the public repo. Only then does the `https://skills.sh/b/rootlyhq/agent-skills` badge resolve; add it to the README after that, not before. |

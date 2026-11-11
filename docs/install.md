@@ -50,10 +50,11 @@ python3 tools/scripts/check_codex_discovery.py /absolute/path/to/rootly /tmp/emp
 ```
 
 The public ChatGPT and Codex directory uses one plugin submission. Because this
-plugin includes a hosted MCP server, select **Create plugin → With MCP** in the
-[OpenAI plugins dashboard](https://platform.openai.com/plugins), configure
-`https://mcp.rootly.com/mcp?toolsets=all&readonly=true`, and attach the exported
-skills to the same draft. Preserve these query parameters in the portal.
+plugin includes a hosted MCP server, include both its MCP configuration and
+skills in the initial ZIP. In the [OpenAI plugins dashboard](https://platform.openai.com/plugins),
+select **Upload new or existing plugin** and upload that ZIP. Under **MCPs**,
+connect the declared `https://mcp.rootly.com/mcp?toolsets=all&readonly=true`
+server. Preserve these query parameters in the portal.
 A ZIP upload alone does not register or verify the remote MCP server. Domain
 verification, OAuth configuration, reviewer access, a demo, and review cases
 must be completed before submission. See the

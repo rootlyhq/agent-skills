@@ -86,7 +86,8 @@ class PackageTests(unittest.TestCase):
         self.assertTrue(all(len(item) <= 120 for item in interface["capabilities"]))
         self.assertTrue(0 < len(interface["defaultPrompt"]) <= 3)
         self.assertTrue(all(len(item) <= 128 for item in interface["defaultPrompt"]))
-        self.assertTrue(interface["websiteURL"].startswith("https://"))
+        for key in ("websiteURL", "supportURL", "privacyPolicyURL", "termsOfServiceURL"):
+            self.assertTrue(interface[key].startswith("https://"), key)
         for key in ("logo", "composerIcon"):
             self.assertTrue(interface[key].startswith("./"), key)
             self.assertTrue((self.root / interface[key]).is_file(), key)

@@ -45,7 +45,44 @@ jobs:
       - run: python tools/scripts/validate_skills.py
       - run: python -m unittest discover -s tools/tests/static -v
       - run: python tools/scripts/export_release.py
-      # No model credentials, live MCP calls, uploads, or publication from CI.
+      # No model credentials, live MCP calls or publication from validation.
+
+  marketplace-preview:
+    name: Marketplace preparation preview
+    needs: static
+    if: >-
+      startsWith(github.ref, 'refs/heads/release-please--') ||
+      (github.event_name == 'pull_request' && startsWith(github.head_ref, 'release-please--')) ||
+      github.event_name == 'workflow_dispatch'
+    runs-on: blacksmith-2vcpu-ubuntu-2404
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version-file: .python-version
+      - run: python -m pip install -r tools/requirements-dev.txt
+      - run: python tools/scripts/export_release.py > export.json
+      - name: Prepare drafts from this exact candidate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CANDIDATE: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          catalog_commit=$(gh api repos/anthropics/claude-plugins-official/commits/main --jq .sha)
+          gh api "repos/anthropics/claude-plugins-official/contents/.claude-plugin/marketplace.json?ref=$catalog_commit" --jq '.content|@base64d' > catalog.json
+          python tools/scripts/prepare_marketplace_bundle.py --export export.json --tag "v$(cat VERSION)" --candidate "$CANDIDATE" --catalog catalog.json --catalog-commit "$catalog_commit" --output marketplace --preview --summary "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: marketplace-preparation
+          path: |
+            marketplace/rootly-marketplaces-*.zip
+            marketplace/rootly-marketplaces-*.zip.sha256
+          if-no-files-found: error
+          retention-days: 7
+          overwrite: true
+      # Preparation only: public catalog reads and artifact upload, no provider writes.
 
   compatibility:
     name: Python ${{ matrix.python-version }}
