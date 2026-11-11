@@ -265,14 +265,25 @@ class JudgeVerdictTests(unittest.TestCase):
         result = judge.judge(self.answer, "deploy-shared-upgrade", votes=3, caller=broken)
         self.assertEqual(result["verdict"], "error")
 
+    def test_different_native_judge_identity_cannot_use_calibration(self):
+        result = judge.judge(self.answer, "deploy-shared-upgrade",
+                             caller=lambda *_: ({"claims": []}, ["different-judge"]),
+                             expected_model="calibrated-judge")
+        self.assertEqual(result["verdict"], "error")
+
+    def test_mixed_vote_models_cannot_form_a_majority(self):
+        models = iter(["judge-a", "judge-a", "judge-b"])
+        result = judge.judge(self.answer, "deploy-shared-upgrade",
+                             caller=lambda *_: ({"claims": []}, [next(models)]))
+        self.assertEqual(result["verdict"], "error")
+        self.assertIsNone(result["observed_model"])
+
 
 class RecordedJudgeRunTests(unittest.TestCase):
     def test_current_complete_calibration_is_accepted(self):
         clear = [label for label in LABELS if label["label"] != "borderline"]
-        record = {"model": "fable", "votes": 3, "vote_errors": 0,
-                  "rubric_sha256": judge.file_sha(judge.RUBRIC),
-                  "judge_sha256": judge.file_sha(judge.__file__),
-                  "labels_sha256": judge.file_sha(judge.LABELS), "fixtures_sha256": judge.fixture_sha(),
+        record = {"model": "fable", "observed_model": "test-judge", "votes": 3, "vote_errors": 0,
+                  **judge.calibration_fingerprints(),
                   "verdicts": {label["id"]: "pass" if label["label"] == "borderline" else label["label"] for label in LABELS},
                   "disagreements": [], "clear_fixtures": len(clear), "agree": len(clear)}
         self.assertEqual(judge.calibration_errors(record, model="fable"), [])
@@ -284,7 +295,9 @@ class RecordedJudgeRunTests(unittest.TestCase):
 
     def test_stale_calibration_is_reported_instead_of_relabeling_history(self):
         record = json.loads((FIDELITY / "judge-agreement.json").read_text())
-        for field in ("rubric_sha256", "judge_sha256", "labels_sha256", "fixtures_sha256"):
+        for field in ("rubric_sha256", "judge_sha256", "contract_sha256", "gate_sha256",
+                      "matrix_sha256", "inputs_sha256", "expectations_sha256", "resolved_sha256",
+                      "labels_sha256", "fixtures_sha256"):
             changed = dict(record, **{field: "stale"})
             self.assertIn("calibration_stale:" + field, judge.calibration_errors(changed))
         self.assertTrue(judge.calibration_errors(dict(record, verdicts={})))
@@ -296,6 +309,31 @@ class RecordedJudgeRunTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 judge.run_fixtures(Path(folder), "fable", 3, 1, only=["does-not-exist"])
             caller.assert_not_called()
+
+    def test_agreement_rechecks_retained_vote_model_identities(self):
+        import tempfile
+        from unittest.mock import patch
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "fixtures").mkdir()
+            (root / "fixtures/example.md").write_text("An example.")
+            labels = root / "labels.data"
+            labels.write_text(json.dumps([{"id": "example", "label": "pass"}]))
+            (root / "summary.json").write_text(json.dumps(
+                {"model": "fable", "observed_model": "judge-a", "votes": 3, "test_sha": "current"}))
+            votes = [{"models": ["judge-a"], "claims": [], "verdict": "pass"} for _ in range(3)]
+            def write():
+                (root / "example.json").write_text(json.dumps({"id": "example", "votes": votes, "verdict": "pass"}))
+            write()
+            with patch.object(judge, "FIDELITY", root), patch.object(judge, "ROOT", root.parent), \
+                    patch.object(judge, "LABELS", labels), \
+                    patch.object(judge, "calibration_fingerprints", return_value={"test_sha": "current"}):
+                self.assertEqual(judge.agreement(root)["observed_model"], "judge-a")
+                for identity in (["judge-b"], []):
+                    votes[-1]["models"] = identity
+                    write()
+                    with self.assertRaises(SystemExit):
+                        judge.agreement(root)
 
 
 class ContractTests(unittest.TestCase):
@@ -434,6 +472,10 @@ class GateTests(unittest.TestCase):
 
         import fidelity_gate
         self.gate = fidelity_gate
+        from unittest.mock import patch
+        calibrated = patch.object(judge, "calibrated_model", return_value="test-judge")
+        calibrated.start()
+        self.addCleanup(calibrated.stop)
         self.temp = tempfile.TemporaryDirectory(prefix="fidelity-gate-test-")
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
@@ -506,4 +548,5 @@ class GateTests(unittest.TestCase):
         with patch.object(judge, "judge", return_value={"verdict": "fail", "votes": []}) as caller:
             row = self.gate.grade_run(folder, 3, "fable")
         self.assertEqual(caller.call_args.args[0], visible)
+        self.assertEqual(caller.call_args.kwargs["expected_model"], "test-judge")
         self.assertEqual(row["gate"], "fail")

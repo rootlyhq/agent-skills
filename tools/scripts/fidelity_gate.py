@@ -53,7 +53,8 @@ def grade_run(folder, votes, judge_model):
     visible = (folder / "visible.md").read_text()
     if answer.strip() not in visible:
         reasons.append("final_missing_from_visible_text")
-    verdict = fidelity_judge.judge(visible, result["case"], judge_model, votes)
+    verdict = fidelity_judge.judge(visible, result["case"], judge_model, votes,
+                                   expected_model=fidelity_judge.calibrated_model())
     with (folder / "fidelity-judge.json").open("x") as output:
         output.write(json.dumps(verdict, indent=2) + "\n")
     row["judge"] = verdict["verdict"]
@@ -71,6 +72,10 @@ def grade_run(folder, votes, judge_model):
     row.update(gate="pass" if not reasons else "fail", reasons=reasons)
     return row
 
+def grading_fingerprints():
+    return {**fidelity_judge.calibration_fingerprints(),
+            "agreement_sha256": fidelity_judge.file_sha(fidelity_judge.FIDELITY / "judge-agreement.json")}
+
 
 def grade_round(folder, votes, judge_model, jobs):
     """Grade an exploratory scenario round over whatever runs the runner produced.
@@ -87,11 +92,14 @@ def grade_round(folder, votes, judge_model, jobs):
         raise ValueError(f"No run results under {folder}")
     if (folder / "round-gate.json").exists() or any((f / "fidelity-judge.json").exists() for f in folders):
         raise FileExistsError("Refusing to overwrite retained grades; use a new output directory/copy")
+    fingerprints = grading_fingerprints()
     errors = fidelity_judge.calibration_errors(model=judge_model)
     rows = []
     if not errors:
         with ThreadPoolExecutor(max_workers=jobs) as pool:
             rows = list(pool.map(lambda f: grade_run(f, votes, judge_model), folders))
+    if grading_fingerprints() != fingerprints:
+        errors.append("grading_inputs_changed_during_run")
     formats = defaultdict(set)
     cells = defaultdict(lambda: {"pass": 0, "runs": 0})
     for row in rows:
@@ -101,10 +109,7 @@ def grade_round(folder, votes, judge_model, jobs):
     inconsistent = sorted(case for case, seen in formats.items() if len(seen) > 1)
     summary = {
         "release_clearance": False, "judge_model": judge_model, "votes": votes,
-        "rubric_sha256": fidelity_judge.file_sha(fidelity_judge.RUBRIC),
-        "judge_sha256": fidelity_judge.file_sha(fidelity_judge.__file__),
-        "contract_sha256": fidelity_judge.file_sha(fidelity_contract.__file__),
-        "gate_sha256": fidelity_judge.file_sha(__file__),
+        **fingerprints,
         "cases": {case: dict(cell) for case, cell in sorted(cells.items())},
         "formats": {case: sorted(seen) for case, seen in sorted(formats.items())},
         "format_inconsistent_cases": inconsistent,
@@ -119,6 +124,7 @@ def grade_round(folder, votes, judge_model, jobs):
 def grade(matrix, votes, judge_model, jobs, package):
     if type(votes) is not int or votes < 3 or votes % 2 == 0 or jobs < 1:
         raise ValueError("Require positive jobs and an odd number of at least three votes")
+    fingerprints = grading_fingerprints()
     folders, errors = fidelity_matrix.validate(matrix, package)
     errors += fidelity_judge.calibration_errors(model=judge_model)
     if (matrix / "gate.json").exists() or any((f / "fidelity-judge.json").exists() for f in folders):
@@ -127,6 +133,10 @@ def grade(matrix, votes, judge_model, jobs, package):
     if not errors:
         with ThreadPoolExecutor(max_workers=jobs) as pool:
             rows = list(pool.map(lambda f: grade_run(f, votes, judge_model), folders))
+    if grading_fingerprints() != fingerprints:
+        errors.append("grading_inputs_changed_during_run")
+    _, final_errors = fidelity_matrix.validate(matrix, package)
+    errors.extend(error for error in final_errors if error not in errors)
     table = defaultdict(lambda: defaultdict(lambda: {"pass": 0, "runs": 0}))
     for row in rows:
         arm = f"{row['client']}:{row['model'] or row['requested_model']}"
@@ -135,10 +145,7 @@ def grade(matrix, votes, judge_model, jobs, package):
         cell["pass"] += row["gate"] == "pass"
     summary = {
         "judge_model": judge_model, "votes": votes,
-        "rubric_sha256": fidelity_judge.file_sha(fidelity_judge.RUBRIC),
-        "judge_sha256": fidelity_judge.file_sha(fidelity_judge.__file__),
-        "contract_sha256": fidelity_judge.file_sha(fidelity_contract.__file__),
-        "gate_sha256": fidelity_judge.file_sha(__file__),
+        **fingerprints,
         "table": {arm: dict(cases) for arm, cases in table.items()},
         "runs": rows,
         "errors": errors,

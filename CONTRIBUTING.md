@@ -35,8 +35,9 @@ contracts or introduce new workflows as incidental tooling cleanup.
 
 ## Evidence and model tests
 
-The three judge/contract/gate scripts and their rubric, labels, and fixtures are
-hash-pinned by `tools/tests/behavior/fidelity/judge-agreement.json`. Any edit,
+The judge, contract, gate, matrix validator and prompt reconstruction scripts,
+plus their rubric, labels, fixtures and deterministic expectations, are hash-pinned
+by `tools/tests/behavior/fidelity/judge-agreement.json`. Any edit,
 including import sorting or comments, requires a fresh successful calibration.
 Do not refresh hashes by hand. Ordinary static tests do not establish calibration.
 
@@ -67,7 +68,10 @@ maintainer must perform the trusted review described in
 
 ## Publishing changes
 
-Run `make public-check` before staging or publishing public content. Never commit
+Run `make public-check` before staging or publishing public content. Scan the
+exact staged blobs with `make staged-check` and the outgoing commits with
+`make outgoing-check RANGE=origin/main..HEAD`. Optional local hooks and marker
+configuration are described in [releasing](docs/releasing.md). Never commit
 credentials, planning documents, personal attribution, or raw test output.
 Use the commit convention and release steps in [releasing](docs/releasing.md).
 Creating a local export does not authorize a release tag or marketplace submission.

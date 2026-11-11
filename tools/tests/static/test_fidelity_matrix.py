@@ -12,6 +12,7 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / "tools/scripts"))
 import fidelity_gate as gate
+import fidelity_inputs
 import fidelity_judge as judge
 import fidelity_matrix as matrix
 import run_fidelity_matrix as runner
@@ -78,7 +79,9 @@ class MatrixTests(unittest.TestCase):
                 for repeat in range(1, manifest["repetitions"] + 1):
                     folder = self.runs / arm / f"{client}-{case}-run-{repeat:02d}"
                     folder.mkdir(parents=True)
-                    (folder / "result.json").write_text(json.dumps({
+                    hashes, sent = fidelity_inputs.expected_prompt(case, client)
+                    (folder / "prompt.txt").write_text(sent)
+                    (folder / "result.json").write_text(json.dumps({**hashes,
                         "client": client, "case": case, "repeat": repeat, "model": "test-model",
                         "requested_model": model if client == "claude" else None,
                         "package_inventory_sha256": manifest["package_inventory_sha256"]}))
@@ -125,6 +128,60 @@ class MatrixTests(unittest.TestCase):
         self.assertIn("package_content_changed", matrix.validate(self.runs, self.package)[1])
         with patch.object(judge, "scenario_evidence", return_value="changed evidence"):
             self.assertIn("matrix_manifest_or_evidence_changed", matrix.validate(self.runs, self.package)[1])
+
+    def test_unlisted_package_files_and_symlinked_directories_are_rejected(self):
+        self.populate()
+        extra = self.package / "unlisted.md"
+        extra.write_text("Extra executable input.")
+        self.assertIn("package_membership_changed", matrix.validate(self.runs, self.package)[1])
+        extra.unlink()
+        (self.package / "linked").symlink_to(self.runs, target_is_directory=True)
+        self.assertIn("package_membership_changed", matrix.validate(self.runs, self.package)[1])
+
+    def test_prompt_bytes_hashes_and_fixture_are_checked_independently(self):
+        self.populate()
+        path = next(self.runs.rglob("result.json"))
+        original = path.read_text()
+        prompt = path.parent / "prompt.txt"
+        sent = prompt.read_text()
+        prompt.write_text("Altered prompt.")
+        self.assertTrue(any(e.startswith("result_prompt_or_fixture_mismatch") for e in matrix.validate(self.runs, self.package)[1]))
+        prompt.write_text(sent)
+        for field in ("prompt_sha256", "sent_prompt_sha256", "fixture_sha256"):
+            data = json.loads(original)
+            data[field] = "different"
+            path.write_text(json.dumps(data))
+            self.assertTrue(any(e.startswith("result_prompt_or_fixture_mismatch") for e in matrix.validate(self.runs, self.package)[1]))
+        path.write_text(original)
+        prompt.unlink()
+        self.assertTrue(matrix.validate(self.runs, self.package)[1])
+
+    def test_changed_runner_input_is_rejected(self):
+        self.populate()
+        with patch.object(fidelity_inputs, "source_hashes", return_value={"changed": "digest"}):
+            self.assertIn("matrix_manifest_or_evidence_changed", matrix.validate(self.runs, self.package)[1])
+
+    def test_package_mutation_during_grading_fails_the_gate(self):
+        self.populate()
+        def changed(folder, *_):
+            (self.package / "VERSION").write_text("changed during grade")
+            result = json.loads((folder / "result.json").read_text())
+            return {**result, "gate": "pass"}
+        with patch.object(judge, "calibration_errors", return_value=[]), patch.object(gate, "grade_run", side_effect=changed):
+            result = gate.grade(self.runs, 3, "fable", 1, self.package)
+        self.assertFalse(result["passed"])
+        self.assertIn("package_content_changed", result["errors"])
+
+    def test_changed_grading_inputs_cannot_clear_a_matrix(self):
+        self.populate()
+        def passed(folder, *_):
+            return {**json.loads((folder / "result.json").read_text()), "gate": "pass"}
+        with patch.object(judge, "calibration_errors", return_value=[]), \
+                patch.object(gate, "grading_fingerprints", side_effect=[{"digest": "before"}, {"digest": "after"}]), \
+                patch.object(gate, "grade_run", side_effect=passed):
+            result = gate.grade(self.runs, 3, "fable", 1, self.package)
+        self.assertFalse(result["passed"])
+        self.assertIn("grading_inputs_changed_during_run", result["errors"])
 
     def test_stale_calibration_blocks_even_complete_matrix(self):
         self.populate()

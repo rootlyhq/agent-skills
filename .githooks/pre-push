@@ -1,0 +1,11 @@
+#!/bin/sh
+set -eu
+while read -r local_ref local_oid remote_ref remote_oid; do
+  # Deleting a remote ref publishes no new blobs.
+  case "$local_oid" in *[!0]*) ;; *) continue ;; esac
+  case "$remote_oid" in
+    *[!0]*) range="$remote_oid..$local_oid" ;;
+    *) range="$local_oid" ;; # New remote branch: inspect all reachable history.
+  esac
+  "${ROOTLY_SKILLS_PYTHON:-.venv/bin/python}" tools/scripts/check_public_tree.py --range "$range" --require-private-markers
+done

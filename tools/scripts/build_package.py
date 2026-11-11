@@ -8,11 +8,11 @@ import sys
 from pathlib import Path
 
 from build_skills import generated_files as skill_files
+from package_config import MCP_URL
 
 ROOT = Path(__file__).resolve().parents[2]
 DESCRIPTION = "Read-only incident response, alert triage, deploy checks, service health, on-call, communications, and retrospectives."
 MARKETPLACE = "rootly-agent-skills"
-MCP_URL = "https://mcp.rootly.com/mcp?toolsets=all&readonly=true"
 ALIASES = {
     "respond": "incident-response", "incident": "incident-response",
     "alert": "alert-triage", "status": "service-health", "lookup": "service-health",

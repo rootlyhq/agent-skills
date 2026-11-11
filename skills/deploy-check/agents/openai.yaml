@@ -8,6 +8,6 @@ dependencies:
       value: "rootly"
       description: "Rootly incident and on-call data"
       transport: "streamable_http"
-      url: "https://mcp.rootly.com/mcp"
+      url: "https://mcp.rootly.com/mcp?toolsets=all&readonly=true"
 policy:
   allow_implicit_invocation: true

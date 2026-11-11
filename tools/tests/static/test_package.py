@@ -59,6 +59,11 @@ class PackageTests(unittest.TestCase):
         ]
         profile = tomllib.loads(files[self.root / "adapters/codex/readonly.toml"])
         urls.append(profile["mcp_servers"]["rootly"]["url"])
+        import yaml
+        for path, content in files.items():
+            if path.name == "openai.yaml":
+                urls.extend(tool["url"] for tool in yaml.safe_load(content)["dependencies"]["tools"])
+        self.assertEqual(len(urls), 3 + len(list((self.root / "skills").glob("*/SKILL.md"))))
         for url in urls:
             with self.subTest(url=url):
                 parsed = urlsplit(url)

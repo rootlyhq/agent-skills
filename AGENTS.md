@@ -29,7 +29,8 @@ Check a message before committing with `python3 tools/scripts/check_commit_messa
 ## Pinned files
 
 `tools/tests/behavior/fidelity/judge-agreement.json` records hashes of
-`tools/scripts/fidelity_judge.py`, `fidelity_contract.py`, `fidelity_gate.py`
-and the fidelity rubric, labels and fixtures. Any edit, even a comment, makes the
-judge calibration stale and requires a new model run. Those two scripts resolve
+`tools/scripts/fidelity_judge.py`, `fidelity_contract.py`, `fidelity_gate.py`,
+`fidelity_matrix.py`, `fidelity_inputs.py` and the fidelity rubric, labels,
+fixtures and deterministic expectations. Any edit, even a comment, makes the
+judge calibration stale and requires a new model run. The judge and contract scripts resolve
 their paths from `tools/`, not the repository root; leave that as is.
