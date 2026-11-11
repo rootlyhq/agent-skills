@@ -67,8 +67,8 @@ than paraphrasing them. Copy the applicable rule and requested decision/claim
 explanation from the output contract unchanged. Do not invent the commander's
 rationale or an exhaustive prerequisite list. Attribute supplied assessments in
 the table; approval or a practiced runbook alone does not establish one.
-Handoff guidance must preserve the table's execution state. Put requested
-hypotheticals under **Inferences, not evidence**, using "If ... could/would ...".
+Handoff guidance and next checks must preserve execution and actor evidence.
+Put requested hypotheticals under **Inferences, not evidence**, using "If ... could/would ...".
 Use `None.` for **Inferences, not evidence** unless the user explicitly asks
 for hypothetical scenarios. Do not add sample updates or illustrative action
 narration; keep the action status at the strength supplied by its source.

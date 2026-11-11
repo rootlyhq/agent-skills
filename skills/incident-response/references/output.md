@@ -57,12 +57,27 @@ source contents belong in the table, not this paragraph.
 None.
 
 **Next check**
-- The next recommended check. Ask for any missing prerequisite first; for an
-  unread runbook, ask whether verification criteria exist before referring to
-  them as given. Request completion evidence without claiming a full log lacks it.
+- Only the neutral evidence questions needed to resolve the remaining gaps,
+  using the forms below. Do not add a story about an operator or prior work.
 
 I did not call Rootly, change any record, or execute anything.
 ```
+
+For **Next check**, select only unresolved checks relevant to the question.
+Use these question forms, substituting only actions or record IDs supplied in
+the evidence. They request information without assuming a person, event, record
+or prerequisite exists. Add no factual rationale to a question.
+
+- Unknown execution: "Has the action started, and is an execution record available?"
+- Reported start: "Is completion evidence available? What independent evidence could establish the outcome?"
+- Missing approval or assessment: "Is an approval record or decision assessment available, and what does it cover?"
+- Unread policy or runbook: "Is the applicable policy or runbook available? Does it define prerequisites and verification criteria?"
+- Unconfirmed operational claim: "What second independent operational source could corroborate the reported signal or proposed cause?"
+
+Keep supplied approval and assessments in the table; do not ask as though they
+were missing. Do not infer an operator's identity or an ongoing state from
+"started" alone. Avoid phrases such as "the responder running the runbook"
+unless the source actually establishes that actor and ongoing state.
 
 Table rules:
 
