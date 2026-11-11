@@ -3,17 +3,17 @@
 import copy
 import itertools
 import json
-from pathlib import Path
 import subprocess
 import sys
 import tempfile
 import unittest
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / "tools/scripts"))
 sys.path.insert(0, str(ROOT / "tools/tests/fixtures"))
-from action_state_guard import Invalid, STATES, check, evaluate, model_evidence, parse_json
 from action_state_cases import APPROVAL_ONLY, RETAINED_FAILURE_CLAIM, evidence, fact
+from action_state_guard import STATES, Invalid, check, evaluate, model_evidence, parse_json
 
 
 def candidate(approval="approved", execution="unknown", approval_ids=None, execution_ids=None):

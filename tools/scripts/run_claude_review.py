@@ -8,9 +8,9 @@ not copy credentials. Review output is private and never a release artifact.
 import argparse
 import hashlib
 import json
-from pathlib import Path
 import subprocess
 import tempfile
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 

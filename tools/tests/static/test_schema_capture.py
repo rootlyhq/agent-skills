@@ -1,8 +1,8 @@
 """Offline checks only; these tests never connect to Rootly."""
 
 import sys
-from pathlib import Path
 import unittest
+from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
 from capture_rootly_schema import summarize

@@ -1,14 +1,14 @@
 """Verify synthetic MCP probe safety and scoring without models or live services."""
 
 import sys
-from pathlib import Path
 import unittest
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / "tools/tests/fixtures"))
 sys.path.insert(0, str(ROOT / "tools/scripts"))
-from workflow_server import CASES, TOOLS, validate, response, INCIDENT
-from run_workflow_probes import inspect_mechanics, inspect_trace, common_loaded
+from run_workflow_probes import common_loaded, inspect_mechanics, inspect_trace
+from workflow_server import CASES, INCIDENT, TOOLS, response, validate
 
 
 class WorkflowProbeTests(unittest.TestCase):

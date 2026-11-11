@@ -1,8 +1,8 @@
 """A quiet audit is not sufficient proof of a permission boundary."""
 
-from pathlib import Path
 import sys
 import unittest
+from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
 from check_permissions import inspect_result

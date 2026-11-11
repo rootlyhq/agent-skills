@@ -1,10 +1,10 @@
 """Check invocation semantics and fail-closed live opt-in without calling a client."""
 
 import json
-from pathlib import Path
 import sys
-from types import SimpleNamespace
 import unittest
+from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import Mock, mock_open, patch
 
 ROOT = Path(__file__).resolve().parents[3]

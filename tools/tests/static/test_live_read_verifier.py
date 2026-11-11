@@ -1,9 +1,9 @@
 """Offline verification of the bounded live-read test; no network calls."""
 
 import copy
-from pathlib import Path
 import sys
 import unittest
+from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
 from check_live_incident import verify_calls

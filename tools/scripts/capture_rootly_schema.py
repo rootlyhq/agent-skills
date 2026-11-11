@@ -8,8 +8,8 @@ directory must be new and private (normally ignored tools/tests/results/).
 
 import argparse
 import json
-from pathlib import Path
 import tempfile
+from pathlib import Path
 
 from codex_client import Client
 

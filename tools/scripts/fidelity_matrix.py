@@ -2,7 +2,6 @@
 
 import hashlib
 import json
-from pathlib import Path
 
 import fidelity_contract
 import fidelity_judge

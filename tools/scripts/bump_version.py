@@ -4,8 +4,8 @@ to a new version, or date the current one as released."""
 
 import argparse
 import datetime
-from pathlib import Path
 import sys
+from pathlib import Path
 
 import build_package
 import check_release_metadata as metadata
@@ -66,7 +66,7 @@ def release(root=ROOT, today=None):
     sections = metadata.changelog_sections((root / "CHANGELOG.md").read_text())
     if not sections or sections[0][0] != current or sections[0][1] != "unreleased":
         raise ValueError(f"CHANGELOG.md: top section must be '## {current} — unreleased'")
-    today = today or datetime.datetime.now(datetime.timezone.utc).date().isoformat()
+    today = today or datetime.datetime.now(datetime.UTC).date().isoformat()
     replace_once(root / "CHANGELOG.md", f"## {current} — unreleased", f"## {current} — {today}")
     errors = metadata.problems(root, released=True)
     if errors:

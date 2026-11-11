@@ -7,13 +7,13 @@ Only the deterministic rendering of an accepted candidate may be displayed.
 """
 
 import argparse
-from datetime import datetime
 import hashlib
 import json
-from pathlib import Path
 import re
 import sys
 import unicodedata
+from datetime import datetime
+from pathlib import Path
 
 STATES = {
     "approval": ("unknown", "proposed", "approved", "declined"),
