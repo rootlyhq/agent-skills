@@ -4,7 +4,7 @@ description: Assess whether a service is down, healthy, or deteriorating from er
 license: Apache-2.0
 metadata:
   author: Rootly AI Labs
-  version: "1.1"
+  version: "1.1.0"
   category: incident-management
   access: read
   short-description: "Summarize service signals against meaningful baselines"

@@ -27,7 +27,7 @@ class BumpVersionTests(unittest.TestCase):
             shutil.copytree(ROOT / folder, self.root / folder)
         write_tree(self.root)
         for skill in (self.root / "skills").glob("*/SKILL.md"):
-            text = re.sub(r'version: "[^"]+"', 'version: "1.0"', skill.read_text(), count=1)
+            text = re.sub(r'version: "[^"]+"', 'version: "1.0.0"', skill.read_text(), count=1)
             skill.write_text(text)
         for module in (build_skills, build_package, bump_version):
             patcher = patch.object(module, "ROOT", self.root)
@@ -38,47 +38,47 @@ class BumpVersionTests(unittest.TestCase):
         return (self.root / "CHANGELOG.md").read_text()
 
     def test_bump_moves_every_reference(self):
-        self.assertEqual(bump_version.bump("1.1", self.root), "1.1")
-        self.assertEqual((self.root / "VERSION").read_text(), "1.1\n")
-        self.assertIn("## 1.1 — unreleased", self.changelog())
-        self.assertNotIn("## 1.0", self.changelog())
-        self.assertIn("`1.1`", (self.root / "README.md").read_text())
-        self.assertTrue((self.root / "docs/migration.md").read_text().startswith("# Migration to 1.1\n"))
+        self.assertEqual(bump_version.bump("1.1.0", self.root), "1.1.0")
+        self.assertEqual((self.root / "VERSION").read_text(), "1.1.0\n")
+        self.assertIn("## 1.1.0 — unreleased", self.changelog())
+        self.assertNotIn("## 1.0.0", self.changelog())
+        self.assertIn("`1.1.0`", (self.root / "README.md").read_text())
+        self.assertTrue((self.root / "docs/migration.md").read_text().startswith("# Migration to 1.1.0\n"))
         for skill in (self.root / "skills").glob("*/SKILL.md"):
-            self.assertIn('version: "1.1"', skill.read_text(), skill.parent.name)
+            self.assertIn('version: "1.1.0"', skill.read_text(), skill.parent.name)
         manifest = json.loads((self.root / ".cursor-plugin/plugin.json").read_text())
-        self.assertEqual(manifest["version"], "1.1")
+        self.assertEqual(manifest["version"], "1.1.0")
         self.assertEqual(metadata.problems(self.root), [])
 
     def test_bump_after_release_opens_new_section(self):
         write_tree(self.root, state="2026-10-16")
-        bump_version.bump("1.1", self.root)
-        self.assertIn("## 1.1 — unreleased\n\n## 1.0 — 2026-10-16\n", self.changelog())
+        bump_version.bump("1.1.0", self.root)
+        self.assertIn("## 1.1.0 — unreleased\n\n## 1.0.0 — 2026-10-16\n", self.changelog())
 
     def test_bump_rejects_non_increasing_version(self):
-        for version in ("1.0", "0.9", "0.1"):
+        for version in ("1.0.0", "0.9.0", "0.1.0"):
             with self.assertRaises(ValueError, msg=version):
                 bump_version.bump(version, self.root)
-        self.assertEqual((self.root / "VERSION").read_text(), "1.0\n")
+        self.assertEqual((self.root / "VERSION").read_text(), "1.0.0\n")
 
     def test_allow_downgrade_resets_before_first_release(self):
-        self.assertEqual(bump_version.bump("0.1", self.root, allow_downgrade=True), "0.1")
-        self.assertEqual((self.root / "VERSION").read_text(), "0.1\n")
-        self.assertIn("## 0.1 — unreleased", self.changelog())
+        self.assertEqual(bump_version.bump("0.1.0", self.root, allow_downgrade=True), "0.1.0")
+        self.assertEqual((self.root / "VERSION").read_text(), "0.1.0\n")
+        self.assertIn("## 0.1.0 — unreleased", self.changelog())
         self.assertEqual(metadata.problems(self.root), [])
 
     def test_allow_downgrade_still_rejects_same_version(self):
         with self.assertRaises(ValueError):
-            bump_version.bump("1.0", self.root, allow_downgrade=True)
+            bump_version.bump("1.0.0", self.root, allow_downgrade=True)
 
     def test_bump_rejects_malformed_version(self):
-        for version in ("1.1.0", "1.1-rc.1", "v1.1"):
+        for version in ("1.1", "1.1.0-rc.1", "v1.1.0"):
             with self.assertRaises(ValueError, msg=version):
                 bump_version.bump(version, self.root)
 
     def test_release_dates_the_top_section(self):
-        self.assertEqual(bump_version.release(self.root, today="2026-10-16"), "v1.0")
-        self.assertIn("## 1.0 — 2026-10-16", self.changelog())
+        self.assertEqual(bump_version.release(self.root, today="2026-10-16"), "v1.0.0")
+        self.assertIn("## 1.0.0 — 2026-10-16", self.changelog())
         self.assertEqual(metadata.problems(self.root, released=True), [])
 
     def test_release_twice_fails(self):
@@ -90,6 +90,16 @@ class BumpVersionTests(unittest.TestCase):
         write_tree(self.root, entries="")
         with self.assertRaises(ValueError):
             bump_version.release(self.root, today="2026-10-16")
+
+    def test_legacy_version_can_migrate_without_changing_historical_sections(self):
+        write_tree(self.root, version="1.1")
+        with (self.root / "CHANGELOG.md").open("a") as output:
+            output.write("\n## 1.0 — 2026-10-16\n\n- Published legacy release.\n")
+        for skill in (self.root / "skills").glob("*/SKILL.md"):
+            skill.write_text(skill.read_text().replace('version: "1.0.0"', 'version: "1.1"'))
+        self.assertEqual(bump_version.bump("1.1.0", self.root), "1.1.0")
+        self.assertIn("## 1.0 — 2026-10-16", self.changelog())
+        self.assertEqual(metadata.problems(self.root), [])
 
 
 if __name__ == "__main__":

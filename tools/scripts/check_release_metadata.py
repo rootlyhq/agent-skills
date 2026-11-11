@@ -8,17 +8,16 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-VERSION_PATTERN = re.compile(r"(\d+)\.(\d+)")
+VERSION_PATTERN = re.compile(r"(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)")
 HEADING = re.compile(r"^## (?P<version>\S+) — (?P<state>unreleased|\d{4}-\d{2}-\d{2})$", re.M)
 
 
 def parse_version(text):
-    """Return a sortable (major, minor) tuple; versions are MAJOR.MINOR, e.g. 1.0, 1.1, 2.0."""
+    """Return a sortable stable SemVer (major, minor, patch) tuple."""
     match = VERSION_PATTERN.fullmatch(text.strip())
     if match is None:
-        raise ValueError(f"Invalid version {text.strip()!r}; expected MAJOR.MINOR, e.g. 1.0")
-    major, minor = match.groups()
-    return (int(major), int(minor))
+        raise ValueError(f"Invalid version {text.strip()!r}; expected MAJOR.MINOR.PATCH")
+    return tuple(int(part) for part in match.groups())
 
 
 def current_version(root=ROOT):

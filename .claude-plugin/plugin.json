@@ -1,6 +1,6 @@
 {
   "name": "rootly",
-  "version": "1.1",
+  "version": "1.1.0",
   "description": "Read-only incident response, alert triage, deploy checks, service health, on-call, communications, and retrospectives.",
   "author": {
     "name": "Rootly",

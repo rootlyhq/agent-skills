@@ -1,7 +1,9 @@
 # Changelog
 
-## 1.1 — unreleased
+## 1.1.0 — unreleased
 
+- Adopt SemVer and release-please release PRs, retaining explicit approval for
+  immutable tags and publication of the exact reviewed release ZIP.
 - Update repository metadata, install commands, and release links to
   `rootlyhq/agent-skills` following the repository transfer.
 - Use Rootly publisher metadata across generated platform manifests and include

@@ -4,6 +4,7 @@ to a new version, or date the current one as released."""
 
 import argparse
 import datetime
+import re
 import sys
 from pathlib import Path
 
@@ -33,8 +34,11 @@ def bump(new, root=ROOT, allow_downgrade=False):
     `allow_downgrade` is set; that is only legitimate before the first tag.
     """
     current = metadata.current_version(root)
-    ordered = metadata.parse_version(new) > metadata.parse_version(current)
-    if not ordered and not allow_downgrade:
+    legacy = bool(re.fullmatch(r"\d+\.\d+", current))
+    normalized = current + ".0" if legacy else current
+    ordered = metadata.parse_version(new) > metadata.parse_version(normalized)
+    migration = legacy and new == normalized
+    if not ordered and not migration and not allow_downgrade:
         raise ValueError(f"{new} does not follow {current}")
     if new == current:
         raise ValueError(f"VERSION is already {current}")
@@ -77,7 +81,7 @@ def release(root=ROOT, today=None):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument("version", nargs="?", help="new version, e.g. 1.1")
+    group.add_argument("version", nargs="?", help="new version, e.g. 1.1.0")
     group.add_argument("--release", action="store_true",
                        help="date the current version's changelog section as released today")
     parser.add_argument("--allow-downgrade", action="store_true",
