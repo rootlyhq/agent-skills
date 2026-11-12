@@ -4,7 +4,8 @@
 
 Rootly's plugin for AI coding agents: Claude Code, Codex, Cursor, and Devin.
 This repository is the canonical source for the skills and generated platform
-adapters. Marketplace listings are separate distribution channels.
+adapters.
+
 It connects your agent to your Rootly account and teaches it how to work an
 incident, so you can ask "what is going on with checkout right now?", "is it
 safe to deploy this?", or "who is on call for payments?" and get answers
