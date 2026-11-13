@@ -8,6 +8,7 @@ dist/
 tools/tests/results/
 
 # Local-only agent configuration and private marker list
+.serena/
 CLAUDE.md
 AGENTS.override.md
 .private-markers

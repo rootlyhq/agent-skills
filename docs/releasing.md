@@ -14,7 +14,9 @@ python3 tools/scripts/export_release.py
 
 `check_public_tree.py` scans every file git would track, case-insensitively for
 private markers and separately for credential patterns. It rejects symlinks,
-unreadable and binary files. Only exact reviewed example lines have private-marker
+unreadable and binary files, except the two exact checksum-pinned Microsoft
+branding PNGs in `tools/scripts/public_assets.py`. Changing or appending to those
+files fails scanning; other binary paths remain prohibited. Only exact reviewed example lines have private-marker
 exceptions; credentials are never exempt. Findings withhold the matched value.
 
 Local private markers come from the ignored `.private-markers` file; CI reads
@@ -113,25 +115,34 @@ After squash-merging the release PR:
    manual semantic review for that exact candidate as described in
    `tools/tests/README.md`. Keep raw receipts in ignored results directories.
    This remains a human signoff; CI does not run credentialed model turns.
-3. Obtain explicit approval for the commit, ZIP checksum and release tag.
+3. Build the Microsoft preview for that same commit as described in
+   [Microsoft packaging](microsoft-copilot.md#build-and-download), validate and
+   review it, and record its ZIP checksum. Obtain explicit approval for the
+   commit, both ZIP checksums and release tag.
 4. Run the **Release** workflow manually on `main`, supplying the exact
-   40-character release commit SHA, the reviewed ZIP's SHA-256, and the fidelity
+   40-character release commit SHA, the generic ZIP's `expected_archive_sha256`,
+   the Microsoft ZIP's `expected_microsoft_archive_sha256`, and the fidelity
    review confirmation. An unreviewed candidate cannot be published.
 5. The prepare job verifies main ancestry, release commit subject, tracking
    manifest, dated metadata, static checks, publication scan and deterministic
-   ZIP checksum. It uploads only the reviewed ZIP, checksum, inventory and notes.
+   ZIP checksums. It uploads the reviewed packages, checksums, inventories and notes.
 6. Approve the `release` environment deployment. Its required maintainer
    reviewer and `main`-only deployment policy must be configured before use.
    Approval happens after preparation, and the publish job downloads that
    prepare job's exact artifact ID.
 7. The publish job creates an annotated immutable tag and a GitHub Release with
    `rootly-v<VERSION>.zip`, its `.sha256`, and `release-inventory.json`.
-   It uploads the existing prepared bytes, rather than rebuilding after approval.
+   It also attaches `rootly-microsoft-v<VERSION>.zip`, its `.sha256` and
+   `rootly-microsoft-v<VERSION>-inventory.json`. It uploads the existing prepared
+   bytes, rather than rebuilding after approval.
 
 The publisher is the only owner of tags and GitHub releases. Release-please runs
 in PR-only mode; it does not create a competing release. No tag-push workflow is
 needed, so the token's event-suppression behavior cannot skip asset publication.
-The workflow does not submit to any marketplace.
+The workflow does not submit to any marketplace. Microsoft package previews are
+also uploaded by validation runs, including release-PR validation. Download and
+extract the `microsoft-package-preview` Actions artifact to find the test ZIP;
+do not submit a preview publicly.
 
 ### Marketplace preparation
 
@@ -197,5 +208,6 @@ on 2026-11-11; Devin notes last checked on 2026-10-16.
 | Claude Code, claude.ai, Cowork | Developer portal at https://claude.ai/directory/manage | Requires a paid claude.ai plan (Team/Enterprise: an Owner). Run `claude plugin validate <export> --strict` first. The `claude-plugins-official` marketplace is partner-only. |
 | Codex and ChatGPT | Plugins dashboard at https://platform.openai.com/plugins → Upload new or existing plugin | Include both MCP configuration and skills in the initial ZIP, then connect the declared server under MCPs. Domain verification, OAuth, required listing URLs, reviewer access, demo, five positive and three negative review cases, and scans are required; a ZIP alone does not register the MCP server. See [Submit plugins](https://developers.openai.com/plugins/deploy/submission). |
 | Cursor | https://cursor.com/marketplace/publish | Manual review; public repo and README required. |
+| Microsoft 365 Copilot Cowork | https://partner.microsoft.com/dashboard/v2/marketplace-offers/overview | Separate Microsoft 365 app package and Rootly for Copilot offer; see the [Microsoft publishing procedure](microsoft-copilot.md). Release automation prepares the ZIP; provider submission is manual. |
 | Devin | No self-serve form | The public marketplace is curated by Cognition; ask via https://app.devin.ai/settings/support or support@cognition.ai. Users can install from the repo directly with `devin plugins install rootlyhq/agent-skills`. |
 | skills.sh | Install-based discovery | The [FAQ](https://www.skills.sh/docs/faq) describes discovery through CLI installation reports. A genuine `npx skills add rootlyhq/agent-skills` install can drive indexing; verify the canonical pages and `https://skills.sh/b/rootlyhq/agent-skills` badge before adding it. Immediate indexing and migration of old namespace entries/counts are not established. Do not generate install counts through CI. |

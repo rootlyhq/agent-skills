@@ -38,7 +38,7 @@ def changed_summary(paths):
     return "\n".join(lines)
 
 
-def compose(tag, archive, previous, paths, root=ROOT):
+def compose(tag, archive, previous, paths, root=ROOT, *, microsoft_archive=None):
     version = metadata.current_version(root)
     if tag != f"v{version}":
         raise ValueError(f"Tag {tag} does not match v{version}")
@@ -58,6 +58,14 @@ def compose(tag, archive, previous, paths, root=ROOT):
         "", "## Package", "",
         f"`{archive.name}` · SHA-256 `{digest}`", "",
     ]
+    if microsoft_archive is not None:
+        microsoft_digest = hashlib.sha256(microsoft_archive.read_bytes()).hexdigest()
+        lines += [
+            "Microsoft 365 Copilot Cowork app package:", "",
+            f"`{microsoft_archive.name}` · SHA-256 `{microsoft_digest}`", "",
+            "Use this separate ZIP for an authorized Microsoft submission. "
+            "Release publication does not establish marketplace availability.", "",
+        ]
     return "\n".join(lines)
 
 
@@ -65,10 +73,12 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--tag", required=True)
     parser.add_argument("--archive", required=True, type=Path)
+    parser.add_argument("--microsoft-archive", type=Path)
     args = parser.parse_args()
     try:
         previous = previous_tag(args.tag)
-        print(compose(args.tag, args.archive, previous, changed_paths(args.tag, previous)))
+        print(compose(args.tag, args.archive, previous, changed_paths(args.tag, previous),
+                      microsoft_archive=args.microsoft_archive))
     except (ValueError, subprocess.CalledProcessError) as exc:
         print(exc, file=sys.stderr)
         return 1

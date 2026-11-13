@@ -10,6 +10,7 @@ import zipfile
 from pathlib import Path
 
 import build_package
+from public_assets import reviewed_binary
 
 ROOT = Path(__file__).resolve().parents[2]
 TOP_FILES = (
@@ -17,7 +18,8 @@ TOP_FILES = (
     ".claude-plugin/plugin.json", ".claude-plugin/marketplace.json",
     ".cursor-plugin/plugin.json",
     ".devin-plugin/plugin.json", ".agents/plugins/marketplace.json",
-    "assets/logo.svg",
+    "assets/logo.svg", "assets/microsoft/color.png", "assets/microsoft/outline.png",
+    "docs/microsoft-copilot.md",
     "docs/install.md", "docs/safety.md", "docs/migration.md", "docs/architecture.md",
 )
 TREES = ("skills", "adapters")
@@ -69,9 +71,14 @@ def release_files():
         if not path.is_file():
             raise ValueError(f"Required release file missing: {path}")
         relative = path.relative_to(ROOT).as_posix()
+        content = path.read_bytes()
+        if reviewed_binary(relative, content):
+            if private.search(relative):
+                raise ValueError(f"Private marker in asset path: {relative}")
+            result[relative] = content
+            continue
         if path.suffix not in (".md", ".json", ".yaml", ".toml", ".svg") and relative not in ("VERSION", "LICENSE", "NOTICE"):
             raise ValueError(f"Unexpected release file type: {relative}")
-        content = path.read_bytes()
         text = content.decode("utf-8")
         if private.search(relative) or private.search(text) or SECRET.search(text):
             raise ValueError(f"Private/source/credential marker found in {relative}")

@@ -11,6 +11,10 @@ on:
         description: SHA-256 of the exact exported ZIP reviewed for release
         required: true
         type: string
+      expected_microsoft_archive_sha256:
+        description: SHA-256 of the exact Microsoft ZIP reviewed for release
+        required: true
+        type: string
       fidelity_reviewed:
         description: Current fidelity matrix and manual semantic review passed for this candidate
         required: true
@@ -76,7 +80,14 @@ jobs:
           python tools/scripts/prepare_release_assets.py "$TAG" "$EXPECTED_SHA256"
           # Local only: notes compare the candidate against the previous tag.
           git show-ref --verify --quiet "refs/tags/$TAG" || git tag "$TAG"
-          python tools/scripts/release_notes.py --tag "$TAG" --archive "release/rootly-$TAG.zip" > release/notes.md
+      - name: Prepare reviewed Microsoft package
+        env:
+          CANDIDATE: ${{ steps.candidate.outputs.sha }}
+          TAG: ${{ steps.candidate.outputs.tag }}
+          EXPECTED_MICROSOFT_SHA256: ${{ inputs.expected_microsoft_archive_sha256 }}
+        run: |
+          python tools/scripts/build_microsoft_package.py --export export.json --tag "$TAG" --candidate "$CANDIDATE" --output release/microsoft --expected-sha256 "$EXPECTED_MICROSOFT_SHA256"
+          python tools/scripts/release_notes.py --tag "$TAG" --archive "release/rootly-$TAG.zip" --microsoft-archive "release/microsoft/rootly-microsoft-$TAG.zip" > release/notes.md
       - name: Prepare marketplace submission bundle
         env:
           GH_TOKEN: ${{ github.token }}
@@ -120,8 +131,10 @@ jobs:
           TAG: ${{ needs.prepare.outputs.tag }}
           CANDIDATE: ${{ needs.prepare.outputs.sha }}
           EXPECTED_SHA256: ${{ inputs.expected_archive_sha256 }}
+          EXPECTED_MICROSOFT_SHA256: ${{ inputs.expected_microsoft_archive_sha256 }}
         run: |
           printf '%s  %s\n' "$EXPECTED_SHA256" "release/rootly-$TAG.zip" | sha256sum --check
+          printf '%s  %s\n' "$EXPECTED_MICROSOFT_SHA256" "release/microsoft/rootly-microsoft-$TAG.zip" | sha256sum --check
           (cd release/marketplaces && sha256sum --check "rootly-marketplaces-$TAG.zip.sha256")
           if gh release view "$TAG" >/dev/null 2>&1; then
             echo "Release already exists; refusing to overwrite published assets"
@@ -135,7 +148,7 @@ jobs:
             git tag -a "$TAG" -m "$TAG" "$CANDIDATE"
             git push origin "refs/tags/$TAG"
           fi
-          gh release create "$TAG" "release/rootly-$TAG.zip" "release/rootly-$TAG.zip.sha256" release/release-inventory.json "release/marketplaces/rootly-marketplaces-$TAG.zip" "release/marketplaces/rootly-marketplaces-$TAG.zip.sha256" --title "$TAG" --notes-file release/notes.md --verify-tag
+          gh release create "$TAG" "release/rootly-$TAG.zip" "release/rootly-$TAG.zip.sha256" release/release-inventory.json "release/marketplaces/rootly-marketplaces-$TAG.zip" "release/marketplaces/rootly-marketplaces-$TAG.zip.sha256" "release/microsoft/rootly-microsoft-$TAG.zip" "release/microsoft/rootly-microsoft-$TAG.zip.sha256" "release/microsoft/rootly-microsoft-$TAG-inventory.json" --title "$TAG" --notes-file release/notes.md --verify-tag
           gh label create autorelease:tagged --color ededed --force
           for pr_number in $(gh api "repos/$GITHUB_REPOSITORY/commits/$CANDIDATE/pulls" --jq '.[] | select(.merged_at != null and (.head.ref | startswith("release-please--"))) | .number'); do
             gh pr edit "$pr_number" --remove-label autorelease:pending --add-label autorelease:tagged
