@@ -1,7 +1,33 @@
 # Changelog
 
-## 3.0.0 (2026-11-13)
+## 3.0.0 — 2026-11-13
 
+### Migration notes
+
+- Start a unified 3.0.0 version line above the earlier platform-specific plugins.
+  This migration uses the canonical skill names and read-only workflows described
+  in `docs/migration.md`; legacy write actions are not restored.
+
+- Adopt SemVer and release-please release PRs, retaining explicit approval for
+  immutable tags and publication of the exact reviewed release ZIP.
+- Update repository metadata, install commands, and release links to
+  `rootlyhq/agent-skills` following the repository transfer.
+- Use Rootly publisher metadata across generated platform manifests and include
+  public privacy and terms URLs for OpenAI review.
+- Clarify pending marketplace availability and the remote MCP submission path.
+- Request all toolsets in server read-only mode on bundled MCP connections and
+  individual skill dependencies, retaining the client read-tool allowlists.
+- Scan staged Git blobs and outgoing commit history before publication, with
+  optional local hooks and matching CI checks.
+- Bind fidelity clearance to the grading implementation, observed judge identity,
+  retained prompts, fixture inputs and exact package contents.
+- Clarify gaps in supplied excerpts versus complete records, preserve action
+  states in illustrative wording, and reinforce the existing answer boundaries.
+- Require deploy assessments to load the shared evidence guidance before drafting.
+- Explain mitigation decisions without inventing their rationale, comparative
+  harm, prerequisites or execution state in handoff guidance.
+- Preserve the seven canonical skills and read-only workflows; no legacy write
+  actions are restored.
 
 ### Features
 
@@ -34,33 +60,6 @@
 * **skills:** refresh MCP source verification ([50f3b08](https://github.com/rootlyhq/agent-skills/commit/50f3b08d7f2cc565d680d956c59770ec6bca0bc0))
 * **validation:** bind publication and fidelity checks to exact inputs ([810a7c4](https://github.com/rootlyhq/agent-skills/commit/810a7c4b612444d357287a3cceb81f4808cf5a5f))
 * **validation:** bind publication and fidelity checks to exact inputs ([85a684b](https://github.com/rootlyhq/agent-skills/commit/85a684b38f8f9daa476b1cd7079300418d89a04f))
-
-## 3.0.0 — unreleased
-
-- Start a unified 3.0.0 version line above the earlier platform-specific plugins.
-  This migration uses the canonical skill names and read-only workflows described
-  in `docs/migration.md`; legacy write actions are not restored.
-
-- Adopt SemVer and release-please release PRs, retaining explicit approval for
-  immutable tags and publication of the exact reviewed release ZIP.
-- Update repository metadata, install commands, and release links to
-  `rootlyhq/agent-skills` following the repository transfer.
-- Use Rootly publisher metadata across generated platform manifests and include
-  public privacy and terms URLs for OpenAI review.
-- Clarify pending marketplace availability and the remote MCP submission path.
-- Request all toolsets in server read-only mode on bundled MCP connections and
-  individual skill dependencies, retaining the client read-tool allowlists.
-- Scan staged Git blobs and outgoing commit history before publication, with
-  optional local hooks and matching CI checks.
-- Bind fidelity clearance to the grading implementation, observed judge identity,
-  retained prompts, fixture inputs and exact package contents.
-- Clarify gaps in supplied excerpts versus complete records, preserve action
-  states in illustrative wording, and reinforce the existing answer boundaries.
-- Require deploy assessments to load the shared evidence guidance before drafting.
-- Explain mitigation decisions without inventing their rationale, comparative
-  harm, prerequisites or execution state in handoff guidance.
-- Preserve the seven canonical skills and read-only workflows; no legacy write
-  actions are restored.
 
 ## 1.0 — 2026-10-16
 
