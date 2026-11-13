@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 
 from build_skills import generated_files as skill_files
+from microsoft_manifest import manifest as microsoft_manifest
 from package_config import MCP_URL
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -116,6 +117,7 @@ def generated_files():
             "category": "Productivity",
         }],
     })
+    yield ROOT / "adapters/microsoft/manifest.json", encoded(microsoft_manifest(version))
     tools_by_skill = read_tools()
     all_reads = sorted({name for names in tools_by_skill.values() for name in names})
     yield ROOT / "adapters/read-tools.json", encoded({

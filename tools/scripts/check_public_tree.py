@@ -14,6 +14,7 @@ import sys
 from pathlib import Path
 
 import export_release
+from public_assets import reviewed_binary
 
 ROOT = Path(__file__).resolve().parents[2]
 # These exact source/test lines intentionally contain generic example markers.
@@ -41,6 +42,11 @@ def content_findings(name, content, private):
     """Inspect bytes from either the worktree or a Git blob without exposing values."""
     if private.search(name):
         return [(name, "private path")]
+    try:
+        if reviewed_binary(name, content):
+            return []
+    except ValueError:
+        return [(name, "binary branding asset differs from reviewed checksum")]
     try:
         text = content.decode("utf-8")
     except UnicodeDecodeError:

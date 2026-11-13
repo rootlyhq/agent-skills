@@ -78,6 +78,14 @@ the submission checklist prefers). Cursor does not expand the Agent Plugins
 `${PLUGIN_ROOT}`/`${PLUGIN_DATA}` variables inside `mcp.json`; this package does
 not use them.
 
+## Microsoft 365 Copilot Cowork
+
+Use the separate Microsoft app ZIP, not the generic plugin export. See
+[Microsoft setup and publishing](microsoft-copilot.md) for its package layout,
+Cowork prerequisites, DCR sign-in and permission setup. Its MCP URL intentionally
+omits the default connection's server read-only filter; configure the authorized
+read scopes and verify the connected workspace before using live data.
+
 ## Devin
 
 Devin loads this repository through its plugin support (CLI, Desktop, and cloud

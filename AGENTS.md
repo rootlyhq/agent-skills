@@ -19,6 +19,15 @@ material, personal attribution, credentials, or raw test traces. Test traces
 belong in the ignored `tools/tests/results/`. `tools/scripts/check_public_tree.py` runs in
 CI and fails on known private markers.
 
+## Provider publishing context
+
+Microsoft 365 Copilot Cowork packaging and validation are documented in
+`docs/microsoft-copilot.md`. Keep current submission receipts and continuation
+notes in ignored `tools/tests/results/<submission>/HANDOFF.md` or outside the
+checkout; they must not enter release exports or the public tree. Never store
+reviewer credentials in those notes. A fresh clone will not contain local notes;
+verify provider status in its portal before taking publication actions.
+
 
 ## Commits
 
