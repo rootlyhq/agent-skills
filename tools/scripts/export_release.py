@@ -20,6 +20,9 @@ TOP_FILES = (
     ".devin-plugin/plugin.json", ".agents/plugins/marketplace.json",
     "assets/logo.svg", "assets/microsoft/color.png", "assets/microsoft/outline.png",
     "docs/microsoft-copilot.md",
+    "docs/databricks/README.md", "docs/databricks/mcp.md", "docs/databricks/security.md",
+    "docs/databricks/examples.md", "docs/databricks/skills.md",
+    "docs/databricks/troubleshooting.md", "docs/databricks/publishing.md",
     "docs/install.md", "docs/safety.md", "docs/migration.md", "docs/architecture.md",
 )
 TREES = ("skills", "adapters")

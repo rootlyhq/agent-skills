@@ -99,6 +99,14 @@ The Microsoft ZIP reuses the canonical skills and version. It uses OAuth Dynamic
 Client Registration in Cowork; Copilot Chat is not supported by this authentication
 configuration. See [Microsoft setup and publishing](docs/microsoft-copilot.md).
 
+### Databricks
+
+Use the [Databricks guides](docs/databricks/README.md) to connect agents through
+Rootly's hosted MCP server. Canonical skills are installed separately; a
+Marketplace MCP listing does not install this plugin ZIP.
+Databricks also supports [governed skill publication](docs/databricks/skills.md)
+to Unity Catalog using the same canonical folders.
+
 ### Skills only, any agent
 
 ```sh
