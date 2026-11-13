@@ -38,11 +38,11 @@ jobs:
       tag: ${{ steps.candidate.outputs.tag }}
       artifact-id: ${{ steps.upload.outputs.artifact-id }}
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v7.0.1
         with:
           ref: main
           fetch-depth: 0
-      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+      - uses: actions/setup-python@v7.1.0
         with:
           python-version-file: .python-version
       - name: Verify explicit review and immutable candidate
@@ -53,7 +53,7 @@ jobs:
         run: |
           test "$FIDELITY_REVIEWED" = true
           python tools/scripts/verify_release_candidate.py "$CANDIDATE"
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v7.0.1
         with:
           ref: ${{ steps.candidate.outputs.sha }}
           fetch-depth: 0
@@ -97,7 +97,7 @@ jobs:
           catalog_commit=$(gh api repos/anthropics/claude-plugins-official/commits/main --jq .sha)
           gh api "repos/anthropics/claude-plugins-official/contents/.claude-plugin/marketplace.json?ref=$catalog_commit" --jq '.content|@base64d' > catalog.json
           python tools/scripts/prepare_marketplace_bundle.py --export export.json --tag "$TAG" --candidate "$CANDIDATE" --catalog catalog.json --catalog-commit "$catalog_commit" --output release/marketplaces --summary "$GITHUB_STEP_SUMMARY"
-      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+      - uses: actions/upload-artifact@v7.0.2
         id: upload
         with:
           name: approved-release-assets
@@ -116,11 +116,11 @@ jobs:
       pull-requests: write
       issues: write
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v7.0.1
         with:
           ref: ${{ needs.prepare.outputs.sha }}
           fetch-depth: 0
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+      - uses: actions/download-artifact@v8.0.2
         with:
           artifact-ids: ${{ needs.prepare.outputs.artifact-id }}
           path: release
