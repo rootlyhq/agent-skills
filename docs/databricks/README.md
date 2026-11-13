@@ -19,6 +19,7 @@ using it with incident skills.
 ## Choose a guide
 
 - [MCP setup](mcp.md): register the hosted server and connect an agent.
+- [Skill publication](skills.md): reuse canonical folders in Unity Gateway Skills.
 - [Security and permissions](security.md): identities, tool selection and data access.
 - [Examples](examples.md): read-only prompts and fictional evidence walkthroughs.
 - [Troubleshooting](troubleshooting.md): identify which connection needs attention.
@@ -33,7 +34,8 @@ these workflows. Answers still depend on the active connection, effective
 permissions and freshness of the retrieved records.
 
 Use the [normal installation guide](../install.md) for your supported coding
-agent. If it calls Rootly through Databricks, configure the intended MCP service
+agent or the [Unity Catalog skills route](skills.md) for governed distribution.
+If the agent calls Rootly through Databricks, configure the intended MCP service
 and restrictions explicitly. Verify the active connection and successful skill
 loading rather than assuming another connector or installation is in use.
 

@@ -3,6 +3,12 @@
 Procedures reviewed against official sources on November 12, 2026. Recheck
 the current portal and requirements before external actions.
 
+Public MCP listings and governed skill publication use different destinations.
+For `SKILL.md` folders, see [Unity Gateway Skills publication](skills.md), including
+the official GitHub Action. The documented skills route is organizational Unity
+Catalog sharing; a public Marketplace skills submission type has not been
+established by the sources reviewed here.
+
 ## Marketplace MCP listing
 
 Public Marketplace publication requires provider approval. Follow the

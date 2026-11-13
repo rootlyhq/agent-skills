@@ -104,6 +104,8 @@ configuration. See [Microsoft setup and publishing](docs/microsoft-copilot.md).
 Use the [Databricks guides](docs/databricks/README.md) to connect agents through
 Rootly's hosted MCP server. Canonical skills are installed separately; a
 Marketplace MCP listing does not install this plugin ZIP.
+Databricks also supports [governed skill publication](docs/databricks/skills.md)
+to Unity Catalog using the same canonical folders.
 
 ### Skills only, any agent
 
