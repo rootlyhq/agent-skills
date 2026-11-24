@@ -1,8 +1,14 @@
 # Microsoft 365 Copilot Cowork
 
-Rootly for Copilot packages the canonical skills for Microsoft Copilot Cowork.
-It is a separate app from Rootly's existing Microsoft Teams app. Keep their app
-identities and Partner Center offers separate when updating either product.
+This repository owns the canonical skills and a thin Microsoft adapter.
+The production Microsoft 365 package is maintained in
+[rootlyhq/rootly-teams](https://github.com/rootlyhq/rootly-teams), where the
+Cowork skills and MCP connector extend the existing Rootly AI Teams app.
+Preserve that app's published identity and use its update flow.
+
+The standalone adapter and ZIP described below are packaging references and
+private test inputs. They do not replace the unified production package or
+establish support in every Microsoft host.
 
 ## Package format
 
@@ -29,7 +35,16 @@ The packaging script takes its inputs from the verified generic export and
 compares them against the exact candidate commit. It performs no network calls.
 
 The manifest declares each skill folder in `agentSkills` and Rootly's remote MCP
-connection in `agentConnectors`. Use Rootly's real icons, developer identity,
+connection in `agentConnectors`. Its explicit toolset selection includes AI SRE
+investigations and On-Call, while excluding AI Automation, AI Skills and
+observability. The hosted MCP server must support the `investigations` toolset
+before distributing this configuration. The incident skills remain recommendation
+and drafting workflows; exposing a write tool does not authorize using it.
+
+The adapter uses Cowork's automatic OAuth dynamic client registration. Copilot
+Chat additionally requires an explicit, registered authorization configuration;
+configure that in the unified production package and verify it in each host.
+Use Rootly's real icons, developer identity,
 privacy URL and terms URL; replace any generated placeholders. Preserve the
 existing Microsoft app ID for updates. Reviewed PNG icons live in
 `assets/microsoft/`; their exact bytes are pinned for publication scanning.
