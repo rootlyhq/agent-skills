@@ -97,7 +97,14 @@ class MicrosoftPackageTests(unittest.TestCase):
         self.assertEqual(manifest, microsoft_manifest.manifest(self.version))
         self.assertEqual(manifest["id"], "c819ab41-e86d-479e-94e5-30bf776f8691")
         remote = manifest["agentConnectors"][0]["toolSource"]["remoteMcpServer"]
-        self.assertEqual(remote, {"mcpServerUrl": "https://mcp.rootly.com/mcp?toolsets=all"})
+        self.assertEqual(remote, {"mcpServerUrl": microsoft_manifest.MCP_URL})
+        from urllib.parse import parse_qs, urlsplit
+
+        query = parse_qs(urlsplit(remote["mcpServerUrl"]).query)
+        selected = set(query["toolsets"][0].split(","))
+        self.assertTrue({"incidents", "oncall", "investigations"} <= selected)
+        self.assertFalse({"all", "ai", "automations", "observability"} & selected)
+        self.assertNotIn("readonly", query)
         for name in ("mcp.json", ".mcp.json"):
             self.assertIn("readonly=true", self.files[name].decode())
 

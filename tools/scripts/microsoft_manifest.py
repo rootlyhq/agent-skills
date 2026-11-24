@@ -1,7 +1,21 @@
 """Thin Microsoft adapter metadata; skill instructions remain canonical."""
 
 APP_ID = "c819ab41-e86d-479e-94e5-30bf776f8691"
-MCP_URL = "https://mcp.rootly.com/mcp?toolsets=all"
+MCP_TOOLSETS = (
+    "core",
+    "incidents",
+    "alerts",
+    "oncall",
+    "workflows",
+    "workflow_tasks",
+    "catalog",
+    "status_pages",
+    "config",
+    "users",
+    "investigations",
+    "audit",
+)
+MCP_URL = "https://mcp.rootly.com/mcp?toolsets=" + ",".join(MCP_TOOLSETS)
 SKILLS = (
     "alert-triage", "deploy-check", "incident-communications", "incident-response",
     "on-call", "retrospective", "service-health",
