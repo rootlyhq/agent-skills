@@ -117,10 +117,11 @@ class MicrosoftPackageTests(unittest.TestCase):
         self.assertNotIn("toolDescription.source.json", selected)
         tools = json.loads(data)["tools"]
         self.assertEqual({tool["name"] for tool in tools}, microsoft_tools.TOOLS)
-        self.assertEqual(len(tools), 42)
+        self.assertEqual(len(tools), 37)
         self.assertIn("get_schedule_shifts", microsoft_tools.TOOLS)
         self.assertIn("list_investigations", microsoft_tools.TOOLS)
         for tool in tools:
+            self.assertTrue(tool["annotations"]["readOnlyHint"])
             self.assertNotIn("outputSchema", tool)
             self.assertEqual(tool["inputSchema"]["type"], "object")
 
@@ -138,6 +139,14 @@ class MicrosoftPackageTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "duplicate"):
             microsoft_tools.select(response)
 
+    def test_upstream_write_annotations_cannot_enter_the_read_only_catalog(self):
+        response = json.loads(self.files[microsoft_tools.CATALOG])
+        response["tools"][0]["annotations"]["readOnlyHint"] = False
+        with self.assertRaisesRegex(ValueError, "read-only annotations"):
+            microsoft_tools.select(response)
+        self.assertFalse({"create_incident", "update_incident", "create_incident_action_item",
+                          "start_investigation", "cancel_investigation"} & microsoft_tools.TOOLS)
+
     def test_catalog_regeneration_is_deterministic_and_preserves_input(self):
         response = json.loads(self.files[microsoft_tools.CATALOG])
         original = json.dumps(response, sort_keys=True)
@@ -145,7 +154,7 @@ class MicrosoftPackageTests(unittest.TestCase):
                          self.files[microsoft_tools.CATALOG])
         self.assertEqual(json.dumps(response, sort_keys=True), original)
         response["tools"].append({"name": "unselected_admin_tool"})
-        self.assertEqual(len(microsoft_tools.select(response)["tools"]), 42)
+        self.assertEqual(len(microsoft_tools.select(response)["tools"]), 37)
         response["tools"][0]["inputSchema"] = {"type": "string"}
         with self.assertRaisesRegex(ValueError, "inputSchema"):
             microsoft_tools.select(response)
