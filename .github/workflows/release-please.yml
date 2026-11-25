@@ -21,13 +21,13 @@ jobs:
     runs-on: blacksmith-2vcpu-ubuntu-2404
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v7.0.1
         with:
           ref: main
-      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+      - uses: actions/setup-python@v7.1.0
         with:
           python-version-file: .python-version
-      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+      - uses: googleapis/release-please-action@v5.0.0
         id: release
         with:
           skip-github-release: true
@@ -37,7 +37,7 @@ jobs:
           PRS_CREATED: ${{ steps.release.outputs.prs_created }}
           RELEASE_PRS: ${{ steps.release.outputs.prs }}
         run: python tools/scripts/release_pr_branch.py
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v7.0.1
         if: steps.pr.outputs.branch != ''
         with:
           ref: ${{ steps.pr.outputs.branch }}
