@@ -11,15 +11,15 @@ CATALOG = "adapters/microsoft/toolDescription.json"
 SOURCE = "adapters/microsoft/toolDescription.source.json"
 REPOSITORY = "https://github.com/rootlyhq/rootly-mcp-server"
 TOOLS = frozenset("""
-cancel_investigation check_responder_availability create_incident create_incident_action_item
+check_responder_availability
 find_related_incidents get_alert get_alert_by_short_id get_current_user get_escalation_policy
 get_incident get_incident_meeting_transcripts get_incident_retrospective get_investigation
 get_oncall_handoff_summary get_oncall_schedule_summary get_oncall_shift_metrics get_schedule_shifts
 get_server_version get_shift_incidents get_team get_user list_alert_events list_alert_groups
 list_alerts list_endpoints list_escalation_policies list_incident_action_items list_incident_alerts
 list_incident_events list_incidents list_investigations list_schedules list_services list_severities
-list_shifts list_status_pages list_teams list_users search_incidents start_investigation
-suggest_solutions update_incident
+list_shifts list_status_pages list_teams list_users search_incidents
+suggest_solutions
 """.split())
 
 
@@ -51,6 +51,8 @@ def select(response):
             parameter["description"] = re.sub(
                 r" \(fills `\{id\}` in [^)]+\)", "", parameter["description"]
             )
+        if entry["annotations"].get("readOnlyHint") is not True:
+            raise ValueError("Microsoft incident tools must retain read-only annotations")
         selected.append(entry)
     return {"tools": selected}
 

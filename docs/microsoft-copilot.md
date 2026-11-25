@@ -35,7 +35,7 @@ The packaging script takes its inputs from the verified generic export and
 compares them against the exact candidate commit. It performs no network calls.
 
 The manifest declares each skill folder in `agentSkills` and Rootly's remote MCP
-connection in `agentConnectors`. Microsoft loads 42 selected tool definitions from
+connection in `agentConnectors`. Microsoft loads 37 selected tool definitions from
 `adapters/microsoft/toolDescription.json` using
 [`mcpToolDescription.file`](https://learn.microsoft.com/en-us/plugins/configure-plugin-mcp-servers#define-tool-discovery),
 instead of loading the endpoint's full dynamic catalog. The endpoint stays on the
@@ -60,12 +60,11 @@ Review schema changes against that source, run static checks, and smoke-test the
 exact ZIP in Microsoft before distributing it. This file controls tool discovery;
 Rootly OAuth permissions continue to control access to data and operations.
 
-The selected connector exposes incident creation/updates, action-item creation,
-and investigation start/cancel operations when permissions allow them. Organization
-configuration, workflow administration, and status-page publishing require a
-separately configured connection with the relevant broader toolsets. The incident
-skills remain recommendation and drafting workflows; exposing a write tool does
-not authorize using it.
+The packaged catalog advertises read-only incident, alert, on-call, catalog and
+AI SRE investigation operations. Incident creation/updates, action-item creation
+and investigation start/cancel are outside this adapter's scope. The seven skills
+remain recommendation and drafting workflows. Catalog refreshes fail if a
+selected upstream tool loses its read-only annotation.
 
 The adapter uses Cowork's automatic OAuth dynamic client registration. Copilot
 Chat additionally requires an explicit, registered authorization configuration;
