@@ -167,6 +167,10 @@ Codex specifics, verified with Codex CLI 0.162.0:
 
 ## Verify
 
+For Databricks, see [Rootly MCP and skills](databricks/README.md) for hosted MCP
+setup, permissions and optional skill use. MCP-service registration and canonical
+skill installation are separate steps.
+
 Confirm skill discovery, authenticate, read a minimal permitted record, then try
 a synthetic scenario without write tools available. A successful install or
 schema check is not proof of correct incident judgment.
