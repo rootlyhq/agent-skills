@@ -35,11 +35,37 @@ The packaging script takes its inputs from the verified generic export and
 compares them against the exact candidate commit. It performs no network calls.
 
 The manifest declares each skill folder in `agentSkills` and Rootly's remote MCP
-connection in `agentConnectors`. Its explicit toolset selection includes AI SRE
-investigations and On-Call, while excluding AI Automation, AI Skills and
-observability. The hosted MCP server must support the `investigations` toolset
-before distributing this configuration. The incident skills remain recommendation
-and drafting workflows; exposing a write tool does not authorize using it.
+connection in `agentConnectors`. Microsoft loads 42 selected tool definitions from
+`adapters/microsoft/toolDescription.json` using
+[`mcpToolDescription.file`](https://learn.microsoft.com/en-us/plugins/configure-plugin-mcp-servers#define-tool-discovery),
+instead of loading the endpoint's full dynamic catalog. The endpoint stays on the
+existing server toolsets, so all selected calls work without a server change.
+AI Automation, AI Skills, observability and unrelated administration tools are
+absent from the packaged catalog.
+
+The snapshot preserves MCP input contracts and annotations. One redundant API
+path is omitted from the `get_user` argument help text so it does not resemble a
+local user-directory path to the public-tree scanner.
+`toolDescription.source.json` records the reviewed MCP repository,
+commit and catalog checksum. Packaging checks that checksum and the explicit
+selection in `tools/scripts/microsoft_tools.py`; a mismatch stops the build.
+To refresh, obtain a metadata-only `tools/list` result from the reviewed MCP
+commit, then run:
+
+```sh
+python3 tools/scripts/microsoft_tools.py --tools-list /path/to/tools-list.json --source-commit <40-character-reviewed-sha>
+```
+
+Review schema changes against that source, run static checks, and smoke-test the
+exact ZIP in Microsoft before distributing it. This file controls tool discovery;
+Rootly OAuth permissions continue to control access to data and operations.
+
+The selected connector exposes incident creation/updates, action-item creation,
+and investigation start/cancel operations when permissions allow them. Organization
+configuration, workflow administration, and status-page publishing require a
+separately configured connection with the relevant broader toolsets. The incident
+skills remain recommendation and drafting workflows; exposing a write tool does
+not authorize using it.
 
 The adapter uses Cowork's automatic OAuth dynamic client registration. Copilot
 Chat additionally requires an explicit, registered authorization configuration;
@@ -92,7 +118,7 @@ validation pass does not imply marketplace certification or publication.
 The Microsoft package uses this connection:
 
 ```text
-https://mcp.rootly.com/mcp?toolsets=all
+https://mcp.rootly.com/mcp?toolsets=core,incidents,alerts,oncall,workflows,workflow_tasks,catalog,status_pages,config,users,investigations,audit
 ```
 
 It intentionally omits the connector's `authorization` object to use automatic

@@ -58,6 +58,7 @@ def manifest(version):
                 "Rootly incidents, alerts, services, on-call schedules, and retrospectives "
                 "for the Rootly skills."
             ),
-            "toolSource": {"remoteMcpServer": {"mcpServerUrl": MCP_URL}},
+            "toolSource": {"remoteMcpServer": {"mcpServerUrl": MCP_URL,
+                "mcpToolDescription": {"file": "toolDescription.json"}}},
         }],
     }

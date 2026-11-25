@@ -16,6 +16,7 @@ import build_microsoft_package as microsoft
 import check_public_tree
 import export_release
 import microsoft_manifest
+import microsoft_tools
 import release_notes
 from public_assets import reviewed_binary
 
@@ -97,16 +98,57 @@ class MicrosoftPackageTests(unittest.TestCase):
         self.assertEqual(manifest, microsoft_manifest.manifest(self.version))
         self.assertEqual(manifest["id"], "c819ab41-e86d-479e-94e5-30bf776f8691")
         remote = manifest["agentConnectors"][0]["toolSource"]["remoteMcpServer"]
-        self.assertEqual(remote, {"mcpServerUrl": microsoft_manifest.MCP_URL})
+        self.assertEqual(remote, {"mcpServerUrl": microsoft_manifest.MCP_URL,
+                                  "mcpToolDescription": {"file": "toolDescription.json"}})
         from urllib.parse import parse_qs, urlsplit
 
         query = parse_qs(urlsplit(remote["mcpServerUrl"]).query)
         selected = set(query["toolsets"][0].split(","))
-        self.assertTrue({"incidents", "oncall", "investigations"} <= selected)
+        self.assertEqual(selected, set(microsoft_manifest.MCP_TOOLSETS))
         self.assertFalse({"all", "ai", "automations", "observability"} & selected)
         self.assertNotIn("readonly", query)
         for name in ("mcp.json", ".mcp.json"):
             self.assertIn("readonly=true", self.files[name].decode())
+
+    def test_static_catalog_has_exact_source_and_selection(self):
+        data = microsoft_tools.verify(self.files)
+        selected = microsoft.package_files(self.files, self.version)
+        self.assertEqual(selected["toolDescription.json"], data)
+        self.assertNotIn("toolDescription.source.json", selected)
+        tools = json.loads(data)["tools"]
+        self.assertEqual({tool["name"] for tool in tools}, microsoft_tools.TOOLS)
+        self.assertEqual(len(tools), 42)
+        self.assertIn("get_schedule_shifts", microsoft_tools.TOOLS)
+        self.assertIn("list_investigations", microsoft_tools.TOOLS)
+        for tool in tools:
+            self.assertNotIn("outputSchema", tool)
+            self.assertEqual(tool["inputSchema"]["type"], "object")
+
+    def test_static_catalog_tampering_and_incomplete_discovery_fail_closed(self):
+        changed = dict(self.files)
+        changed[microsoft_tools.CATALOG] += b" "
+        with self.assertRaisesRegex(ValueError, "checksum"):
+            microsoft.package_files(changed, self.version)
+        response = json.loads(self.files[microsoft_tools.CATALOG])
+        response["tools"].pop()
+        with self.assertRaisesRegex(ValueError, "missing Microsoft tools"):
+            microsoft_tools.select(response)
+        response = json.loads(self.files[microsoft_tools.CATALOG])
+        response["tools"].append(response["tools"][0])
+        with self.assertRaisesRegex(ValueError, "duplicate"):
+            microsoft_tools.select(response)
+
+    def test_catalog_regeneration_is_deterministic_and_preserves_input(self):
+        response = json.loads(self.files[microsoft_tools.CATALOG])
+        original = json.dumps(response, sort_keys=True)
+        self.assertEqual(microsoft_tools.encode(microsoft_tools.select(response)),
+                         self.files[microsoft_tools.CATALOG])
+        self.assertEqual(json.dumps(response, sort_keys=True), original)
+        response["tools"].append({"name": "unselected_admin_tool"})
+        self.assertEqual(len(microsoft_tools.select(response)["tools"]), 42)
+        response["tools"][0]["inputSchema"] = {"type": "string"}
+        with self.assertRaisesRegex(ValueError, "inputSchema"):
+            microsoft_tools.select(response)
 
     def test_manifest_or_missing_skill_drift_is_rejected(self):
         manifest = json.loads(self.files["adapters/microsoft/manifest.json"])
