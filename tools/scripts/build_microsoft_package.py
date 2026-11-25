@@ -13,6 +13,7 @@ from pathlib import Path
 
 import check_release_metadata as metadata
 import microsoft_manifest
+import microsoft_tools
 from prepare_marketplace_bundle import encoded, read_package, verify_source
 from public_assets import reviewed_binary
 
@@ -24,7 +25,8 @@ def package_files(files, version):
     manifest_bytes = files["adapters/microsoft/manifest.json"]
     if json.loads(manifest_bytes) != microsoft_manifest.manifest(version):
         raise ValueError("Microsoft manifest differs from generated metadata")
-    selected = {"manifest.json": manifest_bytes}
+    selected = {"manifest.json": manifest_bytes,
+                "toolDescription.json": microsoft_tools.verify(files)}
     for name, size in (("color.png", 192), ("outline.png", 32)):
         source = f"assets/microsoft/{name}"
         content = files[source]

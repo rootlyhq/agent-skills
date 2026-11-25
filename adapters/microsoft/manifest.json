@@ -52,7 +52,10 @@
       "description": "Rootly incidents, alerts, services, on-call schedules, and retrospectives for the Rootly skills.",
       "toolSource": {
         "remoteMcpServer": {
-          "mcpServerUrl": "https://mcp.rootly.com/mcp?toolsets=core,incidents,alerts,oncall,workflows,workflow_tasks,catalog,status_pages,config,users,investigations,audit"
+          "mcpServerUrl": "https://mcp.rootly.com/mcp?toolsets=core,incidents,alerts,oncall,workflows,workflow_tasks,catalog,status_pages,config,users,investigations,audit",
+          "mcpToolDescription": {
+            "file": "toolDescription.json"
+          }
         }
       }
     }

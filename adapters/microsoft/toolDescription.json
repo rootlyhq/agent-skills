@@ -1,0 +1,2800 @@
+{
+  "tools": [
+    {
+      "name": "cancel_investigation",
+      "description": "Cancel a running investigation.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "investigation_id": {
+            "description": "Investigation id (UUID).",
+            "type": "string"
+          }
+        },
+        "required": [
+          "investigation_id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "check_responder_availability",
+      "description": "Check if specific users are scheduled for on-call in a date range.\n\nUse this to verify if at-risk users (from On-Call Health) are scheduled,\nor to check availability before assigning new shifts.\n\nReturns scheduled users with their shifts and total hours,\nplus users who are not scheduled. Shift times and hours are clipped to\nthe requested window; date-only end dates include that entire UTC day.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "start_date": {
+            "description": "Start date (ISO 8601, e.g., '2026-02-09')",
+            "type": "string"
+          },
+          "end_date": {
+            "description": "End date (ISO 8601, e.g., '2026-02-15')",
+            "type": "string"
+          },
+          "user_ids": {
+            "description": "Comma-separated Rootly user IDs to check (e.g., '2381,94178,27965'). Accepts numeric IDs only \u2014 use list_users with filter[email] to resolve emails to IDs first.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "start_date",
+          "end_date",
+          "user_ids"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "create_incident",
+      "description": "Create an incident with a scoped set of fields for agent-driven workflows.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Incident title. If omitted, Rootly may autogenerate one."
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Incident summary or short description."
+          },
+          "severity_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Optional severity ID to attach to the incident."
+          },
+          "service_ids": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Comma-separated service IDs to attach to the incident."
+          },
+          "team_ids": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Comma-separated team IDs to attach to the incident."
+          },
+          "environment_ids": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Comma-separated environment IDs to attach to the incident."
+          },
+          "incident_type_ids": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Comma-separated incident type IDs to attach to the incident."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "create_incident_action_item",
+      "description": "Add a follow-up action item to an incident: a `summary`, optional `description`, `kind`, `priority`, `status`, `due_date` and assignee (`assigned_to_user_id` or `assigned_to_group_ids`). It can link an existing issue (Jira by `jira_issue_key` or `jira_issue_url`, Linear by `linear_issue_url`); it does not create one.\n\nCreates a new action item from provided data",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "incident_id": {
+            "type": "string",
+            "description": "Required. ID of the incident (fills `{incident_id}` in /v1/incidents/{incident_id}/action_items)."
+          },
+          "data": {
+            "required": [
+              "type",
+              "attributes"
+            ],
+            "type": "object",
+            "properties": {
+              "type": {
+                "enum": [
+                  "incident_action_items"
+                ],
+                "type": "string"
+              },
+              "attributes": {
+                "required": [
+                  "summary"
+                ],
+                "type": "object",
+                "properties": {
+                  "summary": {
+                    "type": "string",
+                    "description": "The summary of the action item"
+                  },
+                  "description": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "description": "The description of the action item"
+                  },
+                  "kind": {
+                    "enum": [
+                      "task",
+                      "follow_up"
+                    ],
+                    "type": "string",
+                    "description": "The kind of the action item"
+                  },
+                  "assigned_to_user_id": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "description": "ID of user you wish to assign this action item"
+                  },
+                  "assigned_to_group_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "IDs of groups you wish to assign this action item"
+                  },
+                  "priority": {
+                    "enum": [
+                      "high",
+                      "medium",
+                      "low"
+                    ],
+                    "type": "string",
+                    "description": "The priority of the action item"
+                  },
+                  "status": {
+                    "enum": [
+                      "open",
+                      "in_progress",
+                      "cancelled",
+                      "done"
+                    ],
+                    "type": "string",
+                    "description": "The status of the action item"
+                  },
+                  "due_date": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "description": "The due date of the action item"
+                  },
+                  "jira_issue_id": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "description": "The Jira issue ID."
+                  },
+                  "jira_issue_key": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "description": "The Jira issue key."
+                  },
+                  "jira_issue_url": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "description": "The Jira issue URL. Must be a single HTTPS link ending in the issue key, like https://your-site.atlassian.net/browse/KEY-123. Host not checked."
+                  },
+                  "linear_issue_url": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "description": "The Linear issue URL, like https://linear.app/your-workspace/issue/KEY-123."
+                  },
+                  "form_field_selections": {
+                    "type": [
+                      "array",
+                      "null"
+                    ],
+                    "items": {
+                      "required": [
+                        "form_field_id"
+                      ],
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "ID of an existing selection. Required when updating or removing a field's existing value."
+                        },
+                        "form_field_id": {
+                          "type": "string",
+                          "description": "ID of the custom field"
+                        },
+                        "value": {
+                          "description": "Value for text, textarea, rich text, date, datetime, number, checkbox, or tag fields",
+                          "anyOf": [
+                            {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          ]
+                        },
+                        "selected_option_ids": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "IDs of the selected custom field options"
+                        },
+                        "selected_user_ids": {
+                          "type": "array",
+                          "items": {
+                            "type": "integer"
+                          },
+                          "description": "IDs of the selected users"
+                        },
+                        "selected_group_ids": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "IDs of the selected teams"
+                        },
+                        "selected_service_ids": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "IDs of the selected services"
+                        },
+                        "selected_functionality_ids": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "IDs of the selected functionalities"
+                        },
+                        "selected_catalog_entity_ids": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "IDs of the selected catalog entities"
+                        },
+                        "selected_environment_ids": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "IDs of the selected environments"
+                        },
+                        "selected_cause_ids": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "IDs of the selected causes"
+                        },
+                        "selected_incident_type_ids": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "IDs of the selected incident types"
+                        },
+                        "_destroy": {
+                          "type": [
+                            "boolean",
+                            "null"
+                          ],
+                          "description": "Set to true to remove the field's value from the action item"
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    "description": "Custom field values to set on the action item. Ignored unless custom fields for action items are enabled for the organization."
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "incident_id",
+          "data"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "find_related_incidents",
+      "description": "\ud83d\udd0d Find historically similar incidents using ML similarity analysis - CRITICAL for incident response.\n\nWHEN TO USE:\n\u2022 EARLY in incident response to learn from past similar issues\n\u2022 When you're unsure about root cause or resolution approach\n\u2022 Before escalating to find if this is a known pattern\n\u2022 For post-incident analysis to identify recurring issues\n\nProvide either incident_id OR incident_description (e.g., 'website is down', 'database timeout errors').\nUse status_filter to limit to specific incident statuses or leave empty for all incidents.\n\nArgument caps: max_results <= 20. Values outside the bounds are clamped\nand reported, not rejected.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "incident_id": {
+            "default": "",
+            "type": "string"
+          },
+          "incident_description": {
+            "default": "",
+            "type": "string"
+          },
+          "similarity_threshold": {
+            "default": 0.15,
+            "description": "Minimum similarity score (0.0-1.0)",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "type": "number"
+          },
+          "max_results": {
+            "default": 5,
+            "description": "Maximum number of related incidents to return (max: 20)",
+            "type": "integer"
+          },
+          "status_filter": {
+            "default": "",
+            "description": "Filter incidents by status (empty for all, 'resolved', 'investigating', etc.)",
+            "type": "string"
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "get_alert",
+      "description": "Retrieves a specific alert by id",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "include": {
+            "enum": [
+              "environments",
+              "services",
+              "groups",
+              "functionalities",
+              "responders",
+              "incidents",
+              "notified_users",
+              "events",
+              "alert_urgency",
+              "heartbeat",
+              "live_call_router",
+              "alert_group",
+              "group_leader_alert",
+              "group_member_alerts",
+              "alert_field_values",
+              "alerting_targets",
+              "escalation_policies",
+              "alert_call_recording"
+            ],
+            "type": "string",
+            "description": "comma separated if needed. eg: environments,services,groups"
+          },
+          "fields_alerts": {
+            "type": "string",
+            "description": "Comma-separated list of alert fields to include (reduces payload size)",
+            "default": "id,summary,status,started_at,ended_at,short_id,alert_urgency_id,source,noise"
+          },
+          "id": {
+            "type": "string",
+            "description": "Required. ID of the alert (fills `{id}` in /v1/alerts/{id}). Pass it as `id` -- this tool has no `alert_id` argument."
+          }
+        },
+        "required": [
+          "fields_alerts",
+          "id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "get_alert_by_short_id",
+      "description": "Get alert details by short_id or alert URL. Use this when a user pastes an alert URL or short_id from a pager notification and wants to investigate the alert.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "short_id": {
+            "description": "The alert short_id (e.g., 'PhIQtP') or full alert URL (e.g., 'https://rootly.com/account/alerts/PhIQtP')",
+            "type": "string"
+          }
+        },
+        "required": [
+          "short_id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "get_current_user",
+      "description": "Get current user",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "get_escalation_policy",
+      "description": "Retrieves a specific escalation policy by id",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "include": {
+            "enum": [
+              "escalation_policy_levels",
+              "escalation_policy_paths",
+              "groups",
+              "services"
+            ],
+            "type": "string",
+            "description": "comma separated if needed. eg: escalation_policy_levels,escalation_policy_paths"
+          },
+          "id": {
+            "type": "string",
+            "description": "Required. ID of the escalation policy (fills `{id}` in /v1/escalation_policies/{id}). Pass it as `id` -- this tool has no `escalation_policy_id` argument."
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "get_incident",
+      "description": "Retrieve a single incident with PIR-related fields for direct verification.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "incident_id": {
+            "description": "Incident reference to retrieve. Accepts: UUID, bare sequential number (4460), #4460, or INC-4460.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "incident_id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "get_incident_meeting_transcripts",
+      "description": "Read what was said on an incident's calls (Rootly Meeting Scribe).\n\nReturns the spoken transcript of each recorded call for the incident, as\ntext per speaker turn, alongside Scribe's own summary. Covers Google Meet,\nZoom and Microsoft Teams calls that Scribe recorded.\n\nUse this to catch up on a call you missed, or to pull decisions and\nactions out of an incident bridge. Recordings where nobody spoke are\nskipped rather than returned empty.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "incident_id": {
+            "description": "Incident UUID or number (e.g. '5185', '#5185', 'INC-5185').",
+            "type": "string"
+          },
+          "max_recordings": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "How many recordings to read transcripts for, newest first. Max: 10; defaults to 3."
+          }
+        },
+        "required": [
+          "incident_id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "get_incident_retrospective",
+      "description": "Fetch the written retrospective for one incident.\n\nAnswers \"what did we learn from INC-4460\" in a single call. Returns the\ndocument's title, content and status alongside the incident it belongs\nto, and reports the incident's retrospective progress so a blank\ndocument is distinguishable from one nobody has started.\n\nThe route exists only in this direction: `/post_mortems` cannot be\nfiltered by incident, and the document carries no reference back to one,\nso the id has to come from the incident's own relationship. Doing that\nhere keeps a caller from having to know it. Use\n`list_incident_post_mortems` to search across retrospectives instead.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "incident_id": {
+            "description": "Incident whose retrospective to fetch. Accepts: UUID, bare sequential number (4460), #4460, or INC-4460.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "incident_id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "get_investigation",
+      "description": "Get an investigation's current status, outcome, summary and root cause.\nWhile it is pending or running, call this tool later to check its status.\nThe API returns a snapshot; it does not expose a step-by-step progress stream.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "investigation_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Investigation id. Omit to use alert_id/incident_id."
+          },
+          "alert_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Use the latest investigation of this alert."
+          },
+          "incident_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Use the latest investigation of this incident."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "get_oncall_handoff_summary",
+      "description": "Get current on-call handoff summary. Shows who's currently on-call and who's next.\nOptionally fetch incidents (set include_incidents=True, but slower).\nEach responder's `role` is their On-Call role (e.g. Responder, Admin);\nshifts themselves carry no role.\n\nUse filter_by_region=True with a timezone to see only people on-call\nduring business hours in that region (e.g., timezone='Asia/Tokyo', filter_by_region=True\nshows only APAC on-call during APAC business hours).\n\nUseful for:\n- Quick on-call status checks\n- Daily handoff meetings\n- Regional on-call status (APAC, EU, Americas)\n- Team coordination across timezones",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "team_ids": {
+            "default": "",
+            "description": "Comma-separated list of team IDs to filter schedules (optional)",
+            "type": "string"
+          },
+          "schedule_ids": {
+            "default": "",
+            "description": "Comma-separated list of schedule IDs (optional)",
+            "type": "string"
+          },
+          "timezone": {
+            "default": "UTC",
+            "description": "IANA timezone for display and filtering (e.g., 'America/Los_Angeles', 'Europe/London', 'Asia/Tokyo'). Defaults to UTC.",
+            "type": "string"
+          },
+          "filter_by_region": {
+            "default": false,
+            "description": "If True, only show on-call for people whose shifts are during business hours (9am-5pm) in the specified timezone. Defaults to False.",
+            "type": "boolean"
+          },
+          "include_incidents": {
+            "default": false,
+            "description": "If True, fetch incidents for each shift (slower). If False, only show on-call info (faster). Defaults to False for better performance.",
+            "type": "boolean"
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "get_oncall_schedule_summary",
+      "description": "Get compact on-call schedule summary for a date range.\n\nReturns one entry per user per schedule (not raw shifts), with\naggregated hours. Optimized for AI agent context windows.\n\nUse this instead of list_shifts when you need:\n- Aggregated hours per responder\n- Schedule coverage overview\n- Responder load analysis with warnings\n\nOne row per user per schedule, so the response stays the same size\nwhether the range is a week or a year. For individual shift times, or\nfor one person's schedule, use list_shifts instead.\n\nRanges longer than the upstream cap are split into windows and merged\nautomatically.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "start_date": {
+            "default": "",
+            "description": "Start date (ISO 8601, e.g., '2026-02-09'). Omit both dates for the next 7 days.",
+            "type": "string"
+          },
+          "end_date": {
+            "default": "",
+            "description": "End date (ISO 8601, e.g., '2026-02-15')",
+            "type": "string"
+          },
+          "schedule_ids": {
+            "default": "",
+            "description": "Comma-separated schedule IDs to filter (optional)",
+            "type": "string"
+          },
+          "team_ids": {
+            "default": "",
+            "description": "Comma-separated team IDs to filter (optional)",
+            "type": "string"
+          },
+          "include_user_ids": {
+            "default": true,
+            "description": "Include numeric user IDs for cross-platform correlation",
+            "type": "boolean"
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "get_oncall_shift_metrics",
+      "description": "\ud83d\udcca Get on-call workload metrics and shift statistics - ESSENTIAL for fairness and planning.\n\nWHEN TO USE:\n\u2022 Monthly/quarterly reviews of on-call distribution\n\u2022 Before adjusting schedules to ensure fair workload\n\u2022 For management reporting on on-call burden\n\u2022 When investigating potential on-call burnout\n\nReturns shift counts, total hours, and statistics grouped by user, schedule, or team.\n\nExamples:\n- Monthly report: start_date='2025-10-01', end_date='2025-10-31'\n- Specific user: start_date='2025-10-01', end_date='2025-10-31', user_ids='123,456'\n- Specific team: team_ids='team-1' (will query schedules for that team first)",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "start_date": {
+            "description": "Start date for metrics (ISO 8601 format, e.g., '2025-10-01' or '2025-10-01T00:00:00Z')",
+            "type": "string"
+          },
+          "end_date": {
+            "description": "End date for metrics (ISO 8601 format, e.g., '2025-10-31' or '2025-10-31T23:59:59Z')",
+            "type": "string"
+          },
+          "user_ids": {
+            "default": "",
+            "description": "Comma-separated list of user IDs to filter by (optional)",
+            "type": "string"
+          },
+          "schedule_ids": {
+            "default": "",
+            "description": "Comma-separated list of schedule IDs to filter by (optional)",
+            "type": "string"
+          },
+          "team_ids": {
+            "default": "",
+            "description": "Comma-separated list of team IDs to filter by (requires querying schedules first)",
+            "type": "string"
+          },
+          "group_by": {
+            "default": "user",
+            "description": "Group results by: 'user', 'schedule', 'team', or 'none'",
+            "type": "string"
+          }
+        },
+        "required": [
+          "start_date",
+          "end_date"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "get_schedule_shifts",
+      "description": "List shifts for one schedule over a date range.\n\nReplaces the generated getScheduleShifts, which passed the range\nstraight through and failed with `Datetime range exceeds 1 month` on\nanything longer than the upstream accepts. Ranges longer than that are\nsplit into windows and merged here, so a two-month question is a normal\nrequest.\n\nUse list_shifts instead when the question spans schedules or filters by\nuser.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "description": "Schedule ID (UUID) to fetch shifts for",
+            "type": "string"
+          },
+          "start_date": {
+            "default": "",
+            "description": "Start date/time (ISO 8601, e.g. '2026-08-01T00:00:00Z')",
+            "type": "string"
+          },
+          "end_date": {
+            "default": "",
+            "description": "End date/time (ISO 8601, e.g. '2026-09-30T23:59:59Z')",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "get_server_version",
+      "description": "Get the Rootly MCP server version.\n\nReturns the current version of the deployed MCP server.\nUseful for checking if the server has been updated.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {}
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "get_shift_incidents",
+      "description": "Get incidents and alerts that occurred during a specific shift or time period.\n\nUseful for:\n- Shift handoff summaries showing what happened during the shift\n- Post-shift debriefs and reporting\n- Incident analysis by time period\n- Understanding team workload during specific shifts\n\nReturns incident details including severity, status, duration, and basic summary.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "start_time": {
+            "description": "Start time for incident search (ISO 8601 format, e.g., '2025-10-01T00:00:00Z')",
+            "type": "string"
+          },
+          "end_time": {
+            "description": "End time for incident search (ISO 8601 format, e.g., '2025-10-01T23:59:59Z')",
+            "type": "string"
+          },
+          "schedule_ids": {
+            "default": "",
+            "description": "Deprecated and ignored: Rootly incidents are not linked to on-call schedules, so this does not filter anything (a `warnings` entry is returned when it is set). Results cover every incident in the time range.",
+            "type": "string"
+          },
+          "severity": {
+            "default": "",
+            "description": "Filter by configured severity name, slug, ID, or level (critical, high, medium, low)",
+            "type": "string"
+          },
+          "status": {
+            "default": "",
+            "description": "Filter by status: 'started', 'detected', 'acknowledged', 'investigating', 'identified', 'monitoring', 'resolved', 'cancelled' (optional)",
+            "type": "string"
+          },
+          "tags": {
+            "default": "",
+            "description": "Deprecated and ignored: Rootly incidents have no tags, so this does not filter anything (a `warnings` entry is returned when it is set). Incidents carry key:value labels instead (filter[labels] on the incidents API).",
+            "type": "string"
+          }
+        },
+        "required": [
+          "start_time",
+          "end_time"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "get_team",
+      "description": "Retrieves a specific team by id",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "include": {
+            "enum": [
+              "users",
+              "schedules",
+              "escalation_policies"
+            ],
+            "type": "string",
+            "description": "comma separated if needed. eg: users"
+          },
+          "id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "description": "Team UUID",
+                "format": "uuid"
+              },
+              {
+                "pattern": "^[a-z0-9_-]+$",
+                "type": "string",
+                "description": "Team slug"
+              }
+            ],
+            "description": "Required. ID of the team (fills `{id}` in /v1/teams/{id}). Pass it as `id` -- this tool has no `team_id` argument."
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "get_user",
+      "description": "Retrieves a specific user by id",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "include": {
+            "enum": [
+              "email_addresses",
+              "phone_numbers",
+              "devices",
+              "role",
+              "on_call_role",
+              "teams",
+              "schedules",
+              "notification_rules"
+            ],
+            "type": "string",
+            "description": "comma separated if needed. eg: email_addresses,phone_numbers"
+          },
+          "id": {
+            "type": "string",
+            "description": "Required. ID of the user. Pass it as `id` -- this tool has no `user_id` argument."
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "list_alert_events",
+      "description": "List alert_events",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "include": {
+            "type": "string"
+          },
+          "page_number": {
+            "minimum": 1.0,
+            "type": "integer",
+            "description": "Page number to retrieve",
+            "default": 1
+          },
+          "page_size": {
+            "maximum": 20.0,
+            "minimum": 1.0,
+            "type": "integer",
+            "description": "Number of results per page (max: 20)",
+            "default": 10
+          },
+          "filter_kind": {
+            "type": "string"
+          },
+          "filter_action": {
+            "type": "string"
+          },
+          "fields_alerts": {
+            "type": "string",
+            "description": "Comma-separated list of alert fields to include (reduces payload size)",
+            "default": "id,summary,status,started_at,ended_at,short_id,alert_urgency_id,source,noise"
+          },
+          "filter_status": {
+            "type": "string",
+            "description": "Filter by alert status (e.g., triggered, acknowledged, resolved)"
+          },
+          "filter_groups": {
+            "type": "string",
+            "description": "Filter by team/group IDs (comma-separated)"
+          },
+          "filter_services": {
+            "type": "string",
+            "description": "Filter by service IDs (comma-separated)"
+          },
+          "filter_environments": {
+            "type": "string",
+            "description": "Filter by environment IDs (comma-separated)"
+          },
+          "filter_labels": {
+            "type": "string",
+            "description": "Filter by labels (comma-separated)"
+          },
+          "filter_source": {
+            "type": "string",
+            "description": "Filter by alert source"
+          },
+          "filter_started_at_gte": {
+            "type": "string",
+            "description": "Started at >= (ISO8601 datetime)"
+          },
+          "filter_started_at_lte": {
+            "type": "string",
+            "description": "Started at <= (ISO8601 datetime)"
+          },
+          "filter_started_at_gt": {
+            "type": "string",
+            "description": "Started at > (ISO8601 datetime)"
+          },
+          "filter_started_at_lt": {
+            "type": "string",
+            "description": "Started at < (ISO8601 datetime)"
+          },
+          "filter_ended_at_gte": {
+            "type": "string",
+            "description": "Ended at >= (ISO8601 datetime)"
+          },
+          "filter_ended_at_lte": {
+            "type": "string",
+            "description": "Ended at <= (ISO8601 datetime)"
+          },
+          "filter_ended_at_gt": {
+            "type": "string",
+            "description": "Ended at > (ISO8601 datetime)"
+          },
+          "filter_ended_at_lt": {
+            "type": "string",
+            "description": "Ended at < (ISO8601 datetime)"
+          },
+          "filter_created_at_gte": {
+            "type": "string",
+            "description": "Created at >= (ISO8601 datetime)"
+          },
+          "filter_created_at_lte": {
+            "type": "string",
+            "description": "Created at <= (ISO8601 datetime)"
+          },
+          "filter_created_at_gt": {
+            "type": "string",
+            "description": "Created at > (ISO8601 datetime)"
+          },
+          "filter_created_at_lt": {
+            "type": "string",
+            "description": "Created at < (ISO8601 datetime)"
+          },
+          "alert_id": {
+            "type": "string",
+            "description": "Required. ID of the alert (fills `{alert_id}` in /v1/alerts/{alert_id}/events)."
+          }
+        },
+        "required": [
+          "fields_alerts",
+          "alert_id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "list_alert_groups",
+      "description": "List alert groups",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "include": {
+            "type": "string"
+          },
+          "filter_slug_eq": {
+            "type": "string"
+          },
+          "filter_slug_not_eq": {
+            "type": "string"
+          },
+          "filter_slug_in": {
+            "type": "string"
+          },
+          "filter_slug_not_in": {
+            "type": "string"
+          },
+          "filter_name_eq": {
+            "type": "string"
+          },
+          "filter_name_not_eq": {
+            "type": "string"
+          },
+          "filter_name_in": {
+            "type": "string"
+          },
+          "filter_name_not_in": {
+            "type": "string"
+          }
+        },
+        "required": []
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "list_alerts",
+      "description": "List alerts",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "include": {
+            "enum": [
+              "environments",
+              "services",
+              "groups",
+              "functionalities",
+              "responders",
+              "incidents",
+              "notified_users",
+              "events",
+              "alert_urgency",
+              "heartbeat",
+              "live_call_router",
+              "alert_group",
+              "group_leader_alert",
+              "group_member_alerts",
+              "alert_field_values",
+              "alerting_targets",
+              "escalation_policies",
+              "alert_call_recording"
+            ],
+            "type": "string",
+            "description": "comma separated if needed. eg: environments,services,groups"
+          },
+          "filter_status": {
+            "type": "string"
+          },
+          "filter_source": {
+            "type": "string"
+          },
+          "filter_services": {
+            "type": "string"
+          },
+          "filter_environments": {
+            "type": "string"
+          },
+          "filter_groups": {
+            "type": "string"
+          },
+          "filter_labels": {
+            "type": "string"
+          },
+          "filter_started_at_gt": {
+            "type": "string"
+          },
+          "filter_started_at_gte": {
+            "type": "string"
+          },
+          "filter_started_at_lt": {
+            "type": "string"
+          },
+          "filter_started_at_lte": {
+            "type": "string"
+          },
+          "filter_ended_at_gt": {
+            "type": "string"
+          },
+          "filter_ended_at_gte": {
+            "type": "string"
+          },
+          "filter_ended_at_lt": {
+            "type": "string"
+          },
+          "filter_ended_at_lte": {
+            "type": "string"
+          },
+          "filter_created_at_gt": {
+            "type": "string"
+          },
+          "filter_created_at_gte": {
+            "type": "string"
+          },
+          "filter_created_at_lt": {
+            "type": "string"
+          },
+          "filter_created_at_lte": {
+            "type": "string"
+          },
+          "filter_updated_at_gt": {
+            "type": "string"
+          },
+          "filter_updated_at_gte": {
+            "type": "string"
+          },
+          "filter_updated_at_lt": {
+            "type": "string"
+          },
+          "filter_updated_at_lte": {
+            "type": "string"
+          },
+          "filter_status_eq": {
+            "type": "string"
+          },
+          "filter_status_not_eq": {
+            "type": "string"
+          },
+          "filter_status_in": {
+            "type": "string"
+          },
+          "filter_status_not_in": {
+            "type": "string"
+          },
+          "filter_source_eq": {
+            "type": "string"
+          },
+          "filter_source_not_eq": {
+            "type": "string"
+          },
+          "filter_source_in": {
+            "type": "string"
+          },
+          "filter_source_not_in": {
+            "type": "string"
+          },
+          "filter_services_eq": {
+            "type": "string"
+          },
+          "filter_services_not_eq": {
+            "type": "string"
+          },
+          "filter_services_in": {
+            "type": "string"
+          },
+          "filter_services_not_in": {
+            "type": "string"
+          },
+          "filter_groups_eq": {
+            "type": "string"
+          },
+          "filter_groups_not_eq": {
+            "type": "string"
+          },
+          "filter_groups_in": {
+            "type": "string"
+          },
+          "filter_groups_not_in": {
+            "type": "string"
+          },
+          "filter_environments_eq": {
+            "type": "string"
+          },
+          "filter_environments_not_eq": {
+            "type": "string"
+          },
+          "filter_environments_in": {
+            "type": "string"
+          },
+          "filter_environments_not_in": {
+            "type": "string"
+          },
+          "filter_labels_eq": {
+            "type": "string"
+          },
+          "filter_labels_not_eq": {
+            "type": "string"
+          },
+          "filter_labels_in": {
+            "type": "string"
+          },
+          "filter_labels_not_in": {
+            "type": "string"
+          },
+          "page_after": {
+            "type": "string",
+            "description": "The cursor to fetch results using cursor pagination. A cursor is provided in meta.next_cursor in the response."
+          },
+          "page_number": {
+            "minimum": 1.0,
+            "type": "integer",
+            "description": "Page number to retrieve",
+            "default": 1
+          },
+          "page_size": {
+            "maximum": 20.0,
+            "minimum": 1.0,
+            "type": "integer",
+            "description": "Number of results per page (max: 20)",
+            "default": 10
+          },
+          "fields_alerts": {
+            "type": "string",
+            "description": "Comma-separated list of alert fields to include (reduces payload size)",
+            "default": "id,summary,status,started_at,ended_at,short_id,alert_urgency_id,source,noise"
+          }
+        },
+        "required": [
+          "fields_alerts"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "list_endpoints",
+      "description": "List all available Rootly API endpoints with their descriptions.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {}
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "list_escalation_policies",
+      "description": "List escalation policies",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "include": {
+            "enum": [
+              "escalation_policy_levels",
+              "escalation_policy_paths",
+              "groups",
+              "services"
+            ],
+            "type": "string",
+            "description": "comma separated if needed. eg: escalation_policy_levels,escalation_policy_paths"
+          },
+          "filter_search": {
+            "type": "string"
+          },
+          "filter_name": {
+            "type": "string"
+          },
+          "filter_team_ids": {
+            "type": "string",
+            "description": "Filter escalation policies by associated team IDs. Comma-separate multiple values."
+          },
+          "filter_created_at_gt": {
+            "type": "string"
+          },
+          "filter_created_at_gte": {
+            "type": "string"
+          },
+          "filter_created_at_lt": {
+            "type": "string"
+          },
+          "filter_created_at_lte": {
+            "type": "string"
+          },
+          "filter_name_eq": {
+            "type": "string"
+          },
+          "filter_name_not_eq": {
+            "type": "string"
+          },
+          "filter_name_in": {
+            "type": "string"
+          },
+          "filter_name_not_in": {
+            "type": "string"
+          },
+          "filter_team_ids_eq": {
+            "type": "string"
+          },
+          "filter_team_ids_not_eq": {
+            "type": "string"
+          },
+          "filter_team_ids_in": {
+            "type": "string"
+          },
+          "filter_team_ids_not_in": {
+            "type": "string"
+          },
+          "page_number": {
+            "type": "integer"
+          },
+          "page_size": {
+            "type": "integer"
+          }
+        },
+        "required": []
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "list_incident_action_items",
+      "description": "List incident action items",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "include": {
+            "type": "string"
+          },
+          "page_number": {
+            "minimum": 1.0,
+            "type": "integer",
+            "description": "Page number to retrieve",
+            "default": 1
+          },
+          "page_size": {
+            "maximum": 20.0,
+            "minimum": 1.0,
+            "type": "integer",
+            "description": "Number of results per page (max: 20)",
+            "default": 10
+          },
+          "fields_incidents": {
+            "type": "string",
+            "description": "Comma-separated list of incident fields to include (reduces payload size)",
+            "default": "id,title,summary,status,severity,created_at,updated_at,url,started_at"
+          },
+          "incident_id": {
+            "type": "string",
+            "description": "Required. ID of the incident (fills `{incident_id}` in /v1/incidents/{incident_id}/action_items)."
+          }
+        },
+        "required": [
+          "incident_id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "list_incident_alerts",
+      "description": "List incident alerts",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "include": {
+            "enum": [
+              "environments",
+              "services",
+              "groups",
+              "functionalities",
+              "responders",
+              "incidents",
+              "notified_users",
+              "events",
+              "alert_urgency",
+              "heartbeat",
+              "live_call_router",
+              "alert_group",
+              "group_leader_alert",
+              "group_member_alerts",
+              "alert_field_values",
+              "alerting_targets",
+              "escalation_policies",
+              "alert_call_recording"
+            ],
+            "type": "string",
+            "description": "comma separated if needed. eg: environments,services,groups"
+          },
+          "page_size": {
+            "maximum": 20.0,
+            "minimum": 1.0,
+            "type": "integer",
+            "description": "Number of results per page (max: 20)",
+            "default": 10
+          },
+          "page_number": {
+            "minimum": 1.0,
+            "type": "integer",
+            "description": "Page number to retrieve",
+            "default": 1
+          },
+          "fields_alerts": {
+            "type": "string",
+            "description": "Comma-separated list of alert fields to include (reduces payload size)",
+            "default": "id,summary,status,started_at,ended_at,short_id,alert_urgency_id,source,noise"
+          },
+          "filter_status": {
+            "type": "string",
+            "description": "Filter by alert status (e.g., triggered, acknowledged, resolved)"
+          },
+          "filter_groups": {
+            "type": "string",
+            "description": "Filter by team/group IDs (comma-separated)"
+          },
+          "filter_services": {
+            "type": "string",
+            "description": "Filter by service IDs (comma-separated)"
+          },
+          "filter_environments": {
+            "type": "string",
+            "description": "Filter by environment IDs (comma-separated)"
+          },
+          "filter_labels": {
+            "type": "string",
+            "description": "Filter by labels (comma-separated)"
+          },
+          "filter_source": {
+            "type": "string",
+            "description": "Filter by alert source"
+          },
+          "filter_started_at_gte": {
+            "type": "string",
+            "description": "Started at >= (ISO8601 datetime)"
+          },
+          "filter_started_at_lte": {
+            "type": "string",
+            "description": "Started at <= (ISO8601 datetime)"
+          },
+          "filter_started_at_gt": {
+            "type": "string",
+            "description": "Started at > (ISO8601 datetime)"
+          },
+          "filter_started_at_lt": {
+            "type": "string",
+            "description": "Started at < (ISO8601 datetime)"
+          },
+          "filter_ended_at_gte": {
+            "type": "string",
+            "description": "Ended at >= (ISO8601 datetime)"
+          },
+          "filter_ended_at_lte": {
+            "type": "string",
+            "description": "Ended at <= (ISO8601 datetime)"
+          },
+          "filter_ended_at_gt": {
+            "type": "string",
+            "description": "Ended at > (ISO8601 datetime)"
+          },
+          "filter_ended_at_lt": {
+            "type": "string",
+            "description": "Ended at < (ISO8601 datetime)"
+          },
+          "filter_created_at_gte": {
+            "type": "string",
+            "description": "Created at >= (ISO8601 datetime)"
+          },
+          "filter_created_at_lte": {
+            "type": "string",
+            "description": "Created at <= (ISO8601 datetime)"
+          },
+          "filter_created_at_gt": {
+            "type": "string",
+            "description": "Created at > (ISO8601 datetime)"
+          },
+          "filter_created_at_lt": {
+            "type": "string",
+            "description": "Created at < (ISO8601 datetime)"
+          },
+          "fields_incidents": {
+            "type": "string",
+            "description": "Comma-separated list of incident fields to include (reduces payload size)",
+            "default": "id,title,summary,status,severity,created_at,updated_at,url,started_at"
+          },
+          "incident_id": {
+            "type": "string",
+            "description": "Required. ID of the incident (fills `{incident_id}` in /v1/incidents/{incident_id}/alerts)."
+          }
+        },
+        "required": [
+          "fields_alerts",
+          "incident_id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "list_incident_events",
+      "description": "List incident events",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "include": {
+            "type": "string"
+          },
+          "page_number": {
+            "minimum": 1.0,
+            "type": "integer",
+            "description": "Page number to retrieve",
+            "default": 1
+          },
+          "page_size": {
+            "maximum": 20.0,
+            "minimum": 1.0,
+            "type": "integer",
+            "description": "Number of results per page (max: 20)",
+            "default": 10
+          },
+          "fields_incidents": {
+            "type": "string",
+            "description": "Comma-separated list of incident fields to include (reduces payload size)",
+            "default": "id,title,summary,status,severity,created_at,updated_at,url,started_at"
+          },
+          "incident_id": {
+            "type": "string",
+            "description": "Required. ID of the incident (fills `{incident_id}` in /v1/incidents/{incident_id}/events)."
+          }
+        },
+        "required": [
+          "incident_id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "list_incidents",
+      "description": "\ud83d\udea8 List incidents with structured filters - ESSENTIAL for incident response.\n\nWHEN TO USE:\n\u2022 During incident response to check for related ongoing incidents\n\u2022 For shift handoffs to review recent incidents by team/service\n\u2022 For post-incident analysis to find patterns by severity/date range\n\u2022 For audit workflows requiring specific filtering criteria\n\nUse this when you need date-range, team, service, severity, or status filters.\nFor simple text searches, prefer search_incidents instead.\n\nArgument caps: page_size <= 100. Values outside the bounds are clamped\nand reported, not rejected.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "query": {
+            "default": "",
+            "description": "Optional free-text search across incident titles and summaries",
+            "type": "string"
+          },
+          "teams": {
+            "default": "",
+            "description": "Comma-separated team names or slugs to filter incidents (e.g., 'Infrastructure,platform-team')",
+            "type": "string"
+          },
+          "team_ids": {
+            "default": "",
+            "description": "Comma-separated Rootly team IDs to filter incidents (e.g., '123,456')",
+            "type": "string"
+          },
+          "service_ids": {
+            "default": "",
+            "description": "Comma-separated Rootly service IDs to filter incidents (e.g., 'svc-1,svc-2')",
+            "type": "string"
+          },
+          "severity": {
+            "default": "",
+            "description": "Optional severity filter (e.g., critical, high, medium, low)",
+            "type": "string"
+          },
+          "status": {
+            "default": "",
+            "description": "Optional incident status filter (e.g., started, investigating, resolved)",
+            "type": "string"
+          },
+          "started_after": {
+            "default": "",
+            "description": "Filter incidents that started at or after this ISO 8601 timestamp",
+            "type": "string"
+          },
+          "started_before": {
+            "default": "",
+            "description": "Filter incidents that started at or before this ISO 8601 timestamp",
+            "type": "string"
+          },
+          "custom_field_selected_option_ids": {
+            "default": "",
+            "description": "Comma-separated custom field option IDs for structured incident filtering",
+            "type": "string"
+          },
+          "sort": {
+            "default": "-created_at",
+            "description": "Sort order for incidents; a leading '-' sorts newest first. Supported values: created_at, -created_at, updated_at, -updated_at, started_at, -started_at, in_triage_at, -in_triage_at, mitigated_at, -mitigated_at, resolved_at, -resolved_at",
+            "enum": [
+              "created_at",
+              "-created_at",
+              "updated_at",
+              "-updated_at",
+              "started_at",
+              "-started_at",
+              "in_triage_at",
+              "-in_triage_at",
+              "mitigated_at",
+              "-mitigated_at",
+              "resolved_at",
+              "-resolved_at"
+            ],
+            "type": "string"
+          },
+          "page_size": {
+            "default": 25,
+            "description": "Number of incidents per page (max: 100)",
+            "type": "integer"
+          },
+          "page_number": {
+            "default": 1,
+            "description": "Page number to retrieve (1-indexed)",
+            "type": "integer"
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "list_investigations",
+      "description": "List AI SRE investigations you can see, newest first.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "alert_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Only investigations of this alert."
+          },
+          "incident_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Only investigations of this incident."
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "pending, running, completed, failed or cancelled."
+          },
+          "outcome": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "root_cause_identified, best_effort, inconclusive, blocked or could_not_investigate."
+          },
+          "page_size": {
+            "default": 10,
+            "maximum": 50,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "page_number": {
+            "default": 1,
+            "minimum": 1,
+            "type": "integer"
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "list_schedules",
+      "description": "List schedules",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "include": {
+            "type": "string"
+          },
+          "filter_search": {
+            "type": "string"
+          },
+          "filter_name": {
+            "type": "string"
+          },
+          "filter_team_ids": {
+            "type": "string",
+            "description": "Filter schedules by owning team IDs. Comma-separate multiple values."
+          },
+          "filter_created_at_gt": {
+            "type": "string"
+          },
+          "filter_created_at_gte": {
+            "type": "string"
+          },
+          "filter_created_at_lt": {
+            "type": "string"
+          },
+          "filter_created_at_lte": {
+            "type": "string"
+          },
+          "filter_name_eq": {
+            "type": "string"
+          },
+          "filter_name_not_eq": {
+            "type": "string"
+          },
+          "filter_name_in": {
+            "type": "string"
+          },
+          "filter_name_not_in": {
+            "type": "string"
+          },
+          "filter_team_ids_eq": {
+            "type": "string"
+          },
+          "filter_team_ids_not_eq": {
+            "type": "string"
+          },
+          "filter_team_ids_in": {
+            "type": "string"
+          },
+          "filter_team_ids_not_in": {
+            "type": "string"
+          },
+          "page_number": {
+            "type": "integer"
+          },
+          "page_size": {
+            "type": "integer"
+          }
+        },
+        "required": []
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "list_services",
+      "description": "List services",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "include": {
+            "type": "string"
+          },
+          "page_number": {
+            "type": "integer"
+          },
+          "page_size": {
+            "type": "integer"
+          },
+          "filter_search": {
+            "type": "string"
+          },
+          "filter_name": {
+            "type": "string"
+          },
+          "filter_slug": {
+            "type": "string"
+          },
+          "filter_backstage_id": {
+            "type": "string"
+          },
+          "filter_cortex_id": {
+            "type": "string"
+          },
+          "filter_opslevel_id": {
+            "type": "string"
+          },
+          "filter_external_id": {
+            "type": "string"
+          },
+          "filter_alert_broadcast_enabled": {
+            "type": "boolean"
+          },
+          "filter_incident_broadcast_enabled": {
+            "type": "boolean"
+          },
+          "filter_created_at_gt": {
+            "type": "string"
+          },
+          "filter_created_at_gte": {
+            "type": "string"
+          },
+          "filter_created_at_lt": {
+            "type": "string"
+          },
+          "filter_created_at_lte": {
+            "type": "string"
+          },
+          "filter_name_eq": {
+            "type": "string"
+          },
+          "filter_name_not_eq": {
+            "type": "string"
+          },
+          "filter_name_in": {
+            "type": "string"
+          },
+          "filter_name_not_in": {
+            "type": "string"
+          },
+          "filter_slug_eq": {
+            "type": "string"
+          },
+          "filter_slug_not_eq": {
+            "type": "string"
+          },
+          "filter_slug_in": {
+            "type": "string"
+          },
+          "filter_slug_not_in": {
+            "type": "string"
+          },
+          "filter_alert_broadcast_enabled_eq": {
+            "type": "string"
+          },
+          "filter_alert_broadcast_enabled_not_eq": {
+            "type": "string"
+          },
+          "filter_alert_broadcast_enabled_in": {
+            "type": "string"
+          },
+          "filter_alert_broadcast_enabled_not_in": {
+            "type": "string"
+          },
+          "filter_incident_broadcast_enabled_eq": {
+            "type": "string"
+          },
+          "filter_incident_broadcast_enabled_not_eq": {
+            "type": "string"
+          },
+          "filter_incident_broadcast_enabled_in": {
+            "type": "string"
+          },
+          "filter_incident_broadcast_enabled_not_in": {
+            "type": "string"
+          },
+          "sort": {
+            "type": "string"
+          }
+        },
+        "required": []
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "list_severities",
+      "description": "List severities",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "include": {
+            "type": "string"
+          },
+          "page_number": {
+            "type": "integer"
+          },
+          "page_size": {
+            "type": "integer"
+          },
+          "filter_search": {
+            "type": "string"
+          },
+          "filter_slug": {
+            "type": "string"
+          },
+          "filter_name": {
+            "type": "string"
+          },
+          "filter_severity": {
+            "type": "string"
+          },
+          "filter_color": {
+            "type": "string"
+          },
+          "filter_created_at_gt": {
+            "type": "string"
+          },
+          "filter_created_at_gte": {
+            "type": "string"
+          },
+          "filter_created_at_lt": {
+            "type": "string"
+          },
+          "filter_created_at_lte": {
+            "type": "string"
+          },
+          "filter_slug_eq": {
+            "type": "string"
+          },
+          "filter_slug_not_eq": {
+            "type": "string"
+          },
+          "filter_slug_in": {
+            "type": "string"
+          },
+          "filter_slug_not_in": {
+            "type": "string"
+          },
+          "filter_name_eq": {
+            "type": "string"
+          },
+          "filter_name_not_eq": {
+            "type": "string"
+          },
+          "filter_name_in": {
+            "type": "string"
+          },
+          "filter_name_not_in": {
+            "type": "string"
+          },
+          "filter_severity_eq": {
+            "type": "string"
+          },
+          "filter_severity_not_eq": {
+            "type": "string"
+          },
+          "filter_severity_in": {
+            "type": "string"
+          },
+          "filter_severity_not_in": {
+            "type": "string"
+          },
+          "filter_color_eq": {
+            "type": "string"
+          },
+          "filter_color_not_eq": {
+            "type": "string"
+          },
+          "filter_color_in": {
+            "type": "string"
+          },
+          "filter_color_not_in": {
+            "type": "string"
+          },
+          "sort": {
+            "type": "string"
+          }
+        },
+        "required": []
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "list_shifts",
+      "description": "List on-call shifts with reliable filtering, enrichment, and MCP-level pagination.\n\nUnlike the raw API, this tool:\n- Actually filters by user_ids (client-side filtering)\n- Includes user_name, user_email, schedule_name, team_name\n- Calculates total_hours for each shift\n- Returns a predictable paginated result for MCP clients\n\nUse this instead of the auto-generated listShifts when you need user filtering\nor dependable pagination on large tenants.\n\nAnswers questions about *individual* shifts: who is on call at a given\ntime, when a handoff happens, which shifts were overrides, or one\nperson's schedule (via user_ids). For questions about totals across a\nteam -- hours per responder, coverage, load -- use\nget_oncall_schedule_summary, whose response size depends on team size\nrather than on how long a range you asked for.\n\nRanges longer than the upstream cap are split into windows and merged\nautomatically, so a multi-month range is a normal request.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "from_date": {
+            "default": "",
+            "description": "Start date/time for shift query (ISO 8601 format, e.g., '2026-02-09T00:00:00Z'). Omit both from_date and to_date for the next 7 days starting now.",
+            "type": "string"
+          },
+          "to_date": {
+            "default": "",
+            "description": "End date/time for shift query (ISO 8601 format, e.g., '2026-02-15T23:59:59Z'). Required when from_date is given.",
+            "type": "string"
+          },
+          "user_ids": {
+            "default": "",
+            "description": "Comma-separated list of user IDs to filter by (e.g., '2381,94178'). Only returns shifts for these users.",
+            "type": "string"
+          },
+          "schedule_ids": {
+            "default": "",
+            "description": "Comma-separated list of schedule IDs to filter by (optional)",
+            "type": "string"
+          },
+          "include_user_details": {
+            "default": true,
+            "description": "Include user name and email in response (default: True)",
+            "type": "boolean"
+          },
+          "page_size": {
+            "default": 25,
+            "description": "Number of enriched shifts to return per page (max: 100). This paginates the MCP response even when the upstream shifts API does not.",
+            "type": "integer"
+          },
+          "page_number": {
+            "default": 1,
+            "description": "Page number of enriched shifts to return (1-indexed). Use this instead of relying on the generated listShifts pagination.",
+            "type": "integer"
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "list_status_pages",
+      "description": "List status pages",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "include": {
+            "type": "string"
+          },
+          "page_number": {
+            "type": "integer"
+          },
+          "page_size": {
+            "type": "integer"
+          },
+          "filter_search": {
+            "type": "string"
+          },
+          "filter_name": {
+            "type": "string"
+          },
+          "filter_slug": {
+            "type": "string"
+          },
+          "filter_created_at_gt": {
+            "type": "string"
+          },
+          "filter_created_at_gte": {
+            "type": "string"
+          },
+          "filter_created_at_lt": {
+            "type": "string"
+          },
+          "filter_created_at_lte": {
+            "type": "string"
+          },
+          "filter_name_eq": {
+            "type": "string"
+          },
+          "filter_name_not_eq": {
+            "type": "string"
+          },
+          "filter_name_in": {
+            "type": "string"
+          },
+          "filter_name_not_in": {
+            "type": "string"
+          },
+          "filter_slug_eq": {
+            "type": "string"
+          },
+          "filter_slug_not_eq": {
+            "type": "string"
+          },
+          "filter_slug_in": {
+            "type": "string"
+          },
+          "filter_slug_not_in": {
+            "type": "string"
+          },
+          "sort": {
+            "type": "string"
+          }
+        },
+        "required": []
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "list_teams",
+      "description": "List teams",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "include": {
+            "enum": [
+              "users",
+              "schedules",
+              "escalation_policies"
+            ],
+            "type": "string",
+            "description": "comma separated if needed. eg: users"
+          },
+          "page_number": {
+            "type": "integer"
+          },
+          "page_size": {
+            "type": "integer"
+          },
+          "filter_search": {
+            "type": "string"
+          },
+          "filter_slug": {
+            "type": "string"
+          },
+          "filter_name": {
+            "type": "string"
+          },
+          "filter_backstage_id": {
+            "type": "string"
+          },
+          "filter_cortex_id": {
+            "type": "string"
+          },
+          "filter_opslevel_id": {
+            "type": "string"
+          },
+          "filter_external_id": {
+            "type": "string"
+          },
+          "filter_color": {
+            "type": "string"
+          },
+          "filter_alert_broadcast_enabled": {
+            "type": "boolean"
+          },
+          "filter_incident_broadcast_enabled": {
+            "type": "boolean"
+          },
+          "filter_created_at_gt": {
+            "type": "string"
+          },
+          "filter_created_at_gte": {
+            "type": "string"
+          },
+          "filter_created_at_lt": {
+            "type": "string"
+          },
+          "filter_created_at_lte": {
+            "type": "string"
+          },
+          "filter_slug_eq": {
+            "type": "string"
+          },
+          "filter_slug_not_eq": {
+            "type": "string"
+          },
+          "filter_slug_in": {
+            "type": "string"
+          },
+          "filter_slug_not_in": {
+            "type": "string"
+          },
+          "filter_name_eq": {
+            "type": "string"
+          },
+          "filter_name_not_eq": {
+            "type": "string"
+          },
+          "filter_name_in": {
+            "type": "string"
+          },
+          "filter_name_not_in": {
+            "type": "string"
+          },
+          "filter_color_eq": {
+            "type": "string"
+          },
+          "filter_color_not_eq": {
+            "type": "string"
+          },
+          "filter_color_in": {
+            "type": "string"
+          },
+          "filter_color_not_in": {
+            "type": "string"
+          },
+          "filter_alert_broadcast_enabled_eq": {
+            "type": "string"
+          },
+          "filter_alert_broadcast_enabled_not_eq": {
+            "type": "string"
+          },
+          "filter_alert_broadcast_enabled_in": {
+            "type": "string"
+          },
+          "filter_alert_broadcast_enabled_not_in": {
+            "type": "string"
+          },
+          "filter_incident_broadcast_enabled_eq": {
+            "type": "string"
+          },
+          "filter_incident_broadcast_enabled_not_eq": {
+            "type": "string"
+          },
+          "filter_incident_broadcast_enabled_in": {
+            "type": "string"
+          },
+          "filter_incident_broadcast_enabled_not_in": {
+            "type": "string"
+          },
+          "sort": {
+            "type": "string"
+          }
+        },
+        "required": []
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "list_users",
+      "description": "List users",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "page_number": {
+            "type": "integer"
+          },
+          "page_size": {
+            "type": "integer"
+          },
+          "filter_search": {
+            "type": "string"
+          },
+          "filter_email": {
+            "type": "string"
+          },
+          "filter_created_at_gt": {
+            "type": "string"
+          },
+          "filter_created_at_gte": {
+            "type": "string"
+          },
+          "filter_created_at_lt": {
+            "type": "string"
+          },
+          "filter_created_at_lte": {
+            "type": "string"
+          },
+          "filter_scim_managed": {
+            "type": "boolean",
+            "description": "`true` returns only users whose membership in this organization is managed by SCIM, including users synced in by a linked organization's SCIM integration, `false` returns only users whose membership isn't. Other values are ignored."
+          },
+          "filter_role_id": {
+            "type": "string",
+            "description": "Returns only users whose Incident Response role matches. Accepts one role ID or a comma-separated list. Role IDs come from `GET /v1/roles`."
+          },
+          "filter_on_call_role_id": {
+            "type": "string",
+            "description": "Returns only users whose On-Call role matches. Accepts one On-Call role ID or a comma-separated list. On-Call role IDs come from `GET /v1/on_call_roles`."
+          },
+          "sort": {
+            "enum": [
+              "created_at",
+              "-created_at",
+              "updated_at",
+              "-updated_at"
+            ],
+            "type": "string",
+            "description": "comma separated if needed. eg: created_at,updated_at"
+          },
+          "include": {
+            "enum": [
+              "email_addresses",
+              "phone_numbers",
+              "devices",
+              "role",
+              "on_call_role",
+              "teams",
+              "schedules",
+              "notification_rules"
+            ],
+            "type": "string",
+            "description": "comma separated if needed. eg: email_addresses,phone_numbers"
+          }
+        },
+        "required": []
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "search_incidents",
+      "description": "Search incidents with flexible pagination control.\n\nUse page_number=0 to fetch all matching results across multiple pages.\nUse page_number>0 to fetch a specific page.\n\nmax_results (also accepted as `limit`) caps how many incidents come back\nin either mode: across pages when page_number=0, and within the page\notherwise. Left unset, a single page returns page_size incidents and\npage_number=0 stops at 5.\n\nArgument caps: page_size <= 20, max_results <= 10. Values outside those\nbounds are clamped and reported, not rejected.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "query": {
+            "default": "",
+            "description": "Search query to filter incidents by title/summary",
+            "type": "string"
+          },
+          "page_size": {
+            "default": 10,
+            "description": "Number of results per page (max: 20)",
+            "type": "integer"
+          },
+          "page_number": {
+            "default": 1,
+            "description": "Page number to retrieve (use 0 for all pages)",
+            "type": "integer"
+          },
+          "max_results": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Maximum incidents to return. Max: 10; defaults to 5 when fetching all pages, and to page_size when fetching a single page. For larger result sets, paginate with page_number > 0 or use collect_incidents."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "start_investigation",
+      "description": "Start an AI SRE investigation on one alert or incident. Then check its\nstatus and result with get_investigation.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "alert_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Alert to investigate."
+          },
+          "incident_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Incident to investigate."
+          },
+          "rerun": {
+            "default": false,
+            "description": "Start a fresh run. Fails with rerun_unavailable while the latest run is still going or rerun is off for the team.",
+            "type": "boolean"
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "suggest_solutions",
+      "description": "\ud83d\udca1 Get actionable solution recommendations from similar resolved incidents - KEY for incident response.\n\nWHEN TO USE:\n\u2022 AFTER find_related_incidents to get specific resolution steps\n\u2022 When team is stuck on how to resolve the current incident\n\u2022 To speed up incident resolution with proven solutions\n\u2022 For training new responders on resolution patterns\n\nProvide either incident_id OR title/description. Defaults to resolved incidents for solution mining.\n\nArgument caps: max_solutions <= 10. Values outside the bounds are clamped\nand reported, not rejected.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "incident_id": {
+            "default": "",
+            "type": "string"
+          },
+          "incident_title": {
+            "default": "",
+            "type": "string"
+          },
+          "incident_description": {
+            "default": "",
+            "type": "string"
+          },
+          "max_solutions": {
+            "default": 3,
+            "description": "Maximum number of solution suggestions (max: 10)",
+            "type": "integer"
+          },
+          "status_filter": {
+            "default": "resolved",
+            "description": "Filter incidents by status (default 'resolved', empty for all, 'investigating', etc.)",
+            "type": "string"
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "update_incident",
+      "description": "Update native incident fields via ``PUT /v1/incidents/{id}``.\n\nOnly the arguments you provide are sent, so unspecified fields \u2014\nincluding the lifecycle ``status`` \u2014 are left untouched.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "incident_id": {
+            "description": "Incident reference to update: UUID, bare number like 4460, #4460, or INC-4460",
+            "type": "string"
+          },
+          "retrospective_progress_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Unsupported by the public API; supplying this field returns a validation error without updating the incident"
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Updated incident summary"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Updated incident title"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Incident status (e.g. started, detected, acknowledged, mitigated, resolved, cancelled). Only set this when you intend to change the lifecycle status."
+          },
+          "severity_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Severity ID to set on the incident"
+          },
+          "resolution_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Native resolution message (how the incident was resolved)"
+          },
+          "mitigation_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Native mitigation message (how the incident was mitigated)"
+          },
+          "detected_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "When the incident was detected (ISO 8601 timestamp)"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "When the incident started (ISO 8601 timestamp)"
+          },
+          "acknowledged_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "When the incident was acknowledged (ISO 8601 timestamp)"
+          },
+          "mitigated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "When the incident was mitigated (ISO 8601 timestamp)"
+          },
+          "resolved_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "When the incident was resolved (ISO 8601 timestamp)"
+          },
+          "incident_type_ids": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Comma-separated incident type IDs to set on the incident"
+          },
+          "service_ids": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Comma-separated service IDs to set on the incident"
+          },
+          "team_ids": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Comma-separated team IDs to set on the incident"
+          },
+          "environment_ids": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Comma-separated environment IDs to set on the incident"
+          },
+          "functionality_ids": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Comma-separated functionality IDs to set on the incident"
+          }
+        },
+        "required": [
+          "incident_id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    }
+  ]
+}
